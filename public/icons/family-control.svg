@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Family Control Center">
+  <rect width="512" height="512" rx="96" fill="#CC5500"/>
+  <rect x="76" y="76" width="360" height="360" rx="92" fill="#1D1D1F"/>
+  <path d="M112 152h288v208H112z" fill="#ffffff"/>
+  <path d="M112 152h288v56H112z" fill="#ACE1AF"/>
+  <path d="M156 256h80v64h-80zM276 256h80v64h-80z" fill="#963D00"/>
+  <path d="M156 228h200" stroke="#1D1D1F" stroke-width="20" stroke-linecap="round"/>
+</svg>

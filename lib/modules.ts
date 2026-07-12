@@ -1,0 +1,684 @@
+import type { z } from "zod";
+import {
+  accountCategories,
+  activityAudiences,
+  activityCategories,
+  activitySeasons,
+  activityStatuses,
+  billCategories,
+  billStatusOptions,
+  calendarConnectionStatuses,
+  calendarProviders,
+  calendarSyncDirections,
+  communicationCategories,
+  contactCategories,
+  documentCategories,
+  emergencyCategories,
+  eventCategories,
+  financeTypes,
+  goalCategories,
+  goalStatusOptions,
+  groceryCategories,
+  healthTypes,
+  homeCategories,
+  mealTypes,
+  priorityOptions,
+  relationshipCategories,
+  relationshipCycles,
+  relationshipPractices,
+  taskStatusOptions
+} from "@/lib/options";
+import { schemas, type SchemaKey } from "@/lib/schemas";
+import type { TableName, ViewMode } from "@/lib/types";
+
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "select"
+  | "person"
+  | "date"
+  | "datetime"
+  | "number"
+  | "currency"
+  | "checkbox"
+  | "url"
+  | "tags"
+  | "file";
+
+export interface FieldConfig {
+  name: string;
+  label: string;
+  type: FieldType;
+  options?: readonly string[];
+  placeholder?: string;
+  helper?: string;
+  sensitive?: boolean;
+  required?: boolean;
+  fullWidth?: boolean;
+}
+
+export interface ModuleConfig<TSchema extends SchemaKey = SchemaKey> {
+  key: string;
+  route: string;
+  table: TableName;
+  schemaKey: TSchema;
+  schema: (typeof schemas)[TSchema];
+  title: string;
+  description: string;
+  addLabel: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  viewModes: ViewMode[];
+  defaultView: ViewMode;
+  columns: string[];
+  fields: FieldConfig[];
+  categoryOptions?: readonly string[];
+  sensitive?: boolean;
+  privacyFields?: string[];
+  primaryDateField?: string;
+  helpText?: string;
+  defaultValues: Partial<z.infer<(typeof schemas)[TSchema]>>;
+}
+
+export const moduleConfigs = {
+  calendar: {
+    key: "calendar",
+    route: "/calendar",
+    table: "events",
+    schemaKey: "events",
+    schema: schemas.events,
+    title: "Family Calendar",
+    description: "Month, week, and agenda planning for family, school, medical, work, travel, bills, home, and vehicle events.",
+    addLabel: "Add Event",
+    emptyTitle: "No events yet",
+    emptyDescription: "Add the first event so the family schedule has a shared source of truth.",
+    viewModes: ["month", "week", "agenda"],
+    defaultView: "agenda",
+    columns: ["title", "category", "assigned_to", "start_at", "location"],
+    categoryOptions: eventCategories,
+    primaryDateField: "start_at",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: eventCategories, required: true },
+      { name: "assigned_to", label: "Assigned person", type: "person" },
+      { name: "start_at", label: "Starts", type: "datetime", required: true },
+      { name: "end_at", label: "Ends", type: "datetime" },
+      { name: "all_day", label: "All day", type: "checkbox" },
+      { name: "location", label: "Location", type: "text" },
+      { name: "recurrence_rule", label: "Recurring rule", type: "text", placeholder: "Weekly on Tuesday" },
+      { name: "description", label: "Description", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Family", start_at: "", all_day: false }
+  },
+  calendarConnections: {
+    key: "calendarConnections",
+    route: "/calendar",
+    table: "calendar_connections",
+    schemaKey: "calendar_connections",
+    schema: schemas.calendar_connections,
+    title: "Calendar Sync",
+    description: "Provider connections and import/export settings for Google Calendar, Apple Calendar, Outlook, and ICS/webcal workflows.",
+    addLabel: "Add Calendar Connection",
+    emptyTitle: "No calendar connections",
+    emptyDescription: "Add a provider connection or feed URL to document how this family calendar syncs.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["provider", "calendar_name", "sync_direction", "sync_status", "last_synced_at"],
+    categoryOptions: calendarProviders,
+    primaryDateField: "last_synced_at",
+    fields: [
+      { name: "provider", label: "Provider", type: "select", options: calendarProviders, required: true },
+      { name: "calendar_name", label: "Calendar name", type: "text", required: true },
+      { name: "sync_direction", label: "Direction", type: "select", options: calendarSyncDirections, required: true },
+      { name: "sync_status", label: "Status", type: "select", options: calendarConnectionStatuses, required: true },
+      { name: "feed_url", label: "ICS or webcal URL", type: "url", helper: "Use this for subscribed calendars or published feeds." },
+      { name: "external_calendar_id", label: "External calendar ID", type: "text" },
+      { name: "include_events", label: "Include family events", type: "checkbox" },
+      { name: "include_tasks", label: "Include dated tasks", type: "checkbox" },
+      { name: "include_bills", label: "Include bills", type: "checkbox" },
+      { name: "include_appointments", label: "Include appointments", type: "checkbox" },
+      { name: "last_synced_at", label: "Last synced", type: "datetime" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: {
+      provider: "google",
+      calendar_name: "Family Control Center",
+      sync_direction: "export",
+      sync_status: "setup_required",
+      include_events: true,
+      include_tasks: false,
+      include_bills: false,
+      include_appointments: false
+    }
+  },
+  tasks: {
+    key: "tasks",
+    route: "/tasks",
+    table: "tasks",
+    schemaKey: "tasks",
+    schema: schemas.tasks,
+    title: "Tasks and To-Dos",
+    description: "Kanban and list views for chores, errands, paperwork, repeat tasks, and shared household follow-up.",
+    addLabel: "Add Task",
+    emptyTitle: "No tasks yet",
+    emptyDescription: "Create a task, assign it, and track it through done.",
+    viewModes: ["kanban", "list"],
+    defaultView: "kanban",
+    columns: ["title", "status", "priority", "assigned_to", "due_at", "category"],
+    categoryOptions: ["Family", "Home", "School", "Meals", "Money", "Vehicle", "Health", "Errand"],
+    primaryDateField: "due_at",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "text", required: true },
+      { name: "status", label: "Status", type: "select", options: taskStatusOptions, required: true },
+      { name: "priority", label: "Priority", type: "select", options: priorityOptions, required: true },
+      { name: "assigned_to", label: "Assigned person", type: "person" },
+      { name: "due_at", label: "Due", type: "datetime" },
+      { name: "repeat_rule", label: "Repeats", type: "text", placeholder: "Every Friday" },
+      { name: "tags", label: "Tags", type: "tags", placeholder: "school, paperwork" },
+      { name: "description", label: "Description", type: "textarea", fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Family", priority: "medium", status: "not_started", tags: [] }
+  },
+  grocery: {
+    key: "grocery",
+    route: "/grocery",
+    table: "grocery_items",
+    schemaKey: "grocery_items",
+    schema: schemas.grocery_items,
+    title: "Grocery List",
+    description: "A shared grocery list with shopping mode, category grouping, stores, and quick checkoff.",
+    addLabel: "Add Grocery Item",
+    emptyTitle: "The list is clear",
+    emptyDescription: "Add an item before the next store run.",
+    viewModes: ["shopping", "list"],
+    defaultView: "shopping",
+    columns: ["name", "category", "quantity", "store", "needed_by", "checked"],
+    categoryOptions: groceryCategories,
+    primaryDateField: "needed_by",
+    fields: [
+      { name: "name", label: "Item", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: groceryCategories, required: true },
+      { name: "quantity", label: "Quantity", type: "text" },
+      { name: "unit", label: "Unit", type: "text" },
+      { name: "store", label: "Store", type: "text" },
+      { name: "needed_by", label: "Needed by", type: "date" },
+      { name: "checked", label: "Checked", type: "checkbox" }
+    ],
+    defaultValues: { name: "", category: "Produce", checked: false }
+  },
+  meals: {
+    key: "meals",
+    route: "/meals",
+    table: "meal_plans",
+    schemaKey: "meal_plans",
+    schema: schemas.meal_plans,
+    title: "Meal Planning",
+    description: "Simple weekly planning for breakfast, lunch, dinner, snacks, leftovers, recipes, and grocery ingredients.",
+    addLabel: "Add Meal",
+    emptyTitle: "No meals planned",
+    emptyDescription: "Plan a meal and optionally push ingredients to the grocery list.",
+    viewModes: ["weekly", "list"],
+    defaultView: "weekly",
+    columns: ["title", "meal_type", "meal_date", "recipe_url", "notes"],
+    categoryOptions: mealTypes,
+    primaryDateField: "meal_date",
+    fields: [
+      { name: "meal_date", label: "Date", type: "date", required: true },
+      { name: "meal_type", label: "Meal", type: "select", options: mealTypes, required: true },
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "recipe_url", label: "Recipe URL", type: "url" },
+      { name: "ingredients", label: "Ingredients", type: "textarea", helper: "Comma separated items can be added to groceries.", fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { meal_date: "", meal_type: "Dinner", title: "" }
+  },
+  finances: {
+    key: "finances",
+    route: "/finances",
+    table: "financial_accounts",
+    schemaKey: "financial_accounts",
+    schema: schemas.financial_accounts,
+    title: "Finances",
+    description: "A high-level account index for cash, credit, insurance, loans, subscriptions, and investments.",
+    addLabel: "Add Financial Account",
+    emptyTitle: "No financial accounts",
+    emptyDescription: "Add a safe account reference with last four digits only.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["institution_name", "account_type", "owner_name", "last_four", "renewal_date", "password_location"],
+    categoryOptions: financeTypes,
+    sensitive: true,
+    privacyFields: ["last_four", "website_url", "support_phone", "password_location", "notes"],
+    primaryDateField: "renewal_date",
+    helpText: "Store last four digits only. Do not enter full account numbers, passwords, SSNs, or medical identifiers.",
+    fields: [
+      { name: "institution_name", label: "Institution", type: "text", required: true },
+      { name: "account_type", label: "Account type", type: "select", options: financeTypes, required: true },
+      { name: "owner_name", label: "Owner", type: "text" },
+      { name: "last_four", label: "Last four only", type: "text", sensitive: true },
+      { name: "website_url", label: "Website", type: "url", sensitive: true },
+      { name: "support_phone", label: "Support phone", type: "text", sensitive: true },
+      { name: "renewal_date", label: "Review or renewal date", type: "date" },
+      { name: "password_location", label: "Password stored in", type: "text", placeholder: "1Password Family Vault", sensitive: true },
+      { name: "notes", label: "Notes", type: "textarea", sensitive: true, fullWidth: true }
+    ],
+    defaultValues: { institution_name: "", account_type: "Cash" }
+  },
+  bills: {
+    key: "bills",
+    route: "/bills",
+    table: "bills",
+    schemaKey: "bills",
+    schema: schemas.bills,
+    title: "Bills",
+    description: "Bill calendar, recurring due dates, monthly totals, autopay state, and overdue tracking.",
+    addLabel: "Add Bill",
+    emptyTitle: "No bills tracked",
+    emptyDescription: "Add recurring or one-off bills to see what is due next.",
+    viewModes: ["agenda", "list"],
+    defaultView: "agenda",
+    columns: ["name", "category", "amount", "due_date", "autopay", "status"],
+    categoryOptions: billCategories,
+    primaryDateField: "due_date",
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: billCategories, required: true },
+      { name: "amount", label: "Amount", type: "currency" },
+      { name: "due_day", label: "Monthly due day", type: "number" },
+      { name: "due_date", label: "Next due date", type: "date" },
+      { name: "autopay", label: "Autopay", type: "checkbox" },
+      { name: "payment_account", label: "Payment account", type: "text" },
+      { name: "status", label: "Status", type: "select", options: billStatusOptions, required: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { name: "", category: "Utilities", amount: 0, autopay: false, status: "upcoming" }
+  },
+  accounts: {
+    key: "accounts",
+    route: "/accounts",
+    table: "financial_accounts",
+    schemaKey: "financial_accounts",
+    schema: schemas.financial_accounts,
+    title: "Accounts and Access",
+    description: "A safe index for important online accounts, recovery notes, support details, and where logins are stored.",
+    addLabel: "Add Account Reference",
+    emptyTitle: "No account references",
+    emptyDescription: "Add institution details and the vault location where login credentials live.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["institution_name", "account_type", "owner_name", "website_url", "password_location", "last_four"],
+    categoryOptions: accountCategories,
+    sensitive: true,
+    privacyFields: ["last_four", "website_url", "support_phone", "password_location", "notes"],
+    primaryDateField: "renewal_date",
+    helpText: "This is not a password manager. Store only where the login lives, never the password itself.",
+    fields: [
+      { name: "institution_name", label: "Institution", type: "text", required: true },
+      { name: "account_type", label: "Category", type: "select", options: accountCategories, required: true },
+      { name: "owner_name", label: "Owner", type: "text" },
+      { name: "last_four", label: "Last four only", type: "text", sensitive: true },
+      { name: "website_url", label: "Website URL", type: "url", sensitive: true },
+      { name: "support_phone", label: "Support phone", type: "text", sensitive: true },
+      { name: "renewal_date", label: "Renewal date", type: "date" },
+      { name: "password_location", label: "Password stored in", type: "text", placeholder: "1Password Family Vault", sensitive: true },
+      { name: "notes", label: "Recovery notes", type: "textarea", sensitive: true, fullWidth: true }
+    ],
+    defaultValues: { institution_name: "", account_type: "Banking" }
+  },
+  health: {
+    key: "health",
+    route: "/health",
+    table: "health_records",
+    schemaKey: "health_records",
+    schema: schemas.health_records,
+    title: "Health",
+    description: "Providers, insurance references, medications, allergies, conditions, appointments, pharmacy, and document links.",
+    addLabel: "Add Health Record",
+    emptyTitle: "No health records",
+    emptyDescription: "Add a provider, appointment, allergy, medication, or insurance reference.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["record_type", "person_id", "provider_name", "appointment_date", "policy_last_four", "notes"],
+    categoryOptions: healthTypes,
+    sensitive: true,
+    privacyFields: ["provider_phone", "policy_provider", "policy_last_four", "medication_name", "dosage", "allergy", "condition", "notes"],
+    primaryDateField: "appointment_date",
+    helpText: "Use summaries and last four digits only. Do not store full medical record, policy, SSN, or account numbers.",
+    fields: [
+      { name: "person_id", label: "Family member", type: "person" },
+      { name: "record_type", label: "Record type", type: "select", options: healthTypes, required: true },
+      { name: "provider_name", label: "Provider or pharmacy", type: "text", sensitive: true },
+      { name: "provider_phone", label: "Provider phone", type: "text", sensitive: true },
+      { name: "policy_provider", label: "Policy provider", type: "text", sensitive: true },
+      { name: "policy_last_four", label: "Policy last four", type: "text", sensitive: true },
+      { name: "medication_name", label: "Medication", type: "text", sensitive: true },
+      { name: "dosage", label: "Dosage", type: "text", sensitive: true },
+      { name: "allergy", label: "Allergy", type: "text", sensitive: true },
+      { name: "condition", label: "Condition", type: "text", sensitive: true },
+      { name: "appointment_date", label: "Appointment date", type: "datetime" },
+      { name: "notes", label: "Notes", type: "textarea", sensitive: true, fullWidth: true }
+    ],
+    defaultValues: { record_type: "Provider" }
+  },
+  school: {
+    key: "school",
+    route: "/school",
+    table: "school_records",
+    schemaKey: "school_records",
+    schema: schemas.school_records,
+    title: "Kids and School",
+    description: "Child profiles, school contacts, pickup notes, schedules, activities, forms, and important dates.",
+    addLabel: "Add School Record",
+    emptyTitle: "No school details",
+    emptyDescription: "Add school contacts, pickup notes, activities, or important dates for each child.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["school_name", "child_id", "grade", "teacher_name", "teacher_email", "important_dates"],
+    fields: [
+      { name: "child_id", label: "Child", type: "person" },
+      { name: "school_name", label: "School", type: "text", required: true },
+      { name: "grade", label: "Grade", type: "text" },
+      { name: "teacher_name", label: "Teacher", type: "text" },
+      { name: "teacher_email", label: "Teacher email", type: "text" },
+      { name: "school_phone", label: "School phone", type: "text" },
+      { name: "pickup_notes", label: "Pickup and dropoff notes", type: "textarea", fullWidth: true },
+      { name: "activities", label: "Activities and sports", type: "textarea", fullWidth: true },
+      { name: "important_dates", label: "Important dates and forms", type: "textarea", fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { school_name: "" }
+  },
+  home: {
+    key: "home",
+    route: "/home",
+    table: "home_records",
+    schemaKey: "home_records",
+    schema: schemas.home_records,
+    title: "Home",
+    description: "Maintenance, vendors, warranties, appliances, repairs, projects, seasonal checklists, and service schedules.",
+    addLabel: "Add Home Record",
+    emptyTitle: "No home records",
+    emptyDescription: "Track your next maintenance item, vendor, appliance, warranty, or project.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "vendor_name", "maintenance_due", "warranty_expiration", "location"],
+    categoryOptions: homeCategories,
+    primaryDateField: "maintenance_due",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: homeCategories, required: true },
+      { name: "vendor_name", label: "Vendor", type: "text" },
+      { name: "vendor_phone", label: "Vendor phone", type: "text" },
+      { name: "warranty_expiration", label: "Warranty expiration", type: "date" },
+      { name: "maintenance_due", label: "Maintenance due", type: "date" },
+      { name: "location", label: "Location", type: "text" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Maintenance" }
+  },
+  vehicles: {
+    key: "vehicles",
+    route: "/vehicles",
+    table: "vehicle_records",
+    schemaKey: "vehicle_records",
+    schema: schemas.vehicle_records,
+    title: "Vehicles",
+    description: "Vehicle profiles, maintenance schedules, registration, insurance references, repairs, vendors, and mileage.",
+    addLabel: "Add Vehicle Record",
+    emptyTitle: "No vehicles tracked",
+    emptyDescription: "Add a vehicle, maintenance schedule, registration date, or repair note.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["vehicle_name", "maintenance_due", "registration_due", "mileage", "insurance_provider", "policy_last_four"],
+    sensitive: true,
+    privacyFields: ["vin_last_six", "plate", "insurance_provider", "policy_last_four", "notes"],
+    primaryDateField: "maintenance_due",
+    fields: [
+      { name: "vehicle_name", label: "Vehicle", type: "text", required: true },
+      { name: "vin_last_six", label: "VIN last six", type: "text", sensitive: true },
+      { name: "plate", label: "Plate", type: "text", sensitive: true },
+      { name: "insurance_provider", label: "Insurance provider", type: "text", sensitive: true },
+      { name: "policy_last_four", label: "Policy last four", type: "text", sensitive: true },
+      { name: "registration_due", label: "Registration due", type: "date" },
+      { name: "maintenance_due", label: "Maintenance due", type: "date" },
+      { name: "mileage", label: "Mileage", type: "number" },
+      { name: "notes", label: "Notes", type: "textarea", sensitive: true, fullWidth: true }
+    ],
+    defaultValues: { vehicle_name: "" }
+  },
+  documents: {
+    key: "documents",
+    route: "/documents",
+    table: "documents",
+    schemaKey: "documents",
+    schema: schemas.documents,
+    title: "Documents",
+    description: "Document library with Supabase Storage links, external storage locations, renewal dates, owners, and notes.",
+    addLabel: "Add Document",
+    emptyTitle: "No documents indexed",
+    emptyDescription: "Add a document link, storage location, renewal date, or note.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "owner", "renewal_date", "storage_location", "file_url"],
+    categoryOptions: documentCategories,
+    primaryDateField: "renewal_date",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: documentCategories, required: true },
+      { name: "file_url", label: "File URL", type: "file", helper: "Paste a Supabase Storage URL or external link." },
+      { name: "storage_location", label: "External storage location", type: "text" },
+      { name: "renewal_date", label: "Renewal date", type: "date" },
+      { name: "owner", label: "Owner", type: "text" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Other" }
+  },
+  contacts: {
+    key: "contacts",
+    route: "/contacts",
+    table: "contacts",
+    schemaKey: "contacts",
+    schema: schemas.contacts,
+    title: "Contacts",
+    description: "Family contacts, emergency contacts, doctors, schools, neighbors, contractors, financial, and insurance contacts.",
+    addLabel: "Add Contact",
+    emptyTitle: "No contacts yet",
+    emptyDescription: "Add the people and organizations your family needs quickly.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["name", "category", "relationship", "phone", "email", "emergency_contact"],
+    categoryOptions: contactCategories,
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: contactCategories, required: true },
+      { name: "relationship", label: "Relationship", type: "text" },
+      { name: "phone", label: "Phone", type: "text" },
+      { name: "email", label: "Email", type: "text" },
+      { name: "address", label: "Address", type: "textarea", fullWidth: true },
+      { name: "emergency_contact", label: "Emergency contact", type: "checkbox" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { name: "", category: "Family", emergency_contact: false }
+  },
+  communication: {
+    key: "communication",
+    route: "/communication",
+    table: "communication_notes",
+    schemaKey: "communication_notes",
+    schema: schemas.communication_notes,
+    title: "Communication Log",
+    description: "A shared bulletin board for important notes, decisions, reminders, spouse handoffs, and acknowledgment tracking.",
+    addLabel: "Add Note",
+    emptyTitle: "No communication notes",
+    emptyDescription: "Leave a note for your spouse or future self.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "importance", "visible_to", "related_date", "pinned"],
+    categoryOptions: communicationCategories,
+    primaryDateField: "related_date",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: communicationCategories, required: true },
+      { name: "importance", label: "Importance", type: "select", options: priorityOptions, required: true },
+      { name: "visible_to", label: "Visible to", type: "person" },
+      { name: "related_date", label: "Related date", type: "date" },
+      { name: "pinned", label: "Pinned", type: "checkbox" },
+      { name: "message", label: "Message", type: "textarea", required: true, fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Important", importance: "medium", pinned: false }
+  },
+  relationship: {
+    key: "relationship",
+    route: "/relationship",
+    table: "relationship_records",
+    schemaKey: "relationship_records",
+    schema: schemas.relationship_records,
+    title: "Relationship",
+    description:
+      "A private marriage health hub for connection rituals, stress release, conflict repair, attachment cycles, fairness, intimacy, and weekly check-ins.",
+    addLabel: "Add Relationship Check-In",
+    emptyTitle: "No relationship check-ins yet",
+    emptyDescription: "Add a ritual, repair, state-of-the-union note, stress conversation, or connection practice.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "practice", "status", "priority", "assigned_to", "due_at", "connection_score"],
+    categoryOptions: relationshipCategories,
+    sensitive: true,
+    privacyFields: ["partner_a_state", "partner_b_state", "repair_attempt", "next_step", "notes"],
+    primaryDateField: "due_at",
+    helpText:
+      "This private tracker is for reflection and habits, not a substitute for licensed therapy. If there is abuse, coercion, addiction crisis, or safety risk, prioritize professional and emergency support.",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: relationshipCategories, required: true },
+      { name: "practice", label: "Practice", type: "select", options: relationshipPractices },
+      { name: "status", label: "Status", type: "select", options: taskStatusOptions, required: true },
+      { name: "priority", label: "Priority", type: "select", options: priorityOptions, required: true },
+      { name: "assigned_to", label: "Owner", type: "person" },
+      { name: "due_at", label: "Next touchpoint", type: "datetime" },
+      { name: "connection_score", label: "Connection score 0-10", type: "number" },
+      { name: "positive_interactions", label: "Positive interactions", type: "number" },
+      { name: "negative_interactions", label: "Negative interactions", type: "number" },
+      { name: "cycle_name", label: "Cycle or pattern", type: "select", options: relationshipCycles },
+      { name: "partner_a_state", label: "Partner A state", type: "textarea", sensitive: true, fullWidth: true },
+      { name: "partner_b_state", label: "Partner B state", type: "textarea", sensitive: true, fullWidth: true },
+      { name: "repair_attempt", label: "Repair attempt", type: "textarea", sensitive: true, fullWidth: true },
+      { name: "next_step", label: "Next step", type: "textarea", sensitive: true, fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", sensitive: true, fullWidth: true },
+      { name: "tags", label: "Tags", type: "tags", placeholder: "gottman, eft, repair" }
+    ],
+    defaultValues: {
+      title: "",
+      category: "Daily Connection",
+      practice: "Stress-reducing conversation",
+      priority: "medium",
+      status: "not_started",
+      connection_score: 7,
+      positive_interactions: 5,
+      negative_interactions: 1,
+      cycle_name: "None",
+      tags: []
+    }
+  },
+  activities: {
+    key: "activities",
+    route: "/activities",
+    table: "activity_ideas",
+    schemaKey: "activity_ideas",
+    schema: schemas.activity_ideas,
+    title: "Activities",
+    description: "Ideas for one-on-one time with your son or daughter, family outings, and date nights that can become calendar events.",
+    addLabel: "Add Activity Idea",
+    emptyTitle: "No activity ideas yet",
+    emptyDescription: "Add a son, daughter, family, or date-night idea and schedule it when the week opens up.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "audience", "category", "duration_minutes", "estimated_cost", "status"],
+    categoryOptions: activityCategories,
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "audience", label: "Audience", type: "select", options: activityAudiences, required: true },
+      { name: "category", label: "Category", type: "select", options: activityCategories, required: true },
+      { name: "assigned_to", label: "Person", type: "person" },
+      { name: "location", label: "Location", type: "text" },
+      { name: "duration_minutes", label: "Duration minutes", type: "number" },
+      { name: "estimated_cost", label: "Estimated cost", type: "currency" },
+      { name: "season", label: "Season", type: "select", options: activitySeasons },
+      { name: "indoor", label: "Indoor", type: "checkbox" },
+      { name: "status", label: "Status", type: "select", options: activityStatuses, required: true },
+      { name: "description", label: "Description", type: "textarea", fullWidth: true },
+      { name: "supplies", label: "Supplies", type: "textarea", fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: {
+      title: "",
+      audience: "family",
+      category: "Outdoor",
+      duration_minutes: 90,
+      estimated_cost: 0,
+      season: "Anytime",
+      indoor: false,
+      status: "idea"
+    }
+  },
+  emergency: {
+    key: "emergency",
+    route: "/emergency",
+    table: "emergency_plan_items",
+    schemaKey: "emergency_plan_items",
+    schema: schemas.emergency_plan_items,
+    title: "Emergency Plan",
+    description: "Quick-access emergency contacts, meeting locations, medical summaries, insurance references, pickup notes, and shutoffs.",
+    addLabel: "Add Emergency Item",
+    emptyTitle: "No emergency plan items",
+    emptyDescription: "Add a contact, meeting spot, shutoff, pickup authorization, pet plan, or supply checklist item.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "priority", "location", "contact_name", "contact_phone"],
+    categoryOptions: emergencyCategories,
+    sensitive: true,
+    privacyFields: ["details", "location", "contact_name", "contact_phone"],
+    helpText: "Privacy mode hides emergency details on shared screens. Use print view only when appropriate.",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: emergencyCategories, required: true },
+      { name: "priority", label: "Priority", type: "select", options: priorityOptions, required: true },
+      { name: "location", label: "Location", type: "text", sensitive: true },
+      { name: "contact_name", label: "Contact", type: "text", sensitive: true },
+      { name: "contact_phone", label: "Contact phone", type: "text", sensitive: true },
+      { name: "details", label: "Details", type: "textarea", sensitive: true, fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Emergency Contact", priority: "high" }
+  },
+  goals: {
+    key: "goals",
+    route: "/goals",
+    table: "family_goals",
+    schemaKey: "family_goals",
+    schema: schemas.family_goals,
+    title: "Family Goals",
+    description: "Financial, health, home, family, travel, education, spiritual, and personal goals with progress tracking.",
+    addLabel: "Add Goal",
+    emptyTitle: "No goals yet",
+    emptyDescription: "Add a family goal with a target date and progress marker.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "category", "progress", "status", "target_date", "notes"],
+    categoryOptions: goalCategories,
+    primaryDateField: "target_date",
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "category", label: "Category", type: "select", options: goalCategories, required: true },
+      { name: "target_date", label: "Target date", type: "date" },
+      { name: "progress", label: "Progress", type: "number" },
+      { name: "status", label: "Status", type: "select", options: goalStatusOptions, required: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", category: "Family", progress: 0, status: "not_started" }
+  }
+} satisfies Record<string, ModuleConfig>;
+
+export type ModuleKey = keyof typeof moduleConfigs;
+export const moduleList: ModuleConfig[] = Object.values(moduleConfigs);
