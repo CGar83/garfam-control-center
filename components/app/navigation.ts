@@ -19,33 +19,91 @@ import {
   Utensils,
   UsersRound,
   KeyRound,
-  WalletCards
+  WalletCards,
+  MoreHorizontal
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const navItems = [
+export type NavItem = {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+export type NavSection = NavItem & {
+  mobileTitle?: string;
+  items: NavItem[];
+};
+
+type NavSectionInput = NavItem & {
+  mobileTitle?: string;
+  items?: NavItem[];
+};
+
+const navigationSectionInputs: NavSectionInput[] = [
+  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  {
+    title: "Daily Life",
+    mobileTitle: "Calendar",
+    href: "/calendar",
+    icon: CalendarDays,
+    items: [
+      { title: "Activities", href: "/activities", icon: PartyPopper },
+      { title: "Tasks", href: "/tasks", icon: ClipboardList },
+      { title: "Grocery", href: "/grocery", icon: ShoppingCart },
+      { title: "Meals", href: "/meals", icon: Utensils },
+      { title: "Communication", href: "/communication", icon: MessageSquareText }
+    ]
+  },
+  {
+    title: "Finances",
+    href: "/finances",
+    icon: PiggyBank,
+    items: [
+      { title: "Budget", href: "/budget", icon: WalletCards },
+      { title: "Bills", href: "/bills", icon: ReceiptText },
+      { title: "Accounts", href: "/accounts", icon: KeyRound }
+    ]
+  },
+  {
+    title: "Family Care",
+    mobileTitle: "Family",
+    href: "/health",
+    icon: HeartPulse,
+    items: [
+      { title: "School", href: "/school", icon: BookOpen },
+      { title: "Relationship", href: "/relationship", icon: HeartHandshake },
+      { title: "Goals", href: "/goals", icon: Goal }
+    ]
+  },
+  {
+    title: "Household",
+    mobileTitle: "Home",
+    href: "/home",
+    icon: Home,
+    items: [
+      { title: "Vehicles", href: "/vehicles", icon: Car },
+      { title: "Documents", href: "/documents", icon: FileText },
+      { title: "Contacts", href: "/contacts", icon: UsersRound },
+      { title: "Emergency", href: "/emergency", icon: AlertTriangle }
+    ]
+  },
+  { title: "Settings", href: "/settings", icon: Settings }
+];
+
+export const navigationSections: NavSection[] = navigationSectionInputs.map((section) => ({ ...section, items: section.items ?? [] }));
+
+export const navItems = navigationSections.flatMap((section) => [
+  { title: section.mobileTitle ?? section.title, href: section.href, icon: section.icon },
+  ...section.items
+]);
+
+export const mobileNavItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Calendar", href: "/calendar", icon: CalendarDays },
-  { title: "Activities", href: "/activities", icon: PartyPopper },
   { title: "Tasks", href: "/tasks", icon: ClipboardList },
   { title: "Grocery", href: "/grocery", icon: ShoppingCart },
-  { title: "Meals", href: "/meals", icon: Utensils },
-  { title: "Finances", href: "/finances", icon: PiggyBank },
-  { title: "Budget", href: "/budget", icon: WalletCards },
-  { title: "Bills", href: "/bills", icon: ReceiptText },
-  { title: "Accounts", href: "/accounts", icon: KeyRound },
-  { title: "Health", href: "/health", icon: HeartPulse },
-  { title: "School", href: "/school", icon: BookOpen },
-  { title: "Home", href: "/home", icon: Home },
-  { title: "Vehicles", href: "/vehicles", icon: Car },
-  { title: "Documents", href: "/documents", icon: FileText },
-  { title: "Contacts", href: "/contacts", icon: UsersRound },
-  { title: "Communication", href: "/communication", icon: MessageSquareText },
-  { title: "Relationship", href: "/relationship", icon: HeartHandshake },
-  { title: "Emergency", href: "/emergency", icon: AlertTriangle },
-  { title: "Goals", href: "/goals", icon: Goal },
-  { title: "Settings", href: "/settings", icon: Settings }
-] as const;
+  { title: "Finances", href: "/finances", icon: PiggyBank }
+];
 
-export const mobileNavItems = navItems.filter((item) =>
-  ["/dashboard", "/calendar", "/tasks", "/grocery", "/budget", "/relationship", "/communication", "/settings"].includes(item.href)
-);
+export const mobileMoreItem = { title: "More", href: "#more", icon: MoreHorizontal };
