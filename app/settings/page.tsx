@@ -49,6 +49,12 @@ export default function SettingsPage() {
   const [notificationPrefs, setNotificationPrefs] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(notificationKinds.map((kind) => [kind, true]))
   );
+  const authStatusTitle = !supabaseConfigured ? "Local demo mode" : usingDemoData ? "Supabase ready, signed out" : "Supabase connected";
+  const authStatusDescription = !supabaseConfigured
+    ? "This browser is using local demo data. Netlify environment variables do not apply to localhost."
+    : usingDemoData
+      ? "Sign in to load your private family workspace from Supabase. If you just created an account, confirm the email first."
+      : `Signed in as ${currentUser.email}. Changes are saved to Supabase.`;
 
   const familyForm = useForm<{ name: string }>({
     resolver: zodResolver(familySchema),
@@ -129,14 +135,28 @@ export default function SettingsPage() {
             <CardDescription>{supabaseConfigured ? "Supabase email/password auth is configured." : "Local demo mode is active."}</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 rounded-md border bg-muted/40 p-3 text-sm">
+              <p className="font-medium">{authStatusTitle}</p>
+              <p className="mt-1 text-muted-foreground">{authStatusDescription}</p>
+            </div>
             <form
               className="grid gap-3"
               onSubmit={async (event) => {
                 event.preventDefault();
                 try {
-                  if (authMode === "signin") await signIn(authEmail, authPassword);
-                  else await signUp(authEmail, authPassword, authName);
-                  toast({ title: authMode === "signin" ? "Signed in" : "Sign up submitted", variant: "success" });
+                  const result = authMode === "signin" ? await signIn(authEmail, authPassword) : await signUp(authEmail, authPassword, authName);
+                  toast({
+                    title:
+                      result.status === "confirmation_required"
+                        ? "Confirm your email"
+                        : result.status === "demo"
+                          ? "Demo mode"
+                          : authMode === "signin"
+                            ? "Signed in"
+                            : "Account created",
+                    description: result.message,
+                    variant: result.status === "demo" ? undefined : "success"
+                  });
                   setAuthPassword("");
                 } catch (error) {
                   toast({ title: "Auth failed", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
@@ -160,7 +180,13 @@ export default function SettingsPage() {
                   Sign Out
                 </Button>
               </div>
-              {usingDemoData ? <p className="text-xs text-muted-foreground">Demo data is stored in this browser until Supabase is connected.</p> : null}
+              {usingDemoData ? (
+                <p className="text-xs text-muted-foreground">
+                  {supabaseConfigured
+                    ? "Demo data is visible while signed out. Sign in to save to Supabase."
+                    : "Demo data is stored in this browser until Supabase is connected."}
+                </p>
+              ) : null}
             </form>
           </CardContent>
         </Card>

@@ -172,8 +172,8 @@ interface AppDataContextValue {
   loading: boolean;
   createWorkspace: (name: string) => Promise<void>;
   updateFamilyName: (name: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AuthActionResult>;
+  signUp: (email: string, password: string, displayName: string) => Promise<AuthActionResult>;
   signOut: () => Promise<void>;
   createRecord: <TTable extends EditableTable>(table: TTable, values: Partial<TableRecord<TTable>>) => Promise<TableRecord<TTable>>;
   updateRecord: <TTable extends EditableTable>(
@@ -195,6 +195,11 @@ interface AppDataContextValue {
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 const storageKey = "family-control-center-demo-store";
+
+type AuthActionResult = {
+  status: "signed_in" | "confirmation_required" | "demo";
+  message: string;
+};
 
 const syncTables: EditableTable[] = [
   "family_members",
@@ -545,7 +550,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) {
         setCurrentUser({ ...demoUser, email, display_name: email.split("@")[0] || demoUser.display_name });
         setUsingDemoData(true);
-        return;
+        return {
+          status: "demo",
+          message: "Local demo mode is active. Add Supabase environment variables locally or use the deployed Netlify site."
+        } satisfies AuthActionResult;
       }
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -559,13 +567,20 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser(userFromAuth(authData.user, member));
         setData(remoteData);
         setUsingDemoData(false);
-        return;
+        return {
+          status: "signed_in",
+          message: "Remote family workspace loaded from Supabase."
+        } satisfies AuthActionResult;
       }
 
       const bootstrapped = await createRemoteWorkspace(supabase, authData.user);
       setCurrentUser(bootstrapped.user);
       setData(bootstrapped.store);
       setUsingDemoData(false);
+      return {
+        status: "signed_in",
+        message: "New Supabase family workspace created."
+      } satisfies AuthActionResult;
     },
     [supabase]
   );
@@ -575,7 +590,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) {
         setCurrentUser({ id: makeId("user"), email, display_name: displayName, role: "admin" });
         setUsingDemoData(true);
-        return;
+        return {
+          status: "demo",
+          message: "Local demo mode is active. The account was not created in Supabase."
+        } satisfies AuthActionResult;
       }
 
       const { data: authData, error } = await supabase.auth.signUp({
@@ -589,7 +607,16 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser(bootstrapped.user);
         setData(bootstrapped.store);
         setUsingDemoData(false);
+        return {
+          status: "signed_in",
+          message: "Account created and remote family workspace started."
+        } satisfies AuthActionResult;
       }
+
+      return {
+        status: "confirmation_required",
+        message: "Check your email and confirm the account, then come back and sign in."
+      } satisfies AuthActionResult;
     },
     [supabase]
   );

@@ -30,7 +30,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               {usingDemoData ? (
                 <span className="hidden rounded-md border bg-white/60 px-2 py-1 text-xs font-medium text-muted-foreground shadow-[0_1px_1px_rgba(0,0,0,0.03)] backdrop-blur sm:inline-flex dark:bg-white/5">
-                  {supabaseConfigured ? "Demo data" : "Local demo"}
+                  {supabaseConfigured ? "Signed out demo" : "Local demo"}
                 </span>
               ) : null}
               <NotificationCenter />
