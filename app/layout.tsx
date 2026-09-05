@@ -3,9 +3,9 @@ import "@/app/globals.css";
 import { AppShell } from "@/components/app/app-shell";
 
 export const metadata: Metadata = {
-  applicationName: "Family Control Center",
-  title: "Family Control Center",
-  description: "A private family operating system for calendars, tasks, groceries, finances, health, home, school, and emergency planning.",
+  applicationName: "Gather",
+  title: "Gather · Your family's home base",
+  description: "The shared hub for your family's day: calendar, chores, routines, meals, lists, memories, check-ins, and the records behind it all.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "Family Center",
+    title: "Gather",
     statusBarStyle: "black-translucent",
     startupImage: ["/icons/apple-touch-icon.png"]
   },
@@ -27,15 +27,15 @@ export const metadata: Metadata = {
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-title": "Family Center"
+    "apple-mobile-web-app-title": "Gather"
   }
 };
 
 export const viewport: Viewport = {
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#1d1d1f" }
+    { media: "(prefers-color-scheme: light)", color: "#fbf7f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b1715" }
   ],
   viewportFit: "cover"
 };

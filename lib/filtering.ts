@@ -20,7 +20,7 @@ export const defaultFilters: FilterState = {
   date: "all"
 };
 
-const personKeys = ["assigned_to", "person_id", "child_id", "created_by", "added_by", "owner", "owner_name"] as const;
+const personKeys = ["assigned_to", "person_id", "child_id", "member_id", "author_id", "for_member_id", "created_by", "added_by", "owner", "owner_name"] as const;
 const dateKeys = [
   "due_at",
   "due_date",
@@ -34,7 +34,13 @@ const dateKeys = [
   "meal_date",
   "related_date",
   "budget_month",
-  "transaction_date"
+  "transaction_date",
+  "completed_on",
+  "checkin_date",
+  "entry_date",
+  "date",
+  "week_start",
+  "claimed_on"
 ] as const;
 
 export function recordText(record: AnyRecord) {
@@ -119,7 +125,15 @@ const searchableTables: TableName[] = [
   "vehicle_records",
   "communication_notes",
   "relationship_records",
-  "activity_ideas"
+  "activity_ideas",
+  "chores",
+  "rewards",
+  "routines",
+  "journal_entries",
+  "milestones",
+  "shared_lists",
+  "list_items",
+  "recipes"
 ];
 
 const routes: Partial<Record<TableName, string>> = {
@@ -140,7 +154,17 @@ const routes: Partial<Record<TableName, string>> = {
   vehicle_records: "/vehicles",
   communication_notes: "/communication",
   relationship_records: "/relationship",
-  activity_ideas: "/activities"
+  activity_ideas: "/activities",
+  chores: "/chores",
+  rewards: "/chores",
+  routines: "/routines",
+  journal_entries: "/memories",
+  milestones: "/memories",
+  shared_lists: "/lists",
+  list_items: "/lists",
+  recipes: "/recipes",
+  checkins: "/checkin",
+  weekly_reviews: "/planning"
 };
 
 export function getRecordTitle(record: AnyRecord) {

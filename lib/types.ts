@@ -27,9 +27,20 @@ export type NotificationKind =
   | "assigned_task"
   | "upcoming_event"
   | "upcoming_bill"
-  | "upcoming_appointment";
+  | "upcoming_appointment"
+  | "chore_completed"
+  | "reward_claimed"
+  | "checkin_shared"
+  | "milestone_soon"
+  | "nudge";
 
 export type ViewMode = "list" | "kanban" | "month" | "week" | "agenda" | "shopping" | "weekly";
+export type ChoreFrequency = "daily" | "weekdays" | "weekends" | "weekly" | "custom";
+export type TimeOfDay = "morning" | "afternoon" | "evening" | "anytime";
+export type MilestoneKind = "birthday" | "anniversary" | "trip" | "holiday" | "school" | "custom";
+export type ListKind = "todo" | "shopping" | "packing" | "wishlist" | "project" | "custom";
+export type MemberColor = "coral" | "ocean" | "sunshine" | "meadow" | "lavender" | "sky" | "peach" | "rose";
+export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface Family {
   id: string;
@@ -56,6 +67,7 @@ export interface FamilyMember extends FamilyScopedRecord {
   birthdate?: string | null;
   age_label?: string | null;
   blocked_sections?: AccessSection[];
+  color?: MemberColor | null;
 }
 
 export interface EventRecord extends FamilyScopedRecord {
@@ -102,8 +114,10 @@ export interface MealPlan extends FamilyScopedRecord {
   meal_type: string;
   title: string;
   recipe_url?: string | null;
+  recipe_id?: string | null;
   ingredients?: string | null;
   notes?: string | null;
+  cook_id?: string | null;
 }
 
 export interface FinancialAccount extends FamilyScopedRecord {
@@ -376,6 +390,143 @@ export interface ActivityLog {
   created_at: string;
 }
 
+export interface Chore extends FamilyScopedRecord {
+  title: string;
+  emoji?: string | null;
+  assigned_to?: string | null;
+  points: number;
+  frequency: ChoreFrequency;
+  days_of_week?: number[];
+  time_of_day: TimeOfDay;
+  active: boolean;
+  notes?: string | null;
+  created_by?: string | null;
+}
+
+export interface ChoreCompletion extends FamilyScopedRecord {
+  chore_id: string;
+  member_id?: string | null;
+  completed_on: string;
+  points_awarded: number;
+  approved_by?: string | null;
+}
+
+export interface Reward extends FamilyScopedRecord {
+  title: string;
+  emoji?: string | null;
+  cost_points: number;
+  description?: string | null;
+  available: boolean;
+  for_member_id?: string | null;
+}
+
+export interface RewardClaim extends FamilyScopedRecord {
+  reward_id: string;
+  member_id: string;
+  points_spent: number;
+  claimed_on: string;
+  fulfilled: boolean;
+}
+
+export interface Routine extends FamilyScopedRecord {
+  title: string;
+  emoji?: string | null;
+  member_id?: string | null;
+  time_of_day: TimeOfDay;
+  steps: string[];
+  days_of_week?: number[];
+  active: boolean;
+}
+
+export interface RoutineCompletion extends FamilyScopedRecord {
+  routine_id: string;
+  member_id?: string | null;
+  completed_on: string;
+  steps_done: number[];
+}
+
+export interface Checkin extends FamilyScopedRecord {
+  member_id?: string | null;
+  checkin_date: string;
+  mood: number;
+  energy: number;
+  gratitude?: string | null;
+  needs?: string | null;
+  note?: string | null;
+  shared_with_partner: boolean;
+}
+
+export interface JournalEntry extends FamilyScopedRecord {
+  entry_date: string;
+  title: string;
+  body?: string | null;
+  author_id?: string | null;
+  people?: string[];
+  tags?: string[];
+  mood?: string | null;
+  highlight: boolean;
+}
+
+export interface Milestone extends FamilyScopedRecord {
+  title: string;
+  kind: MilestoneKind;
+  date: string;
+  emoji?: string | null;
+  member_id?: string | null;
+  recurring_yearly: boolean;
+  notes?: string | null;
+}
+
+export interface SharedList extends FamilyScopedRecord {
+  name: string;
+  kind: ListKind;
+  emoji?: string | null;
+  description?: string | null;
+  archived: boolean;
+  created_by?: string | null;
+}
+
+export interface ListItem extends FamilyScopedRecord {
+  list_id: string;
+  name: string;
+  checked: boolean;
+  quantity?: string | null;
+  note?: string | null;
+  assigned_to?: string | null;
+  sort_order: number;
+  added_by?: string | null;
+}
+
+export interface Recipe extends FamilyScopedRecord {
+  title: string;
+  emoji?: string | null;
+  cuisine?: string | null;
+  meal_type: string;
+  prep_minutes?: number | null;
+  cook_minutes?: number | null;
+  servings?: number | null;
+  ingredients?: string | null;
+  instructions?: string | null;
+  source_url?: string | null;
+  tags?: string[];
+  favorite: boolean;
+  kid_approved: boolean;
+  last_cooked_on?: string | null;
+  rating?: number | null;
+  notes?: string | null;
+}
+
+export interface WeeklyReview extends FamilyScopedRecord {
+  week_start: string;
+  completed_steps: string[];
+  wins?: string | null;
+  focus?: string | null;
+  worries?: string | null;
+  date_night_plan?: string | null;
+  completed_at?: string | null;
+  reviewed_by?: string[];
+}
+
 export interface DataStore {
   families: Family[];
   family_members: FamilyMember[];
@@ -402,6 +553,19 @@ export interface DataStore {
   calendar_connections: CalendarConnection[];
   emergency_plan_items: EmergencyPlanItem[];
   family_goals: FamilyGoal[];
+  chores: Chore[];
+  chore_completions: ChoreCompletion[];
+  rewards: Reward[];
+  reward_claims: RewardClaim[];
+  routines: Routine[];
+  routine_completions: RoutineCompletion[];
+  checkins: Checkin[];
+  journal_entries: JournalEntry[];
+  milestones: Milestone[];
+  shared_lists: SharedList[];
+  list_items: ListItem[];
+  recipes: Recipe[];
+  weekly_reviews: WeeklyReview[];
   notifications: NotificationRecord[];
   activity_log: ActivityLog[];
 }

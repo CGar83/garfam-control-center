@@ -1,9 +1,14 @@
-const CACHE_NAME = "family-control-center-v6";
+const CACHE_NAME = "gather-family-hub-v7";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,
+  "/today",
   "/dashboard",
   "/calendar",
+  "/chores",
+  "/routines",
+  "/lists",
+  "/meals",
   "/tasks",
   "/grocery",
   "/budget",

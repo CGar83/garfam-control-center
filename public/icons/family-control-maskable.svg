@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Family Control Center">
   <rect width="512" height="512" fill="#ACE1AF"/>
-  <rect x="64" y="64" width="384" height="384" rx="104" fill="#CC5500"/>
+  <rect x="64" y="64" width="384" height="384" rx="104" fill="#F0705A"/>
   <rect x="112" y="112" width="288" height="288" rx="72" fill="#1D1D1F"/>
   <path d="M144 176h224v160H144z" fill="#ffffff"/>
   <path d="M144 176h224v48H144z" fill="#ACE1AF"/>
-  <path d="M184 264h56v44h-56zM272 264h56v44h-56z" fill="#963D00"/>
+  <path d="M184 264h56v44h-56zM272 264h56v44h-56z" fill="#C94A36"/>
 </svg>

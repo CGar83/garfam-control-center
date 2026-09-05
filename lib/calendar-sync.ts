@@ -56,7 +56,7 @@ export function generateIcsCalendar(name: string, items: CalendarSyncItem[]) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Family Control Center//Family Calendar//EN",
+    "PRODID:-//Gather//Family Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeIcsText(name)}`

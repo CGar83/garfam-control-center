@@ -17,7 +17,7 @@ export default function OfflinePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
-          <p>The Family Control Center could not reach the network.</p>
+          <p>Gather could not reach the network.</p>
           <p>Reconnect and refresh to continue syncing family records. Cached screens may still be available from the app navigation.</p>
           <Button variant="outline" onClick={() => window.location.reload()}>
             <RefreshCcw className="h-4 w-4" />

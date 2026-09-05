@@ -24,7 +24,8 @@ import { useFamilyMembers } from "@/hooks/use-family-members";
 import { useToast } from "@/hooks/use-toast";
 import type { FieldConfig, ModuleConfig } from "@/lib/modules";
 import type { AnyRecord } from "@/lib/types";
-import { nowIso, recordMap, titleCase } from "@/lib/utils";
+import { weekdayLabels } from "@/lib/options";
+import { cn, nowIso, recordMap, titleCase } from "@/lib/utils";
 
 interface RecordFormDialogProps {
   config: ModuleConfig;
@@ -39,6 +40,8 @@ type FormShape = Record<string, unknown>;
 function formatInputValue(value: unknown, field: FieldConfig) {
   if (value === null || value === undefined) return field.type === "checkbox" ? false : "";
   if (field.type === "tags" && Array.isArray(value)) return value.join(", ");
+  if (field.type === "lines" && Array.isArray(value)) return value.join("\n");
+  if (field.type === "weekdays") return Array.isArray(value) ? value : [];
   if ((field.type === "date" || field.type === "datetime") && typeof value === "string" && value) {
     const parsed = parseISO(value);
     if (Number.isNaN(parsed.getTime())) return value;
@@ -90,6 +93,10 @@ function normalizePayload(config: ModuleConfig, values: FormShape, currentMember
     payload.completed_at = payload.status === "done" ? (record ? (recordMap(record).completed_at ?? nowIso()) : nowIso()) : null;
   }
   if (config.table === "activity_ideas" && !record) payload.created_by = currentMemberId;
+  if (config.table === "chores" && !record) payload.created_by = currentMemberId;
+  if (config.table === "shared_lists" && !record) payload.created_by = currentMemberId;
+  if (config.table === "journal_entries" && !record && !payload.author_id) payload.author_id = currentMemberId;
+  if (config.table === "checkins" && !record && !payload.member_id) payload.member_id = currentMemberId;
 
   return payload;
 }
@@ -139,8 +146,75 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
     );
 
     const input = (() => {
-      if (field.type === "textarea") {
-        return <Textarea id={field.name} {...form.register(field.name)} placeholder={field.placeholder} />;
+      if (field.type === "textarea" || field.type === "lines") {
+        return <Textarea id={field.name} rows={field.type === "lines" ? 5 : undefined} {...form.register(field.name)} placeholder={field.placeholder} />;
+      }
+
+      if (field.type === "weekdays") {
+        return (
+          <Controller
+            control={form.control}
+            name={field.name}
+            render={({ field: controllerField }) => {
+              const selected: number[] = Array.isArray(controllerField.value) ? (controllerField.value as number[]) : [];
+              return (
+                <div className="flex flex-wrap gap-1.5" role="group" aria-label={field.label}>
+                  {weekdayLabels.map((label, index) => {
+                    const active = selected.includes(index);
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          controllerField.onChange(active ? selected.filter((day) => day !== index) : [...selected, index].sort((a, b) => a - b))
+                        }
+                        className={cn(
+                          "h-9 min-w-11 rounded-full border px-3 text-xs font-semibold transition-all focus-ring",
+                          active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
+                        )}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          />
+        );
+      }
+
+      if (field.type === "emoji") {
+        return (
+          <Controller
+            control={form.control}
+            name={field.name}
+            render={({ field: controllerField }) => (
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={field.label}>
+                {(field.options ?? []).map((emoji) => {
+                  const active = controllerField.value === emoji;
+                  return (
+                    <button
+                      key={emoji}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      aria-label={emoji}
+                      onClick={() => controllerField.onChange(emoji)}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-xl border text-xl transition-all focus-ring",
+                        active ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30" : "border-border bg-white/70 hover:border-primary/40 dark:bg-white/5"
+                      )}
+                    >
+                      {emoji}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          />
+        );
       }
 
       if (field.type === "checkbox") {
