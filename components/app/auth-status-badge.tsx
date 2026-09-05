@@ -17,17 +17,17 @@ export function AuthStatusBadge({ className }: { className?: string }) {
       }
     : isSignedIn
       ? {
-          label: "Logged in",
-          detail: currentUser.email,
-          icon: CheckCircle2,
-          className: "border-[#ACE1AF] bg-[#ACE1AF]/35 text-[#22552d]"
-        }
-      : {
-          label: "Sign in required",
-          detail: "Secure cloud ready",
-          icon: Database,
-          className: "border-[#CC5500]/30 bg-[#CC5500]/10 text-[#8a3900]"
-        };
+        label: "Logged in",
+        detail: currentUser.email,
+        icon: CheckCircle2,
+        className: "border-[#ACE1AF] bg-[#ACE1AF]/35 text-[#22552d] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]"
+      }
+    : {
+        label: "Sign in required",
+        detail: "Secure cloud ready",
+        icon: Database,
+        className: "border-[#CC5500]/35 bg-[#CC5500]/10 text-[#8a3900] dark:border-[#CC5500]/50 dark:text-[#ffbc8a]"
+      };
 
   const Icon = state.icon;
 

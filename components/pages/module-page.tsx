@@ -60,12 +60,12 @@ function FilterBar({
   const hasPerson = config.fields.some((field) => field.type === "person");
 
   return (
-    <div className="rounded-lg border bg-white/70 p-3 shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/70">
+    <div className="surface-panel p-4">
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <Filter className="h-4 w-4" />
         Filters
       </div>
-      <div className="mt-3 grid gap-2 md:grid-cols-5">
+      <div className="grid-auto-fit-sm mt-4">
         <Input
           aria-label={`Search ${config.title}`}
           placeholder="Search this page"
@@ -155,7 +155,7 @@ function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyR
     const total = records.reduce((sum, record) => sum + safeNumber(recordMap(record).amount), 0);
     const overdue = records.filter((record) => recordMap(record).status === "overdue" || isOverdue(recordMap(record).due_date as string | undefined)).length;
     return (
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid-auto-fit-sm">
         <StatCard label="Monthly Estimate" value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(total)} tone="sage" />
         <StatCard label="Upcoming Bills" value={records.filter((record) => recordMap(record).status === "upcoming").length} tone="yellow" />
         <StatCard label="Overdue Bills" value={overdue} tone={overdue > 0 ? "red" : "green"} />
@@ -169,7 +169,7 @@ function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyR
       count: records.filter((record) => recordMap(record).account_type === type).length
     }));
     return (
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid-auto-fit-sm">
         {grouped.map((item) => (
           <StatCard key={item.type} label={item.type} value={item.count} tone={item.count > 0 ? "sage" : "default"} />
         ))}
@@ -180,7 +180,7 @@ function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyR
   if (config.key === "grocery") {
     const open = records.filter((record) => !(record as GroceryItem).checked).length;
     return (
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid-auto-fit-sm">
         <StatCard label="Open Items" value={open} icon={<ShoppingCart className="h-5 w-5" />} tone={open ? "yellow" : "green"} />
         <StatCard label="Checked" value={records.length - open} tone="green" />
         <StatCard label="Stores" value={new Set(records.map((record) => (record as GroceryItem).store).filter(Boolean)).size} tone="sage" />
@@ -191,7 +191,7 @@ function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyR
   if (config.key === "tasks") {
     const overdue = records.filter((record) => (record as TaskRecord).status !== "done" && isOverdue((record as TaskRecord).due_at)).length;
     return (
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid-auto-fit-sm">
         <StatCard label="Open Tasks" value={records.filter((record) => (record as TaskRecord).status !== "done").length} icon={<ListChecks className="h-5 w-5" />} tone="sage" />
         <StatCard label="Overdue" value={overdue} tone={overdue ? "red" : "green"} />
         <StatCard label="Done" value={records.filter((record) => (record as TaskRecord).status === "done").length} tone="green" />
@@ -210,22 +210,22 @@ function TaskKanban({ config, records }: { config: ModuleConfig; records: AnyRec
 
   return (
     <>
-      <div className="grid gap-3 xl:grid-cols-4">
+      <div className="grid-auto-fit">
         {statuses.map((status) => (
-          <div key={status} className="rounded-lg border bg-white/70 p-3 shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/70">
+          <div key={status} className="surface-panel min-h-64 p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold">{titleCase(status)}</h2>
               <StatusBadge status={status} />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {records
                 .filter((record) => (record as TaskRecord).status === status)
                 .map((record) => {
                   const task = record as TaskRecord;
                   return (
-                    <div key={record.id} className="rounded-md border bg-white/70 p-3 shadow-[0_1px_1px_rgba(0,0,0,0.03)] dark:bg-white/5">
+                    <div key={record.id} className="record-tile">
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="min-w-0">
                           <button className="text-left text-sm font-semibold hover:underline" onClick={() => setEditing(record)}>
                             {task.title}
                           </button>
@@ -272,7 +272,7 @@ function GroceryShopping({ records }: { records: GroceryItem[] }) {
   }, {});
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid-auto-fit-lg">
       {Object.entries(grouped).map(([group, items]) => (
         <Card key={group}>
           <CardHeader>
@@ -285,10 +285,10 @@ function GroceryShopping({ records }: { records: GroceryItem[] }) {
             {items.map((item) => (
               <label
                 key={item.id}
-                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-md border bg-white/70 px-3 py-2 text-base shadow-[0_1px_1px_rgba(0,0,0,0.03)] transition-colors hover:bg-white dark:bg-white/5 dark:hover:bg-white/10"
+                className="record-tile flex min-h-14 cursor-pointer items-center gap-3 px-3 py-2 text-base hover:bg-white dark:hover:bg-white/10"
               >
                 <Checkbox checked={item.checked} onCheckedChange={(checked) => updateRecord("grocery_items", item.id, { checked: Boolean(checked) })} />
-                <span className={item.checked ? "flex-1 text-muted-foreground line-through" : "flex-1"}>
+                <span className={item.checked ? "min-w-0 flex-1 text-muted-foreground line-through" : "min-w-0 flex-1"}>
                   {item.name}
                   <span className="ml-2 text-sm text-muted-foreground">
                     {[item.quantity, item.unit].filter(Boolean).join(" ")}
@@ -310,7 +310,7 @@ function MealWeekly({ records }: { records: MealPlan[] }) {
   const days = eachDayOfInterval({ start: startOfWeek(new Date()), end: addDays(startOfWeek(new Date()), 6) });
 
   return (
-    <div className="grid gap-3 lg:grid-cols-7">
+    <div className="grid-auto-fit-xs">
       {days.map((day) => {
         const meals = records.filter((meal) => isSameDay(parseISO(meal.meal_date), day));
         return (
@@ -321,7 +321,7 @@ function MealWeekly({ records }: { records: MealPlan[] }) {
             <CardContent className="space-y-2 p-4 pt-0">
               {meals.length ? (
                 meals.map((meal) => (
-                  <div key={meal.id} className="rounded-md border bg-white/70 p-3 shadow-[0_1px_1px_rgba(0,0,0,0.03)] dark:bg-white/5">
+                  <div key={meal.id} className="record-tile">
                     <p className="text-xs font-medium text-muted-foreground">{meal.meal_type}</p>
                     <p className="mt-1 text-sm font-semibold">{meal.title}</p>
                     {meal.notes ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{meal.notes}</p> : null}
@@ -357,25 +357,27 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
     const start = startOfWeek(startOfMonth(new Date()));
     const days = eachDayOfInterval({ start, end: addDays(start, 41) });
     return (
-      <div className="grid grid-cols-7 overflow-hidden rounded-lg border bg-white/70 shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/70">
-        {days.map((day) => {
-          const events = records.filter((record) => {
-            const date = recordDate(record);
-            return date ? isSameDay(date, day) : false;
-          });
-          return (
-            <div key={day.toISOString()} className="min-h-28 border-b border-r p-2">
-              <div className={isSameMonth(day, new Date()) ? "text-xs font-semibold" : "text-xs text-muted-foreground"}>{format(day, "d")}</div>
-              <div className="mt-2 space-y-1">
-                {events.slice(0, 3).map((record) => (
-                  <div key={record.id} className="truncate rounded bg-[#ACE1AF]/35 px-2 py-1 text-xs text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
-                    {getRecordTitle(record)}
-                  </div>
-                ))}
+      <div className="surface-panel min-w-0 overflow-x-auto">
+        <div className="grid min-w-[760px] grid-cols-7 overflow-hidden rounded-[var(--app-card-radius)]">
+          {days.map((day) => {
+            const events = records.filter((record) => {
+              const date = recordDate(record);
+              return date ? isSameDay(date, day) : false;
+            });
+            return (
+              <div key={day.toISOString()} className="min-h-32 border-b border-r p-3">
+                <div className={isSameMonth(day, new Date()) ? "text-xs font-semibold" : "text-xs text-muted-foreground"}>{format(day, "d")}</div>
+                <div className="mt-2 space-y-1.5">
+                  {events.slice(0, 3).map((record) => (
+                    <div key={record.id} className="truncate rounded bg-[#ACE1AF]/35 px-2 py-1 text-xs text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+                      {getRecordTitle(record)}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -383,7 +385,7 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
   if (mode === "week") {
     const days = eachDayOfInterval({ start: startOfWeek(new Date()), end: addDays(startOfWeek(new Date()), 6) });
     return (
-      <div className="grid gap-3 md:grid-cols-7">
+      <div className="grid-auto-fit-xs">
         {days.map((day) => {
           const dayRecords = records.filter((record) => {
             const date = recordDate(record);
@@ -397,7 +399,7 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
               <CardContent className="space-y-2 p-4 pt-0">
                 {dayRecords.length ? (
                   dayRecords.map((record) => (
-                    <div key={record.id} className="rounded-md border bg-white/75 p-2 text-sm shadow-[0_1px_1px_rgba(0,0,0,0.03)] dark:bg-white/5">
+                    <div key={record.id} className="record-tile p-2 text-sm">
                       {getRecordTitle(record)}
                     </div>
                   ))
@@ -413,7 +415,7 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
   }
 
   return (
-    <div className="space-y-2">
+    <div className="app-section">
       {records.map((record) => (
         <Card key={record.id}>
           <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -483,7 +485,7 @@ export function ModulePage({ config }: ModulePageProps) {
     ) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <PageHeader
         title={config.title}
         description={config.description}
@@ -496,7 +498,7 @@ export function ModulePage({ config }: ModulePageProps) {
         }
       />
       {config.sensitive ? (
-        <div className="rounded-lg border border-[#ACE1AF] bg-[#ACE1AF]/30 p-3 text-sm text-[#235226] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+        <div className="surface-panel border-[#ACE1AF] bg-[#ACE1AF]/30 p-4 text-sm text-[#235226] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
           Privacy mode hides sensitive details on this page. Store only partial identifiers and safe notes.
         </div>
       ) : null}
@@ -515,7 +517,7 @@ export function ModulePage({ config }: ModulePageProps) {
         />
       ) : (
         <Tabs value={view} onValueChange={(value) => setView(value as ViewMode)}>
-          <TabsList className="max-w-full flex-wrap justify-start">
+          <TabsList className="max-w-full">
             {config.viewModes.map((mode) => (
               <TabsTrigger key={mode} value={mode}>
                 {mode === "month" || mode === "week" || mode === "agenda" ? <CalendarDays className="mr-2 h-4 w-4" /> : null}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { UploadCloud } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ interface FileUploaderProps {
 export function FileUploader({ value, onChange, label }: FileUploaderProps) {
   const { supabase, familyId, usingLocalData } = useAppData();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   async function upload(file: File) {
     if (!supabase || usingLocalData) {
@@ -40,15 +42,16 @@ export function FileUploader({ value, onChange, label }: FileUploaderProps) {
       <Input value={value ?? ""} placeholder="https://storage.example/document.pdf" onChange={(event) => onChange(event.target.value)} />
       <div className="flex items-center gap-2">
         <Input
+          ref={fileInputRef}
           aria-label={`Upload ${label}`}
           type="file"
-          className="max-w-sm"
+          className="max-w-sm flex-1"
           onChange={(event) => {
             const file = event.target.files?.[0];
             if (file) void upload(file);
           }}
         />
-        <Button type="button" variant="outline" size="icon" title="Upload through Supabase Storage">
+        <Button type="button" variant="outline" size="icon" title="Upload through Supabase Storage" onClick={() => fileInputRef.current?.click()}>
           <UploadCloud className="h-4 w-4" />
         </Button>
       </div>

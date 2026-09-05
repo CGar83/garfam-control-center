@@ -165,13 +165,13 @@ export default function RelationshipPage() {
   }
 
   return (
-    <div className="orderful-page -mx-4 -my-6 min-h-[calc(100vh-4rem)] overflow-x-hidden px-4 py-8 lg:-mx-6 lg:px-6">
-      <div className="mx-auto max-w-[1200px] space-y-16">
+    <div className="orderful-page">
+      <div className="app-page max-w-[1320px]">
         <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
-          <div className="orderful-card flex min-h-[420px] flex-col justify-between p-6 lg:p-8">
+          <div className="orderful-card flex min-h-96 flex-col justify-between p-6 lg:p-8">
             <div>
               <p className="orderful-eyebrow">Marriage health hub</p>
-              <h1 className="orderful-display mt-5 max-w-3xl text-5xl sm:text-6xl">Relationship Command Center</h1>
+              <h1 className="orderful-display mt-5 max-w-3xl text-4xl sm:text-5xl lg:text-6xl">Relationship Command Center</h1>
               <p className="orderful-muted mt-6 max-w-2xl text-base leading-7 sm:text-lg">
                 A practical operating layer for stress release, connection rituals, conflict repair, attachment cycles, fairness, intimacy, and weekly check-ins.
               </p>
@@ -191,17 +191,17 @@ export default function RelationshipPage() {
               <div className="mt-8 grid gap-3 border-t orderful-rule pt-6 sm:grid-cols-3">
                 {["Practice first", "Repair early", "Protect privacy"].map((item, index) => (
                   <div key={item} className="flex gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[var(--color-cloud)] text-xs font-semibold text-[var(--color-slate-700)]">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[var(--color-cloud)] text-xs font-semibold text-[var(--color-slate-700)] dark:border-border dark:text-muted-foreground">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <p className="text-sm font-medium text-[var(--color-slate-900)]">{item}</p>
+                    <p className="text-sm font-medium text-[var(--color-slate-900)] dark:text-foreground">{item}</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="orderful-carbon flex min-h-[420px] flex-col justify-between p-6 lg:p-8">
+          <div className="orderful-carbon flex min-h-96 flex-col justify-between p-6 lg:p-8">
             <div>
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs font-medium uppercase leading-6 text-white/60">Next touchpoint</p>
@@ -212,7 +212,7 @@ export default function RelationshipPage() {
                 <div className="mt-6 space-y-6">
                   <div>
                     <div className="flex items-start justify-between gap-4">
-                      <h2 className="max-w-sm text-3xl font-semibold leading-tight text-white">{dueRecord.title}</h2>
+                      <h2 className="text-wrap-safe max-w-sm text-2xl font-semibold leading-tight text-white sm:text-3xl">{dueRecord.title}</h2>
                       <StatusBadge status={dueRecord.status} />
                     </div>
                     <p className="mt-3 text-sm text-white/60">{dueRecord.practice}</p>
@@ -253,7 +253,7 @@ export default function RelationshipPage() {
           </div>
         </section>
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <section className="grid-auto-fit-sm">
           {[
             ["Open Practices", stats.open, "active rituals"],
             ["Overdue Repairs", stats.overdue, "needs attention"],
@@ -263,22 +263,22 @@ export default function RelationshipPage() {
           ].map(([label, value, helper]) => (
             <div key={label} className="orderful-card p-5">
               <p className="orderful-eyebrow">{label}</p>
-              <p className="mt-4 text-4xl font-semibold leading-none text-[var(--color-slate-900)]">{value}</p>
+              <p className="text-wrap-safe mt-4 text-3xl font-semibold leading-tight text-[var(--color-slate-900)] dark:text-foreground sm:text-4xl">{value}</p>
               <p className="orderful-muted mt-3 text-sm">{helper}</p>
             </div>
           ))}
         </section>
 
-        <section className="grid gap-8 border-t orderful-rule pt-10 lg:grid-cols-[0.75fr_1.25fr]">
+        <section className="grid gap-8 border-t orderful-rule pt-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
           <div>
             <p className="orderful-eyebrow">Operating loop</p>
-            <h2 className="orderful-display mt-4 text-4xl sm:text-5xl">Two practices this week. Then repeat.</h2>
+            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">Two practices this week. Then repeat.</h2>
             <p className="orderful-muted mt-5 text-base leading-7">
               The guide is evidence-weighted, but the page is practice-weighted: stress conversations, affection rituals, repairs, and weekly check-ins.
             </p>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid-auto-fit">
             {practiceTemplates.map((item) => (
               <button
                 key={item.title}
@@ -287,12 +287,12 @@ export default function RelationshipPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-lg font-semibold text-[var(--color-slate-900)]">{item.title}</p>
+                    <p className="text-wrap-safe text-lg font-semibold text-[var(--color-slate-900)] dark:text-foreground">{item.title}</p>
                     <p className="orderful-muted mt-2 text-sm leading-6">{item.notes}</p>
                   </div>
                   <PriorityBadge priority={item.priority} />
                 </div>
-                <Badge variant="outline" className="mt-4 border-[var(--color-cloud)] bg-white text-[var(--color-slate-700)]">
+                <Badge variant="outline" className="mt-4 border-[var(--color-cloud)] bg-white text-[var(--color-slate-700)] dark:border-border dark:bg-white/5 dark:text-foreground">
                   {item.practice}
                 </Badge>
               </button>
@@ -303,15 +303,15 @@ export default function RelationshipPage() {
         <section className="space-y-6">
           <div className="max-w-3xl">
             <p className="orderful-eyebrow">Framework map</p>
-            <h2 className="orderful-display mt-4 text-4xl sm:text-5xl">One system, five layers.</h2>
+            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">One system, five layers.</h2>
           </div>
-          <div className="grid gap-3 xl:grid-cols-5">
+          <div className="grid-auto-fit-sm">
             {frameworkCards.map((card) => {
               const Icon = card.icon;
               return (
                 <div key={card.title} className="orderful-card p-6">
                   <Icon className="h-5 w-5 text-[var(--color-slate-600)]" />
-                  <h3 className="mt-5 text-xl font-semibold leading-snug text-[var(--color-slate-900)]">{card.title}</h3>
+                  <h3 className="text-wrap-safe mt-5 text-xl font-semibold leading-snug text-[var(--color-slate-900)] dark:text-foreground">{card.title}</h3>
                   <ul className="orderful-muted mt-5 space-y-3 text-sm leading-5">
                     {card.points.map((point) => (
                       <li key={point} className="border-t orderful-rule pt-3">
@@ -325,10 +325,10 @@ export default function RelationshipPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr_0.95fr]">
+        <section className="grid-auto-fit-lg">
           <div className="orderful-carbon p-6">
             <p className="text-xs font-medium uppercase leading-6 text-white/60">Conflict first aid</p>
-            <h2 className="mt-4 text-2xl font-semibold text-white">When the conversation tilts</h2>
+            <h2 className="text-wrap-safe mt-4 text-2xl font-semibold text-white">When the conversation tilts</h2>
             <div className="mt-6 divide-y divide-white/10 text-sm">
               <div className="py-4">
                 <p className="font-medium text-white">Soft startup</p>
@@ -347,8 +347,8 @@ export default function RelationshipPage() {
 
           <div className="orderful-panel p-6">
             <p className="orderful-eyebrow">State of the union</p>
-            <h2 className="mt-4 text-2xl font-semibold text-[var(--color-slate-900)]">A contained weekly ritual</h2>
-            <div className="mt-6 divide-y divide-[var(--color-frost)] text-sm text-[var(--color-slate-700)]">
+            <h2 className="text-wrap-safe mt-4 text-2xl font-semibold text-[var(--color-slate-900)] dark:text-foreground">A contained weekly ritual</h2>
+            <div className="mt-6 divide-y divide-[var(--color-frost)] text-sm text-[var(--color-slate-700)] dark:divide-border dark:text-muted-foreground">
               {["Appreciations first", "One issue with soft startup", "One concrete request each", "End with affection or shared meaning"].map((item) => (
                 <div key={item} className="flex items-center gap-3 py-4">
                   <RefreshCcw className="h-4 w-4 text-[var(--color-slate-600)]" />
@@ -360,9 +360,9 @@ export default function RelationshipPage() {
 
           <div className="orderful-panel p-6">
             <p className="orderful-eyebrow">Safety and scope</p>
-            <h2 className="mt-4 text-2xl font-semibold text-[var(--color-slate-900)]">Know when the app is not enough</h2>
+            <h2 className="text-wrap-safe mt-4 text-2xl font-semibold text-[var(--color-slate-900)] dark:text-foreground">Know when the app is not enough</h2>
             <div className="orderful-muted mt-6 border-t orderful-rule pt-5 text-sm leading-6">
-              <div className="mb-4 flex gap-3 text-[var(--color-slate-900)]">
+              <div className="mb-4 flex gap-3 text-[var(--color-slate-900)] dark:text-foreground">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-vermillion-signal)]" />
                 <p>Do not use shared tracking as a weapon, scoreboard, or surveillance tool.</p>
               </div>
@@ -374,12 +374,10 @@ export default function RelationshipPage() {
         <section id="relationship-records" className="space-y-5">
           <div className="max-w-3xl">
             <p className="orderful-eyebrow">Private log</p>
-            <h2 className="orderful-display mt-4 text-4xl sm:text-5xl">Relationship Records</h2>
+            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">Relationship Records</h2>
             <p className="orderful-muted mt-4 text-base leading-7">Check-ins, rituals, repairs, state-of-the-union notes, cycle maps, and intimacy/context notes.</p>
           </div>
-          <div className="orderful-panel overflow-hidden p-2">
-            <DataTable config={config} records={records} />
-          </div>
+          <DataTable config={config} records={records} />
         </section>
       </div>
 

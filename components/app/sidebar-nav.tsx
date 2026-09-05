@@ -13,7 +13,7 @@ export function SidebarNav() {
   const workspaceLabel = supabaseConfigured && usingLocalData ? "Private workspace" : family?.name ?? "Family workspace";
 
   return (
-    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r bg-white/70 shadow-[1px_0_0_rgba(255,255,255,0.55)_inset] backdrop-blur-2xl dark:bg-card/70 md:block">
+    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r bg-white/70 shadow-[1px_0_0_rgba(255,255,255,0.55)_inset] backdrop-blur-2xl dark:bg-card/70 lg:block">
       <div className="flex h-full flex-col">
         <div className="border-b p-5">
           <div className="flex items-center gap-3">

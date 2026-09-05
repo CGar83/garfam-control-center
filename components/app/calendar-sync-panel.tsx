@@ -119,16 +119,16 @@ export function CalendarSyncPanel() {
   }
 
   return (
-    <section className="space-y-4">
+    <section className="app-section">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <h2 className="text-xl font-semibold tracking-normal">Calendar Sync</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+          <p className="text-wrap-safe mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
             Export or import ICS files for Google Calendar, Apple Calendar, Outlook, and other calendar apps. Saved provider records document
             webcal/OAuth setup and sync status.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="app-toolbar shrink-0 sm:justify-end">
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4" />
             Import ICS
@@ -161,12 +161,12 @@ export function CalendarSyncPanel() {
         }}
       />
 
-      <div className="grid gap-3 lg:grid-cols-4">
+      <div className="grid-auto-fit-sm">
         {providerCards.map((card) => (
-          <Card key={card.provider}>
+          <Card key={card.provider} className="h-full">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between gap-2 text-base">
-                <span className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between gap-3 text-base">
+                <span className="flex min-w-0 items-center gap-2">
                   <CalendarClock className="h-4 w-4 text-muted-foreground" />
                   {card.title}
                 </span>

@@ -20,13 +20,13 @@ const toneClasses = {
 
 export function StatCard({ label, value, helper, icon, tone = "default" }: StatCardProps) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-4">
+    <Card className="h-full">
+      <CardContent className="flex min-h-28 items-center gap-4 p-4">
         {icon ? <div className={cn("flex h-10 w-10 items-center justify-center rounded-md", toneClasses[tone])}>{icon}</div> : null}
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-semibold tracking-normal text-foreground">{value}</p>
-          {helper ? <p className="mt-1 truncate text-xs text-muted-foreground">{helper}</p> : null}
+        <div className="min-w-0 flex-1">
+          <p className="text-wrap-safe text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="text-wrap-safe mt-1 text-2xl font-semibold leading-tight tracking-normal text-foreground">{value}</p>
+          {helper ? <p className="text-wrap-safe mt-1 text-xs text-muted-foreground">{helper}</p> : null}
         </div>
       </CardContent>
     </Card>

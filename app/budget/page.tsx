@@ -224,7 +224,7 @@ function GroupSummaryGrid({ groups }: { groups: GroupSummary[] }) {
   if (!groups.length) return null;
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid-auto-fit-sm">
       {groups.slice(0, 8).map((group) => (
         <Card key={group.group}>
           <CardContent className="p-4">
@@ -270,7 +270,7 @@ function CreditCardPanel({
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
       <Card>
         <CardHeader>
           <CardTitle>Card Utilization</CardTitle>
@@ -286,7 +286,7 @@ function CreditCardPanel({
               const excellentBalance = safeNumber(card.credit_limit) * excellent;
 
               return (
-                <div key={card.id} className="rounded-lg border bg-white/70 p-4 dark:bg-white/5">
+                <div key={card.id} className="record-tile p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold">{card.card_name}</p>
@@ -297,7 +297,7 @@ function CreditCardPanel({
                   <div className="mt-4 h-2 rounded-full bg-muted">
                     <div className="h-2 rounded-full bg-[#CC5500]" style={{ width: `${Math.min(100, utilization * 100)}%` }} />
                   </div>
-                  <div className="mt-3 grid gap-2 text-sm sm:grid-cols-4">
+                  <div className="grid-auto-fit-xs mt-3 text-sm">
                     <span>
                       Balance: <MaskedMoney value={safeNumber(card.current_balance)} />
                     </span>
@@ -311,7 +311,7 @@ function CreditCardPanel({
                       Payment: <MaskedMoney value={plannedPayment(card)} />
                     </span>
                   </div>
-                  <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+                  <div className="grid-auto-fit-xs mt-3 text-xs text-muted-foreground">
                     <span>30% target balance: {<MaskedMoney value={targetBalance} />}</span>
                     <span>10% target balance: {<MaskedMoney value={excellentBalance} />}</span>
                     <span>Due: {card.due_date ? <DateBadge value={card.due_date} /> : "No due date"}</span>
@@ -438,7 +438,7 @@ function SinkingFundPanel({ funds }: { funds: SinkingFund[] }) {
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid-auto-fit">
       {funds.map((fund) => {
         const target = safeNumber(fund.target_amount);
         const saved = safeNumber(fund.saved_so_far);
@@ -610,13 +610,13 @@ export default function BudgetPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <PageHeader
         title="Budget & Cards"
         description={`Workbook-style monthly budget, credit utilization, payoff planning, sinking funds, and annual money summary for ${monthLabel(selectedMonth)}.`}
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="app-toolbar">
         {addButtons.map((item) => {
           const Icon = item.icon;
           return (
@@ -628,7 +628,7 @@ export default function BudgetPage() {
         })}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid-auto-fit-sm">
         <StatCard label="Actual Income" value={<MaskedMoney value={actualIncome} />} icon={<Banknote className="h-5 w-5" />} tone="sage" />
         <StatCard label="Actual Spending" value={<MaskedMoney value={actualSpending} />} icon={<ReceiptText className="h-5 w-5" />} tone={actualSpending > availableBudget ? "red" : "yellow"} />
         <StatCard label="Savings Rate" value={<MaskedPercent value={savingsRate} />} icon={<TrendingDown className="h-5 w-5" />} tone={savingsRate >= 0.15 ? "green" : "yellow"} />
@@ -650,8 +650,8 @@ export default function BudgetPage() {
       </div>
 
       <Tabs defaultValue="overview">
-        <div className="overflow-x-auto">
-          <TabsList>
+        <div className="min-w-0 overflow-x-auto">
+          <TabsList className="w-max max-w-none sm:w-auto sm:max-w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="budget">Budget</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>

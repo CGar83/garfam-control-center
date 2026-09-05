@@ -31,7 +31,11 @@ export function GlobalSearch() {
 
   return (
     <>
-      <Button variant="outline" className="w-full justify-start bg-white/60 text-muted-foreground shadow-[0_1px_1px_rgba(0,0,0,0.03)_inset] sm:w-80 dark:bg-white/5" onClick={() => setOpen(true)}>
+      <Button
+        variant="outline"
+        className="w-full min-w-0 justify-start bg-white/60 text-muted-foreground shadow-[0_1px_1px_rgba(0,0,0,0.03)_inset] lg:w-96 dark:bg-white/5"
+        onClick={() => setOpen(true)}
+      >
         <Search className="h-4 w-4" />
         Search everything
         <span className="ml-auto hidden rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium sm:inline">Cmd K</span>

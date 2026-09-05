@@ -1489,7 +1489,7 @@ export function createSeedData(): DataStore {
         action: "seeded",
         entity_type: "workspace",
         entity_id: familyId,
-        summary: "Starter workspace was created with sample family records.",
+        summary: "Starter workspace was created with initial family records.",
         created_at: created
       }
     ]

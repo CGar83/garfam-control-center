@@ -96,7 +96,7 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <PageHeader
         title="Activities"
         description="Ideas for intentional time with your son, daughter, the whole family, and date nights. Schedule an idea straight into the family calendar."
@@ -108,11 +108,11 @@ export default function ActivitiesPage() {
         }
       />
 
-      <div className="grid gap-3 md:grid-cols-5">
+      <div className="grid-auto-fit-sm">
         {activityAudiences.map((item) => (
           <Card key={item} className={audience === item ? "border-primary" : undefined}>
             <CardHeader className="p-4 pb-2">
-              <CardTitle className="flex items-center justify-between gap-2 text-sm">
+              <CardTitle className="flex items-center justify-between gap-3 text-sm">
                 {titleCase(item)}
                 <Badge variant="outline">{records.filter((record) => record.audience === item).length}</Badge>
               </CardTitle>
@@ -127,8 +127,8 @@ export default function ActivitiesPage() {
         ))}
       </div>
 
-      <div className="rounded-lg border bg-white/70 p-3 shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/70">
-        <div className="grid gap-2 md:grid-cols-[1fr_14rem_auto]">
+      <div className="surface-panel p-4">
+        <div className="grid-auto-fit-sm">
           <Input aria-label="Search activities" placeholder="Search activities, locations, supplies..." value={query} onChange={(event) => setQuery(event.target.value)} />
           <Select value={audience} onValueChange={(value) => setAudience(value as ActivityAudience | "all")}>
             <SelectTrigger>
@@ -150,9 +150,9 @@ export default function ActivitiesPage() {
       </div>
 
       {filtered.length ? (
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid-auto-fit">
           {filtered.map((activity) => (
-            <Card key={activity.id}>
+            <Card key={activity.id} className="flex h-full flex-col">
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -165,7 +165,7 @@ export default function ActivitiesPage() {
                   <StatusBadge status={activity.status} />
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="flex flex-1 flex-col space-y-4">
                 {activity.description ? <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{activity.description}</p> : null}
                 <div className="grid gap-2 text-sm text-muted-foreground">
                   {activity.location ? (
@@ -184,7 +184,7 @@ export default function ActivitiesPage() {
                   </span>
                   {activity.assigned_to ? <PersonAvatar personId={activity.assigned_to} size="sm" /> : null}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="app-toolbar mt-auto">
                   <Button onClick={() => scheduleActivity(activity)}>
                     <CalendarPlus className="h-4 w-4" />
                     Add to Calendar

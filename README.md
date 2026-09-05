@@ -94,7 +94,7 @@ The tracker intentionally does not store full card numbers, account numbers, pas
 
 ## Starter Data
 
-Local starter data is automatic and includes a sample family plus budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
+Local starter data is automatic and includes a starter family workspace with budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
 
 For Supabase:
 
@@ -102,7 +102,7 @@ For Supabase:
 SEED_USER_ID=auth-user-uuid npm run seed:starter
 ```
 
-`SEED_USER_ID` attaches the first sample parent to your real Supabase Auth user so RLS can read the seeded workspace.
+`SEED_USER_ID` attaches the first parent record to your real Supabase Auth user so RLS can read the seeded workspace.
 
 The SQL seed file at `supabase/seed.sql` is also available for CLI workflows, but it does not know your auth user UUID unless you edit the inserted `family_members.user_id`.
 

@@ -149,7 +149,7 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
             control={form.control}
             name={field.name}
             render={({ field: controllerField }) => (
-              <label className="flex h-10 items-center gap-3 rounded-md border px-3 text-sm">
+              <label className="record-tile flex min-h-10 items-center gap-3 px-3 py-2 text-sm">
                 <Checkbox checked={Boolean(controllerField.value)} onCheckedChange={(checked) => controllerField.onChange(Boolean(checked))} />
                 {field.label}
               </label>
@@ -252,14 +252,14 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
           <DialogDescription>{config.description}</DialogDescription>
         </DialogHeader>
         {config.helpText ? (
-          <div className="flex gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+          <div className="flex gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{config.helpText}</p>
           </div>
         ) : null}
-        <form className="grid gap-4 sm:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="grid-auto-fit-sm" onSubmit={form.handleSubmit(onSubmit)}>
           {config.fields.map(renderField)}
-          <DialogFooter className="sm:col-span-2">
+          <DialogFooter className="col-span-full">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

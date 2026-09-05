@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function OfflinePage() {
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl items-center justify-center">
-      <Card>
+    <div className="app-page flex min-h-[calc(100vh-8rem)] max-w-xl justify-center">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#ACE1AF]/35 text-[#235226]">

@@ -46,7 +46,8 @@ export function QuickAddMenu() {
         <DropdownMenuTrigger asChild>
           <Button>
             <Plus className="h-4 w-4" />
-            Quick Add
+            <span className="hidden sm:inline">Quick Add</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

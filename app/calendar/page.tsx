@@ -6,7 +6,7 @@ import { moduleConfigs } from "@/lib/modules";
 
 export default function CalendarPage() {
   return (
-    <div className="space-y-8">
+    <div className="app-page">
       <ModulePage config={moduleConfigs.calendar} />
       <CalendarSyncPanel />
     </div>

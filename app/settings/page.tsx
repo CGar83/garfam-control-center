@@ -93,10 +93,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <PageHeader title="Settings" description={pageDescription} />
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid-auto-fit-lg">
         {showWorkspaceControls ? (
           <Card>
             <CardHeader>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                 {familyForm.formState.errors.name?.message ? (
                   <p className="text-xs text-destructive">{familyForm.formState.errors.name.message}</p>
                 ) : null}
-                <div className="flex flex-wrap gap-2">
+                <div className="app-toolbar">
                   <Button type="submit">Save Family</Button>
                   <Button
                     type="button"
@@ -140,7 +140,7 @@ export default function SettingsPage() {
         <Card className={!showWorkspaceControls ? "xl:col-span-2" : undefined}>
           <CardHeader>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
+              <div className="min-w-0">
                 <CardTitle>Authentication</CardTitle>
                 <CardDescription>{supabaseConfigured ? "Secure email/password access is configured." : "Local workspace mode is active."}</CardDescription>
               </div>
@@ -149,18 +149,18 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             {isSignedIn ? (
-              <div className="rounded-md border border-[#ACE1AF] bg-[#ACE1AF]/25 p-4">
+              <div className="rounded-md border border-[#ACE1AF] bg-[#ACE1AF]/25 p-4 dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#ACE1AF] text-[#22552d]">
                       <CheckCircle2 className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-[#22552d]">{authStatusTitle}</p>
-                      <p className="mt-1 text-sm text-[#22552d]/80">{authStatusDescription}</p>
+                      <p className="font-semibold text-[#22552d] dark:text-[#D7F2D9]">{authStatusTitle}</p>
+                      <p className="text-wrap-safe mt-1 text-sm text-[#22552d]/80 dark:text-[#D7F2D9]/80">{authStatusDescription}</p>
                     </div>
                   </div>
-                  <Button type="button" variant="outline" onClick={signOut}>
+                    <Button type="button" variant="outline" className="shrink-0" onClick={signOut}>
                     <LogOut className="h-4 w-4" />
                     Sign Out
                   </Button>
@@ -233,14 +233,14 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               <form
-                className="grid gap-3 md:grid-cols-6"
+                className="grid-auto-fit-sm"
                 onSubmit={memberForm.handleSubmit(async (values) => {
                   await createRecord("family_members", { ...values, user_id: null });
                   memberForm.reset({ display_name: "", role: "viewer", phone: "", email: "", relationship: "", avatar_url: "" });
                   toast({ title: "Family member added", variant: "success" });
                 })}
               >
-                <Input className="md:col-span-2" placeholder="Display name" {...memberForm.register("display_name")} />
+                <Input placeholder="Display name" {...memberForm.register("display_name")} />
                 <Controller
                   control={memberForm.control}
                   name="role"
@@ -261,7 +261,7 @@ export default function SettingsPage() {
                 />
                 <Input placeholder="Relationship" {...memberForm.register("relationship")} />
                 <Input placeholder="Email" {...memberForm.register("email")} />
-                <Button type="submit">
+                <Button type="submit" className="w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
                   Add
                 </Button>
@@ -271,9 +271,9 @@ export default function SettingsPage() {
               ) : null}
               <div className="grid gap-2">
                 {members.map((member) => (
-                  <div key={member.id} className="flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between">
+                  <div key={member.id} className="record-tile flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <PersonAvatar personId={member.id} />
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="app-toolbar">
                       <Select value={member.role} onValueChange={(role) => updateRecord("family_members", member.id, { role: role as never })}>
                         <SelectTrigger className="w-36">
                           <SelectValue />
@@ -297,30 +297,30 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid-auto-fit-lg">
             <Card>
               <CardHeader>
                 <CardTitle>Preferences</CardTitle>
                 <CardDescription>Privacy, theme, and notification structure.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <label className="flex items-center justify-between gap-3 rounded-md border p-3">
-                  <span>
+                <label className="record-tile flex items-center justify-between gap-3">
+                  <span className="min-w-0">
                     <span className="block text-sm font-medium">Privacy mode</span>
                     <span className="block text-xs text-muted-foreground">Financial, health, account, and emergency details are hidden.</span>
                   </span>
                   <Checkbox checked={privacyMode} onCheckedChange={(checked) => setPrivacyMode(Boolean(checked))} />
                 </label>
-                <label className="flex items-center justify-between gap-3 rounded-md border p-3">
-                  <span>
+                <label className="record-tile flex items-center justify-between gap-3">
+                  <span className="min-w-0">
                     <span className="block text-sm font-medium">Dark mode</span>
                     <span className="block text-xs text-muted-foreground">Switches the app theme.</span>
                   </span>
                   <Checkbox checked={theme === "dark"} onCheckedChange={(checked) => setTheme(Boolean(checked) ? "dark" : "light")} />
                 </label>
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid-auto-fit-sm">
                   {notificationKinds.map((kind) => (
-                    <label key={kind} className="flex items-center gap-2 rounded-md border p-3 text-sm">
+                    <label key={kind} className="record-tile flex items-center gap-2 text-sm">
                       <Checkbox
                         checked={notificationPrefs[kind]}
                         onCheckedChange={(checked) => setNotificationPrefs((current) => ({ ...current, [kind]: Boolean(checked) }))}
@@ -357,7 +357,7 @@ export default function SettingsPage() {
             </Card>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid-auto-fit-lg">
             <Card>
               <CardHeader>
                 <CardTitle>Data Export</CardTitle>
@@ -379,7 +379,7 @@ export default function SettingsPage() {
                 </CardTitle>
                 <CardDescription>Restore or clear the local workspace.</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
+              <CardContent className="app-toolbar">
                 <Button variant="outline" onClick={() => setResetOpen(true)}>
                   <RotateCcw className="h-4 w-4" />
                   Restore Starter Workspace

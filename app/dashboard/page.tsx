@@ -49,19 +49,19 @@ function DashboardCard({
   children: ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+    <Card className="flex h-full min-w-0 flex-col">
+      <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
         <CardTitle className="text-base">{title}</CardTitle>
-        <div className="text-muted-foreground">{icon}</div>
+        <div className="shrink-0 text-muted-foreground">{icon}</div>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="flex-1">{children}</CardContent>
     </Card>
   );
 }
 
 function MiniList({ records, empty, render }: { records: AnyRecord[]; empty: string; render: (record: AnyRecord) => React.ReactNode }) {
   if (records.length === 0) return <p className="text-sm text-muted-foreground">{empty}</p>;
-  return <div className="space-y-2">{records.slice(0, 5).map(render)}</div>;
+  return <div className="space-y-3">{records.slice(0, 5).map(render)}</div>;
 }
 
 const quickAdds: Array<{ label: string; module: ModuleKey; icon: typeof Plus; defaults?: Record<string, unknown> }> = [
@@ -149,13 +149,13 @@ export default function DashboardPage() {
   }, [data]);
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <PageHeader
         title="Dashboard"
         description="A daily command center for the family schedule, urgent follow-up, shared notes, bills, appointments, maintenance, and goals."
       />
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid-auto-fit-sm">
         <StatCard label="Today" value={dashboard.todayEvents.length} helper="scheduled events" tone="sage" />
         <StatCard label="Overdue Tasks" value={dashboard.overdueTasks.length} tone={dashboard.overdueTasks.length ? "red" : "green"} />
         <StatCard label="Grocery Items" value={dashboard.groceryOpen} helper="still needed" tone={dashboard.groceryOpen ? "yellow" : "green"} />
@@ -192,7 +192,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>Quick Add</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+        <CardContent className="grid-auto-fit-xs">
           {quickAdds.map((item) => {
             const Icon = item.icon;
             return (
@@ -205,7 +205,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid-auto-fit-lg">
         <DashboardCard title="Today's Schedule" icon={<CalendarPlus className="h-5 w-5" />}>
           <MiniList
             records={dashboard.todayEvents}
@@ -213,9 +213,9 @@ export default function DashboardPage() {
             render={(record) => {
               const event = record as EventRecord;
               return (
-                <div key={event.id} className="rounded-md border p-3">
+                <div key={event.id} className="record-tile">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium">{event.title}</p>
                       <p className="text-sm text-muted-foreground">{formatDateTime(event.start_at)}</p>
                     </div>
@@ -234,8 +234,8 @@ export default function DashboardPage() {
             render={(record) => {
               const event = record as EventRecord;
               return (
-                <div key={event.id} className="flex items-center justify-between gap-3 rounded-md border p-3">
-                  <div>
+                <div key={event.id} className="record-tile flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="font-medium">{event.title}</p>
                     <p className="text-sm text-muted-foreground">{event.location}</p>
                   </div>
@@ -253,7 +253,7 @@ export default function DashboardPage() {
             render={(record) => {
               const task = record as TaskRecord;
               return (
-                <div key={task.id} className="rounded-md border border-red-200 bg-red-50 p-3 text-red-950 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
+                <div key={task.id} className="record-tile border-red-200 bg-red-50 text-red-950 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-medium">{task.title}</p>
                     <PriorityBadge priority={task.priority} />
@@ -269,13 +269,13 @@ export default function DashboardPage() {
         </DashboardCard>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid-auto-fit-lg">
         <DashboardCard title="Open Tasks by Parent" icon={<ClipboardPlus className="h-5 w-5" />}>
           <div className="space-y-3">
             {parents.map((parent) => {
               const tasks = dashboard.openTasks.filter((task) => task.assigned_to === parent.id);
               return (
-                <div key={parent.id} className="rounded-md border p-3">
+                <div key={parent.id} className="record-tile">
                   <div className="flex items-center justify-between">
                     <PersonAvatar personId={parent.id} />
                     <span className="text-sm font-semibold">{tasks.length}</span>
@@ -293,8 +293,8 @@ export default function DashboardPage() {
             render={(record) => {
               const bill = record as Bill;
               return (
-                <div key={bill.id} className="flex items-center justify-between gap-3 rounded-md border p-3">
-                  <div>
+                <div key={bill.id} className="record-tile flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="font-medium">{bill.name}</p>
                     <p className="text-sm text-muted-foreground">
                       <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)} sensitive>
@@ -316,7 +316,7 @@ export default function DashboardPage() {
             render={(record) => {
               const health = record as HealthRecord;
               return (
-                <div key={health.id} className="rounded-md border p-3">
+                <div key={health.id} className="record-tile">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium">{health.provider_name || health.record_type}</p>
@@ -331,13 +331,13 @@ export default function DashboardPage() {
         </DashboardCard>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid-auto-fit-lg">
         <DashboardCard title="School Reminders" icon={<School className="h-5 w-5" />}>
           <MiniList
             records={dashboard.schoolReminders}
             empty="No school reminders."
             render={(record) => (
-              <div key={record.id} className="rounded-md border p-3">
+              <div key={record.id} className="record-tile">
                 <p className="font-medium">{String(recordMap(record).school_name)}</p>
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{String(recordMap(record).important_dates ?? "")}</p>
               </div>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
               const title = "vehicle_name" in record ? (record as VehicleRecord).vehicle_name : (record as HomeRecord).title;
               const due = "vehicle_name" in record ? (record as VehicleRecord).maintenance_due : (record as HomeRecord).maintenance_due;
               return (
-                <div key={record.id} className="flex items-center justify-between gap-3 rounded-md border p-3">
+                <div key={record.id} className="record-tile flex items-center justify-between gap-3">
                   <p className="font-medium">{title}</p>
                   <DateBadge value={due} />
                 </div>
@@ -367,7 +367,7 @@ export default function DashboardPage() {
             records={dashboard.emergency}
             empty="No emergency plan items."
             render={(record) => (
-              <div key={record.id} className="rounded-md border p-3">
+              <div key={record.id} className="record-tile">
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium">{String(recordMap(record).title)}</p>
                   <PriorityBadge priority={String(recordMap(record).priority)} />
@@ -383,13 +383,13 @@ export default function DashboardPage() {
         </DashboardCard>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid-auto-fit-lg">
         <DashboardCard title="Recent Communication Notes" icon={<MessageSquarePlus className="h-5 w-5" />}>
           <MiniList
             records={dashboard.recentNotes}
             empty="No notes yet."
             render={(record) => (
-              <div key={record.id} className="rounded-md border p-3">
+              <div key={record.id} className="record-tile">
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium">{String(recordMap(record).title)}</p>
                   <PriorityBadge priority={String(recordMap(record).importance)} />
@@ -405,7 +405,7 @@ export default function DashboardPage() {
             records={dashboard.relationshipDue}
             empty="No relationship touchpoints."
             render={(record) => (
-              <div key={record.id} className="rounded-md border p-3">
+              <div key={record.id} className="record-tile">
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium">{String(recordMap(record).title)}</p>
                   <StatusBadge status={String(recordMap(record).status)} />
@@ -417,10 +417,10 @@ export default function DashboardPage() {
         </DashboardCard>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid-auto-fit-lg">
         <DashboardCard title="Budget & Cards" icon={<WalletCards className="h-5 w-5" />}>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-md border p-3">
+          <div className="grid-auto-fit-xs">
+            <div className="record-tile">
               <p className="text-sm text-muted-foreground">Income</p>
               <p className="mt-1 text-lg font-semibold">
                 <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)} sensitive>
@@ -428,7 +428,7 @@ export default function DashboardPage() {
                 </PrivacyMask>
               </p>
             </div>
-            <div className="rounded-md border p-3">
+            <div className="record-tile">
               <p className="text-sm text-muted-foreground">Spending</p>
               <p className="mt-1 text-lg font-semibold">
                 <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)} sensitive>
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                 </PrivacyMask>
               </p>
             </div>
-            <div className="rounded-md border p-3">
+            <div className="record-tile">
               <p className="text-sm text-muted-foreground">Card debt</p>
               <p className="mt-1 text-lg font-semibold">
                 <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)} sensitive>
@@ -444,7 +444,7 @@ export default function DashboardPage() {
                 </PrivacyMask>
               </p>
             </div>
-            <div className="rounded-md border p-3">
+            <div className="record-tile">
               <p className="text-sm text-muted-foreground">Sinking funds saved</p>
               <p className="mt-1 text-lg font-semibold">
                 <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)} sensitive>
@@ -468,7 +468,7 @@ export default function DashboardPage() {
             render={(record) => {
               const progress = safeNumber(recordMap(record).progress);
               return (
-                <div key={record.id} className="rounded-md border p-3">
+                <div key={record.id} className="record-tile">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-medium">{String(recordMap(record).title)}</p>
                     <StatusBadge status={String(recordMap(record).status)} />

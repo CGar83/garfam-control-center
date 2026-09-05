@@ -105,7 +105,7 @@ function renderCell(record: AnyRecord, column: string, config: ModuleConfig) {
   if (column === "website_url" || column === "file_url") {
     return (
       <PrivacyMask value={stringValue} sensitive={sensitive}>
-        <a className="inline-flex items-center gap-1 text-primary hover:underline" href={stringValue} target="_blank" rel="noreferrer">
+        <a className="inline-flex max-w-full items-center gap-1 truncate text-primary hover:underline" href={stringValue} target="_blank" rel="noreferrer">
           Open <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </PrivacyMask>
@@ -133,7 +133,7 @@ function renderCell(record: AnyRecord, column: string, config: ModuleConfig) {
 
   return (
     <PrivacyMask value={stringValue} sensitive={sensitive}>
-      <span className="line-clamp-2">{Array.isArray(value) ? value.join(", ") : stringValue}</span>
+      <span className="line-clamp-2 break-words">{Array.isArray(value) ? value.join(", ") : stringValue}</span>
     </PrivacyMask>
   );
 }
@@ -146,8 +146,8 @@ export function DataTable({ config, records }: DataTableProps) {
 
   return (
     <>
-      <div className="rounded-lg border bg-white/75 shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/80">
-        <Table>
+      <div className="surface-panel min-w-0 overflow-hidden">
+        <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow>
               {config.columns.map((column) => (
@@ -160,7 +160,9 @@ export function DataTable({ config, records }: DataTableProps) {
             {records.map((record) => (
               <TableRow key={record.id}>
                 {config.columns.map((column) => (
-                  <TableCell key={column}>{renderCell(record, column, config)}</TableCell>
+                  <TableCell key={column} className="max-w-72">
+                    {renderCell(record, column, config)}
+                  </TableCell>
                 ))}
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">

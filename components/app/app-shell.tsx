@@ -28,11 +28,11 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-transparent">
       <SidebarNav />
-      <div className="md:pl-72">
-        <header className="sticky top-0 z-20 border-b bg-background/70 shadow-[0_1px_0_rgba(255,255,255,0.45)_inset] backdrop-blur-2xl">
-          <div className="flex min-h-16 flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+      <div className="lg:pl-72">
+        <header className="sticky top-0 z-20 border-b bg-background/78 shadow-[0_1px_0_rgba(255,255,255,0.45)_inset] backdrop-blur-2xl">
+          <div className="mx-auto flex min-h-16 w-full max-w-[var(--app-page-max)] flex-col gap-3 px-[var(--app-gutter)] py-3 lg:flex-row lg:items-center lg:justify-between">
             <GlobalSearch />
-            <div className="flex items-center gap-2">
+            <div className="app-toolbar lg:justify-end">
               <AuthStatusBadge className="hidden sm:inline-flex" />
               <NotificationCenter />
               <Button variant="outline" size="icon" onClick={() => setPrivacyMode(!privacyMode)} title="Toggle privacy mode">
@@ -48,10 +48,10 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <NetworkStatusBanner />
-        <main className="min-h-[calc(100vh-4rem)] px-4 py-6 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:px-6 md:pb-8">
+        <main className="min-h-[calc(100vh-4rem)] px-[var(--app-gutter)] py-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:py-8 lg:pb-8">
           {showAccessGate ? (
             <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
-              <div className="w-full max-w-md rounded-lg border bg-white/85 p-6 text-center shadow-[var(--shadow-subtle)] backdrop-blur-xl dark:bg-card/85">
+              <div className="apple-elevated w-full max-w-md p-6 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[#ACE1AF]/45 text-[#22552d]">
                   <LockKeyhole className="h-6 w-6" />
                 </div>
