@@ -111,6 +111,94 @@ create table if not exists public.financial_accounts (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.budget_settings (
+  id text primary key default gen_random_uuid()::text,
+  family_id text not null references public.families(id) on delete cascade,
+  budget_year integer not null check (budget_year between 2000 and 2100),
+  budget_month date not null,
+  starting_cash_available numeric(12, 2) not null default 0 check (starting_cash_available >= 0),
+  planned_monthly_income numeric(12, 2) not null default 0 check (planned_monthly_income >= 0),
+  include_prior_category_balances boolean not null default true,
+  payoff_strategy text not null check (payoff_strategy in ('avalanche', 'snowball')),
+  target_utilization numeric(5, 4) not null default 0.3 check (target_utilization between 0 and 1),
+  excellent_utilization numeric(5, 4) not null default 0.1 check (excellent_utilization between 0 and 1),
+  high_utilization_alert numeric(5, 4) not null default 0.5 check (high_utilization_alert between 0 and 1),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.budget_categories (
+  id text primary key default gen_random_uuid()::text,
+  family_id text not null references public.families(id) on delete cascade,
+  budget_month date not null,
+  group_name text not null,
+  category text not null,
+  need_want_goal text not null check (need_want_goal in ('need', 'want', 'goal')),
+  monthly_plan numeric(12, 2) not null default 0 check (monthly_plan >= 0),
+  rollover boolean not null default false,
+  prior_balance numeric(12, 2) not null default 0 check (prior_balance >= 0),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.financial_transactions (
+  id text primary key default gen_random_uuid()::text,
+  family_id text not null references public.families(id) on delete cascade,
+  transaction_date date not null,
+  account_name text not null,
+  transaction_type text not null check (transaction_type in ('income', 'expense', 'transfer', 'credit_payment')),
+  category text not null,
+  description text not null,
+  amount numeric(12, 2) not null default 0 check (amount >= 0),
+  cleared boolean not null default true,
+  recurring boolean not null default false,
+  owner_name text,
+  notes text,
+  tags text[] default '{}',
+  created_by text references public.family_members(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.credit_cards (
+  id text primary key default gen_random_uuid()::text,
+  family_id text not null references public.families(id) on delete cascade,
+  card_name text not null,
+  issuer text,
+  owner_name text,
+  last_four text check (last_four is null or last_four ~ '^[0-9]{4}$'),
+  current_balance numeric(12, 2) not null default 0 check (current_balance >= 0),
+  credit_limit numeric(12, 2) not null default 0 check (credit_limit >= 0),
+  apr numeric(6, 5) not null default 0 check (apr between 0 and 1),
+  minimum_payment numeric(12, 2) not null default 0 check (minimum_payment >= 0),
+  extra_payment numeric(12, 2) not null default 0 check (extra_payment >= 0),
+  statement_day integer check (statement_day between 1 and 31),
+  due_day integer check (due_day between 1 and 31),
+  due_date date,
+  autopay boolean not null default false,
+  payment_account text,
+  password_location text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.sinking_funds (
+  id text primary key default gen_random_uuid()::text,
+  family_id text not null references public.families(id) on delete cascade,
+  goal text not null,
+  category text not null,
+  target_amount numeric(12, 2) not null default 0 check (target_amount >= 0),
+  target_date date,
+  saved_so_far numeric(12, 2) not null default 0 check (saved_so_far >= 0),
+  planned_monthly numeric(12, 2) not null default 0 check (planned_monthly >= 0),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.bills (
   id text primary key default gen_random_uuid()::text,
   family_id text not null references public.families(id) on delete cascade,
@@ -412,6 +500,11 @@ begin
     'grocery_items',
     'meal_plans',
     'financial_accounts',
+    'budget_settings',
+    'budget_categories',
+    'financial_transactions',
+    'credit_cards',
+    'sinking_funds',
     'bills',
     'health_records',
     'school_records',
@@ -440,6 +533,11 @@ alter table public.tasks enable row level security;
 alter table public.grocery_items enable row level security;
 alter table public.meal_plans enable row level security;
 alter table public.financial_accounts enable row level security;
+alter table public.budget_settings enable row level security;
+alter table public.budget_categories enable row level security;
+alter table public.financial_transactions enable row level security;
+alter table public.credit_cards enable row level security;
+alter table public.sinking_funds enable row level security;
 alter table public.bills enable row level security;
 alter table public.health_records enable row level security;
 alter table public.school_records enable row level security;
@@ -498,6 +596,11 @@ begin
     'grocery_items',
     'meal_plans',
     'financial_accounts',
+    'budget_settings',
+    'budget_categories',
+    'financial_transactions',
+    'credit_cards',
+    'sinking_funds',
     'bills',
     'health_records',
     'school_records',
@@ -534,6 +637,11 @@ create index if not exists family_members_family_id_idx on public.family_members
 create index if not exists family_members_user_id_idx on public.family_members(user_id);
 create index if not exists events_family_start_idx on public.events(family_id, start_at);
 create index if not exists tasks_family_due_idx on public.tasks(family_id, due_at);
+create index if not exists budget_settings_family_month_idx on public.budget_settings(family_id, budget_month);
+create index if not exists budget_categories_family_month_idx on public.budget_categories(family_id, budget_month, category);
+create index if not exists financial_transactions_family_date_idx on public.financial_transactions(family_id, transaction_date);
+create index if not exists credit_cards_family_due_idx on public.credit_cards(family_id, due_date);
+create index if not exists sinking_funds_family_target_idx on public.sinking_funds(family_id, target_date);
 create index if not exists bills_family_due_idx on public.bills(family_id, due_date);
 create index if not exists health_family_appointment_idx on public.health_records(family_id, appointment_date);
 create index if not exists activity_ideas_family_audience_idx on public.activity_ideas(family_id, audience);

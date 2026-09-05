@@ -34,6 +34,11 @@ function emptyDataStore(): DataStore {
     grocery_items: [],
     meal_plans: [],
     financial_accounts: [],
+    budget_settings: [],
+    budget_categories: [],
+    financial_transactions: [],
+    credit_cards: [],
+    sinking_funds: [],
     bills: [],
     health_records: [],
     school_records: [],
@@ -198,6 +203,11 @@ const syncTables: EditableTable[] = [
   "grocery_items",
   "meal_plans",
   "financial_accounts",
+  "budget_settings",
+  "budget_categories",
+  "financial_transactions",
+  "credit_cards",
+  "sinking_funds",
   "bills",
   "health_records",
   "school_records",
@@ -220,6 +230,10 @@ function recordTitle(record: unknown) {
     rec.title ??
       rec.name ??
       rec.institution_name ??
+      rec.card_name ??
+      rec.goal ??
+      rec.description ??
+      rec.budget_month ??
       rec.provider_name ??
       rec.school_name ??
       rec.vehicle_name ??

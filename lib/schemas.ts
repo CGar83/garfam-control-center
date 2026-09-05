@@ -8,10 +8,15 @@ import {
   calendarProviders,
   calendarSyncDirections,
   goalStatusOptions,
+  budgetCategories,
+  budgetGroups,
+  budgetNeedWantGoalOptions,
+  budgetPayoffStrategies,
   notificationKinds,
   priorityOptions,
   roleOptions,
   taskStatusOptions,
+  financialTransactionTypes,
   relationshipCycles,
   relationshipPractices,
   activityCategories,
@@ -43,6 +48,13 @@ export const optionalDateString = z.preprocess(
     .optional()
 );
 
+const requiredDateString = (label: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, `${label} is required`)
+    .refine((value) => isValid(parseISO(value)), `Enter a valid ${label.toLowerCase()}.`);
+
 const optionalUrl = z.preprocess(
   (value) => (typeof value === "string" && value.trim() === "" ? null : value),
   z.string().trim().url("Enter a valid URL.").nullable().optional()
@@ -66,6 +78,7 @@ const optionalNonNegativeMoney = z.preprocess(
   (value) => (value === "" || value === null ? null : value),
   z.coerce.number().nonnegative().nullable().optional()
 );
+const optionalRate = z.preprocess((value) => (value === "" || value === null ? 0 : value), z.coerce.number().min(0).max(1));
 
 export const familySchema = z.object({
   name: requiredText("Family name")
@@ -150,6 +163,85 @@ export const financialAccountSchema = z.object({
   support_phone: optionalText(40),
   renewal_date: optionalDateString,
   password_location: optionalText(160),
+  notes: noSecretText(1200)
+});
+
+export const budgetSettingsSchema = z.object({
+  budget_year: z.coerce.number().int().min(2000).max(2100),
+  budget_month: requiredDateString("Budget month"),
+  starting_cash_available: optionalMoney,
+  planned_monthly_income: optionalMoney,
+  include_prior_category_balances: z.coerce.boolean().default(true),
+  payoff_strategy: z.enum(budgetPayoffStrategies),
+  target_utilization: optionalRate,
+  excellent_utilization: optionalRate,
+  high_utilization_alert: optionalRate,
+  notes: noSecretText(1200)
+});
+
+export const budgetCategorySchema = z.object({
+  budget_month: requiredDateString("Budget month"),
+  group_name: z.enum(budgetGroups).or(requiredText("Group", 80)),
+  category: z.enum(budgetCategories).or(requiredText("Category", 100)),
+  need_want_goal: z.enum(budgetNeedWantGoalOptions),
+  monthly_plan: optionalMoney,
+  rollover: z.coerce.boolean().default(false),
+  prior_balance: optionalMoney,
+  notes: noSecretText(1200)
+});
+
+export const financialTransactionSchema = z.object({
+  transaction_date: requiredDateString("Transaction date"),
+  account_name: requiredText("Account", 120),
+  transaction_type: z.enum(financialTransactionTypes),
+  category: z.enum(budgetCategories).or(requiredText("Category", 100)),
+  description: requiredText("Description", 180),
+  amount: optionalMoney,
+  cleared: z.coerce.boolean().default(true),
+  recurring: z.coerce.boolean().default(false),
+  owner_name: optionalText(120),
+  notes: noSecretText(1200),
+  tags: z.preprocess(
+    (value) =>
+      typeof value === "string"
+        ? value
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+        : value,
+    z.array(z.string()).optional()
+  )
+});
+
+export const creditCardSchema = z.object({
+  card_name: requiredText("Card name", 120),
+  issuer: optionalText(120),
+  owner_name: optionalText(120),
+  last_four: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? null : value),
+    z.string().regex(/^\d{4}$/, "Store last four digits only.").nullable().optional()
+  ),
+  current_balance: optionalMoney,
+  credit_limit: optionalMoney,
+  apr: optionalRate,
+  minimum_payment: optionalMoney,
+  extra_payment: optionalMoney,
+  statement_day: optionalInteger,
+  due_day: optionalInteger,
+  due_date: optionalDateString,
+  autopay: z.coerce.boolean().default(false),
+  payment_account: optionalText(120),
+  password_location: optionalText(160),
+  notes: noSecretText(1200)
+});
+
+export const sinkingFundSchema = z.object({
+  goal: requiredText("Goal", 140),
+  category: requiredText("Category", 80),
+  target_amount: optionalMoney,
+  target_date: optionalDateString,
+  saved_so_far: optionalMoney,
+  planned_monthly: optionalMoney,
   notes: noSecretText(1200)
 });
 
@@ -363,6 +455,11 @@ export const schemas = {
   grocery_items: groceryItemSchema,
   meal_plans: mealPlanSchema,
   financial_accounts: financialAccountSchema,
+  budget_settings: budgetSettingsSchema,
+  budget_categories: budgetCategorySchema,
+  financial_transactions: financialTransactionSchema,
+  credit_cards: creditCardSchema,
+  sinking_funds: sinkingFundSchema,
   bills: billSchema,
   health_records: healthRecordSchema,
   school_records: schoolRecordSchema,

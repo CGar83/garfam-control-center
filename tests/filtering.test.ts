@@ -20,6 +20,16 @@ describe("filtering and search", () => {
     expect(results.some((result) => result.table === "activity_ideas" && result.route.startsWith("/activities"))).toBe(true);
   });
 
+  it("searches budget tracker records", () => {
+    const data = createSeedData();
+    const cardResults = searchData(data, "Main Visa");
+    const fundResults = searchData(data, "Emergency Fund");
+
+    expect(cardResults.some((result) => result.table === "credit_cards" && result.route.startsWith("/budget"))).toBe(true);
+    expect(cardResults.some((result) => result.table === "financial_transactions" && result.route.startsWith("/budget"))).toBe(true);
+    expect(fundResults.some((result) => result.table === "sinking_funds" && result.route.startsWith("/budget"))).toBe(true);
+  });
+
   it("filters overdue records", () => {
     const records: TaskRecord[] = [
       {

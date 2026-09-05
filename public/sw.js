@@ -1,4 +1,4 @@
-const CACHE_NAME = "family-control-center-v3";
+const CACHE_NAME = "family-control-center-v4";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,
@@ -6,6 +6,7 @@ const PRECACHE_URLS = [
   "/calendar",
   "/tasks",
   "/grocery",
+  "/budget",
   "/manifest.webmanifest",
   "/icons/family-control.svg",
   "/icons/family-control-maskable.svg",

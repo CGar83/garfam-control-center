@@ -1,6 +1,6 @@
 # Family Control Center
 
-A private family management web app for centralizing calendars, calendar sync setup, activity ideas, tasks, groceries, meal planning, finances, bills, safe account references, health details, school records, home and vehicle maintenance, documents, contacts, communication notes, relationship health, emergency planning, family goals, notifications, and settings.
+A private family management web app for centralizing calendars, calendar sync setup, activity ideas, tasks, groceries, meal planning, finances, budget and credit-card tracking, bills, safe account references, health details, school records, home and vehicle maintenance, documents, contacts, communication notes, relationship health, emergency planning, family goals, notifications, and settings.
 
 The app is designed as a clean family operating system: fast enough for daily use, structured enough to replace scattered notes, texts, spreadsheets, paper folders, and fridge lists.
 
@@ -67,7 +67,7 @@ supabase db push
 
 Or paste the SQL migration into the Supabase SQL editor.
 
-The migration creates all family tables, notifications, activity log, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
+The migration creates all family tables, budget tracker tables, notifications, activity log, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
 
 ## Calendar Sync
 
@@ -79,9 +79,22 @@ The Calendar page includes a Calendar Sync panel for Google Calendar, Apple Cale
 
 Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus a hosted feed/callback endpoint. This first version includes the database and UI structure, `.ics` import/export, and provider tracking without storing calendar account passwords.
 
+## Budget and Credit Card Tracker
+
+The Budget & Cards page integrates the workbook-style `Ultimate Budget + Credit Card Tracker` into the app as live records instead of static spreadsheet formulas.
+
+- Budget settings track month, year, planned income, starting cash, prior-balance handling, payoff strategy, and utilization thresholds.
+- Budget categories track group, category, need/want/goal, monthly plan, rollover, and prior balance.
+- Transactions log positive-amount income, expenses, transfers, and credit-card payments.
+- Credit cards track issuer, owner, last four only, balance, limit, APR, payment assumptions, due dates, autopay, and password-vault location.
+- Sinking funds track target amount, target date, saved amount, planned monthly contribution, and progress.
+- The page computes monthly income, spending, savings rate, remaining budget, card debt, utilization targets, avalanche/snowball payoff order, and annual income/spending/savings summaries.
+
+The tracker intentionally does not store full card numbers, account numbers, passwords, SSNs, or credit-score guarantees. Utilization thresholds are planning aids only.
+
 ## Seed Data
 
-Local demo data is automatic.
+Local demo data is automatic and includes the Rivera family plus sample budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
 
 For Supabase:
 
@@ -109,10 +122,10 @@ npm run build
 
 - This is not a password manager.
 - Do not store full passwords, full SSNs, full financial account numbers, or full medical record numbers.
-- Account, finance, vehicle, health, and emergency forms validate partial identifiers and block obvious stored secrets.
+- Account, finance, budget, credit-card, transaction, vehicle, health, and emergency forms validate partial identifiers and block obvious stored secrets.
 - Store last four digits only where applicable.
 - Use the `password_location` field for references such as `1Password Family Vault`.
-- Privacy mode hides sensitive financial, health, account, vehicle, and emergency details on shared screens.
+- Privacy mode hides sensitive financial, budget, card, transaction, health, account, vehicle, and emergency details on shared screens.
 - Supabase RLS scopes records by `family_id` and membership.
 
 ## Deployment Notes
@@ -144,6 +157,7 @@ npm run build
 - Export and import `.ics` calendar data for Google Calendar, Apple Calendar, Outlook, and other popular calendar apps.
 - Track calendar sync provider connections and status.
 - Use the Activities hub for son, daughter, all-kids, family, and date-night ideas, then add ideas directly to the Family Calendar.
+- Use the Budget & Cards hub for workbook-style budget settings, category plans, transactions, credit cards, utilization targets, debt payoff planning, sinking funds, and annual summaries.
 - Add bills and see upcoming and overdue bills.
 - Add health, school, home, vehicle, document, contact, emergency, communication, and goal records.
 - Use the Relationship hub for marriage-health check-ins, connection rituals, conflict repair, stress conversations, and weekly state-of-the-union notes.

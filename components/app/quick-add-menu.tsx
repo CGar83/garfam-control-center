@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus, ClipboardPlus, FilePlus2, HeartHandshake, MessageSquarePlus, PartyPopper, Plus, ReceiptText, ShoppingCart } from "lucide-react";
+import {
+  CalendarPlus,
+  ClipboardPlus,
+  FilePlus2,
+  HeartHandshake,
+  MessageSquarePlus,
+  PartyPopper,
+  Plus,
+  ReceiptText,
+  ShoppingCart,
+  WalletCards
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,6 +29,7 @@ const quickItems: Array<{ label: string; module: ModuleKey; icon: typeof Plus; d
   { label: "Add activity idea", module: "activities", icon: PartyPopper },
   { label: "Add grocery item", module: "grocery", icon: ShoppingCart },
   { label: "Add bill", module: "bills", icon: ReceiptText },
+  { label: "Add transaction", module: "transactions", icon: WalletCards },
   { label: "Add appointment", module: "health", icon: CalendarPlus, defaults: { record_type: "Appointment" } },
   { label: "Add note", module: "communication", icon: MessageSquarePlus },
   { label: "Add relationship check-in", module: "relationship", icon: HeartHandshake },

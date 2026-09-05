@@ -80,6 +80,7 @@ function normalizePayload(config: ModuleConfig, values: FormShape, currentMember
     payload.completed_at = payload.status === "done" ? (record ? (recordMap(record).completed_at ?? nowIso()) : nowIso()) : null;
   }
   if (config.table === "grocery_items" && !record) payload.added_by = currentMemberId;
+  if (config.table === "financial_transactions" && !record) payload.created_by = currentMemberId;
   if (config.table === "communication_notes") {
     if (!record) payload.created_by = currentMemberId;
     payload.acknowledged_by = record ? (recordMap(record).acknowledged_by ?? []) : [];

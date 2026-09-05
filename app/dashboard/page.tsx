@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { isSameDay, parseISO } from "date-fns";
+import Link from "next/link";
+import { format, isSameDay, parseISO } from "date-fns";
 import {
   AlertTriangle,
+  Banknote,
   CalendarPlus,
   ClipboardPlus,
+  CreditCard,
   Goal,
   HeartPulse,
   HeartHandshake,
@@ -16,6 +19,7 @@ import {
   ReceiptText,
   School,
   ShoppingCart,
+  WalletCards,
   Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +37,7 @@ import { useFamilyMembers } from "@/hooks/use-family-members";
 import { recordDate } from "@/lib/filtering";
 import { moduleConfigs, type ModuleKey } from "@/lib/modules";
 import type { AnyRecord, Bill, EventRecord, HealthRecord, HomeRecord, TaskRecord, VehicleRecord } from "@/lib/types";
-import { formatDateTime, isDueSoon, isOverdue, recordMap, safeNumber } from "@/lib/utils";
+import { formatDateTime, isDueSoon, isOverdue, parseMaybeDate, recordMap, safeNumber } from "@/lib/utils";
 
 function DashboardCard({
   title,
@@ -65,6 +69,7 @@ const quickAdds: Array<{ label: string; module: ModuleKey; icon: typeof Plus; de
   { label: "Add task", module: "tasks", icon: ClipboardPlus },
   { label: "Add grocery item", module: "grocery", icon: ShoppingCart },
   { label: "Add bill", module: "bills", icon: ReceiptText },
+  { label: "Add transaction", module: "transactions", icon: Banknote },
   { label: "Add appointment", module: "health", icon: HeartPulse, defaults: { record_type: "Appointment" } },
   { label: "Add note", module: "communication", icon: MessageSquarePlus },
   { label: "Add relationship check-in", module: "relationship", icon: HeartHandshake }
@@ -98,6 +103,25 @@ export default function DashboardPage() {
     const emergency = data.emergency_plan_items.slice(0, 3);
     const goals = data.family_goals.slice(0, 4);
     const monthlyBillTotal = data.bills.reduce((sum, bill) => sum + safeNumber(bill.amount), 0);
+    const currentMonth = format(new Date(), "yyyy-MM");
+    const budgetTransactions = data.financial_transactions.filter((transaction) => {
+      const parsed = parseMaybeDate(transaction.transaction_date);
+      return parsed ? format(parsed, "yyyy-MM") === currentMonth : false;
+    });
+    const budgetCategories = data.budget_categories.filter((category) => {
+      const parsed = parseMaybeDate(category.budget_month);
+      return parsed ? format(parsed, "yyyy-MM") === currentMonth : false;
+    });
+    const budgetIncome = budgetTransactions
+      .filter((transaction) => transaction.transaction_type === "income")
+      .reduce((sum, transaction) => sum + safeNumber(transaction.amount), 0);
+    const budgetSpending = budgetTransactions
+      .filter((transaction) => transaction.transaction_type === "expense")
+      .reduce((sum, transaction) => sum + safeNumber(transaction.amount), 0);
+    const budgetPlanned = budgetCategories.reduce((sum, category) => sum + safeNumber(category.monthly_plan), 0);
+    const cardDebt = data.credit_cards.reduce((sum, card) => sum + safeNumber(card.current_balance), 0);
+    const cardLimit = data.credit_cards.reduce((sum, card) => sum + safeNumber(card.credit_limit), 0);
+    const sinkingSaved = data.sinking_funds.reduce((sum, fund) => sum + safeNumber(fund.saved_so_far), 0);
 
     return {
       todayEvents,
@@ -114,7 +138,13 @@ export default function DashboardPage() {
       relationshipDue,
       emergency,
       goals,
-      monthlyBillTotal
+      monthlyBillTotal,
+      budgetIncome,
+      budgetSpending,
+      budgetRemaining: budgetPlanned - budgetSpending,
+      cardDebt,
+      cardUtilization: cardLimit > 0 ? cardDebt / cardLimit : 0,
+      sinkingSaved
     };
   }, [data]);
 
@@ -131,8 +161,30 @@ export default function DashboardPage() {
         <StatCard label="Grocery Items" value={dashboard.groceryOpen} helper="still needed" tone={dashboard.groceryOpen ? "yellow" : "green"} />
         <StatCard
           label="Monthly Bills"
-          value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)}
+          value={
+            <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)} sensitive>
+              {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)}
+            </PrivacyMask>
+          }
           tone="sage"
+        />
+        <StatCard
+          label="Budget Remaining"
+          value={
+            <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)} sensitive>
+              {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)}
+            </PrivacyMask>
+          }
+          tone={dashboard.budgetRemaining < 0 ? "red" : "green"}
+        />
+        <StatCard
+          label="Card Utilization"
+          value={
+            <PrivacyMask value={`${Math.round(dashboard.cardUtilization * 1000) / 10}%`} sensitive>
+              {Math.round(dashboard.cardUtilization * 1000) / 10}%
+            </PrivacyMask>
+          }
+          tone={dashboard.cardUtilization > 0.5 ? "red" : dashboard.cardUtilization > 0.3 ? "yellow" : "green"}
         />
       </div>
 
@@ -245,7 +297,9 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-medium">{bill.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)}
+                      <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)} sensitive>
+                        {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)}
+                      </PrivacyMask>
                     </p>
                   </div>
                   <DateBadge value={bill.due_date} />
@@ -364,6 +418,49 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
+        <DashboardCard title="Budget & Cards" icon={<WalletCards className="h-5 w-5" />}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-md border p-3">
+              <p className="text-sm text-muted-foreground">Income</p>
+              <p className="mt-1 text-lg font-semibold">
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)}
+                </PrivacyMask>
+              </p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-sm text-muted-foreground">Spending</p>
+              <p className="mt-1 text-lg font-semibold">
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)}
+                </PrivacyMask>
+              </p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-sm text-muted-foreground">Card debt</p>
+              <p className="mt-1 text-lg font-semibold">
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)}
+                </PrivacyMask>
+              </p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-sm text-muted-foreground">Sinking funds saved</p>
+              <p className="mt-1 text-lg font-semibold">
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)}
+                </PrivacyMask>
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="outline" className="mt-4 w-full">
+            <Link href="/budget">
+              <CreditCard className="h-4 w-4" />
+              Open Budget & Cards
+            </Link>
+          </Button>
+        </DashboardCard>
+
         <DashboardCard title="Family Goals Progress" icon={<Goal className="h-5 w-5" />}>
           <MiniList
             records={dashboard.goals}

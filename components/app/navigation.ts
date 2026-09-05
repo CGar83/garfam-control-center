@@ -18,7 +18,8 @@ import {
   ShoppingCart,
   Utensils,
   UsersRound,
-  KeyRound
+  KeyRound,
+  WalletCards
 } from "lucide-react";
 
 export const navItems = [
@@ -29,6 +30,7 @@ export const navItems = [
   { title: "Grocery", href: "/grocery", icon: ShoppingCart },
   { title: "Meals", href: "/meals", icon: Utensils },
   { title: "Finances", href: "/finances", icon: PiggyBank },
+  { title: "Budget", href: "/budget", icon: WalletCards },
   { title: "Bills", href: "/bills", icon: ReceiptText },
   { title: "Accounts", href: "/accounts", icon: KeyRound },
   { title: "Health", href: "/health", icon: HeartPulse },
@@ -45,5 +47,5 @@ export const navItems = [
 ] as const;
 
 export const mobileNavItems = navItems.filter((item) =>
-  ["/dashboard", "/calendar", "/activities", "/tasks", "/grocery", "/relationship", "/communication", "/settings"].includes(item.href)
+  ["/dashboard", "/calendar", "/tasks", "/grocery", "/budget", "/relationship", "/communication", "/settings"].includes(item.href)
 );

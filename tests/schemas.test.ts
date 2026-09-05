@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   activityIdeaSchema,
+  budgetCategorySchema,
+  budgetSettingsSchema,
   calendarConnectionSchema,
+  creditCardSchema,
   eventSchema,
   financialAccountSchema,
+  financialTransactionSchema,
   relationshipRecordSchema,
+  sinkingFundSchema,
   taskSchema,
   vehicleRecordSchema
 } from "@/lib/schemas";
@@ -117,5 +122,82 @@ describe("validation schemas", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("validates workbook-style budget settings", () => {
+    const result = budgetSettingsSchema.safeParse({
+      budget_year: "2026",
+      budget_month: "2026-09-01",
+      starting_cash_available: "1500",
+      planned_monthly_income: "6500",
+      include_prior_category_balances: true,
+      payoff_strategy: "avalanche",
+      target_utilization: "0.30",
+      excellent_utilization: "0.10",
+      high_utilization_alert: "0.50"
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.planned_monthly_income).toBe(6500);
+      expect(result.data.target_utilization).toBe(0.3);
+    }
+  });
+
+  it("validates budget categories and transaction tags", () => {
+    const category = budgetCategorySchema.safeParse({
+      budget_month: "2026-09-01",
+      group_name: "Food",
+      category: "Groceries",
+      need_want_goal: "need",
+      monthly_plan: "850",
+      rollover: false,
+      prior_balance: ""
+    });
+    const transaction = financialTransactionSchema.safeParse({
+      transaction_date: "2026-09-04",
+      account_name: "Main Visa",
+      transaction_type: "expense",
+      category: "Groceries",
+      description: "Market trip",
+      amount: "185.42",
+      cleared: true,
+      recurring: false,
+      tags: "food, weekly"
+    });
+
+    expect(category.success).toBe(true);
+    expect(transaction.success).toBe(true);
+    if (transaction.success) expect(transaction.data.tags).toEqual(["food", "weekly"]);
+  });
+
+  it("rejects full card numbers and stored secrets in credit card records", () => {
+    const result = creditCardSchema.safeParse({
+      card_name: "Main Visa",
+      last_four: "1234567890123456",
+      current_balance: 4200,
+      credit_limit: 10000,
+      apr: 0.2199,
+      minimum_payment: 140,
+      extra_payment: 260,
+      autopay: true,
+      notes: "password: SuperSecret123!"
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("validates sinking fund targets", () => {
+    const result = sinkingFundSchema.safeParse({
+      goal: "Emergency Fund",
+      category: "Financial",
+      target_amount: "10000",
+      target_date: "",
+      saved_so_far: "3500",
+      planned_monthly: "500"
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.target_date).toBeNull();
   });
 });

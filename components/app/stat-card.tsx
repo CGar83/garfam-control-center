@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   label: string;
-  value: string | number;
-  helper?: string;
+  value: ReactNode;
+  helper?: ReactNode;
   icon?: ReactNode;
   tone?: "default" | "red" | "yellow" | "green" | "sage";
 }

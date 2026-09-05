@@ -38,7 +38,23 @@ const dateColumns = new Set([
   "renewal_date",
   "target_date",
   "related_date",
+  "budget_month",
+  "transaction_date",
   "last_synced_at"
+]);
+const currencyColumns = new Set([
+  "amount",
+  "monthly_plan",
+  "prior_balance",
+  "planned_monthly_income",
+  "starting_cash_available",
+  "current_balance",
+  "credit_limit",
+  "minimum_payment",
+  "extra_payment",
+  "target_amount",
+  "saved_so_far",
+  "planned_monthly"
 ]);
 
 function fieldValue(record: AnyRecord, column: string) {
@@ -57,8 +73,17 @@ function renderCell(record: AnyRecord, column: string, config: ModuleConfig) {
   if (column === "priority" || column === "importance") return <PriorityBadge priority={stringValue} />;
   if (dateColumns.has(column)) return column.includes("_at") ? formatDateTime(stringValue) : <DateBadge value={stringValue} />;
 
-  if (column === "amount") {
-    return Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(safeNumber(value));
+  if (currencyColumns.has(column)) {
+    const formatted = Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(safeNumber(value));
+    return (
+      <PrivacyMask value={formatted} sensitive={sensitive}>
+        {formatted}
+      </PrivacyMask>
+    );
+  }
+
+  if (column.includes("utilization") || column === "apr") {
+    return `${Math.round(safeNumber(value) * 1000) / 10}%`;
   }
 
   if (column === "progress") {

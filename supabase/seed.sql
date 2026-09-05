@@ -42,6 +42,125 @@ values
   ('finance_card', 'family_rivera_demo', 'Summit Rewards', 'Credit', 'Miles', '7712', 'https://example.com', '555-0151', current_date + 45, '1Password Family Vault', 'Used for groceries and gas.')
 on conflict (id) do nothing;
 
+insert into public.budget_settings (
+  id,
+  family_id,
+  budget_year,
+  budget_month,
+  starting_cash_available,
+  planned_monthly_income,
+  include_prior_category_balances,
+  payoff_strategy,
+  target_utilization,
+  excellent_utilization,
+  high_utilization_alert,
+  notes
+)
+values (
+  'budget_settings_current',
+  'family_rivera_demo',
+  extract(year from current_date)::integer,
+  date_trunc('month', current_date)::date,
+  1500.00,
+  6500.00,
+  true,
+  'avalanche',
+  0.30,
+  0.10,
+  0.50,
+  'Demo values based on the workbook setup tab. Replace with household assumptions.'
+)
+on conflict (id) do nothing;
+
+insert into public.budget_categories (
+  id,
+  family_id,
+  budget_month,
+  group_name,
+  category,
+  need_want_goal,
+  monthly_plan,
+  rollover,
+  prior_balance,
+  notes
+)
+values
+  ('budget_category_rent', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Housing', 'Rent / Mortgage', 'need', 2500.00, false, 0.00, null),
+  ('budget_category_home_maintenance', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Housing', 'Home Maintenance', 'need', 150.00, true, 200.00, 'Roll unused maintenance dollars forward.'),
+  ('budget_category_electricity', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Utilities', 'Electricity', 'need', 180.00, false, 0.00, null),
+  ('budget_category_internet', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Utilities', 'Internet', 'need', 85.00, false, 0.00, null),
+  ('budget_category_phone', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Utilities', 'Phone', 'need', 120.00, false, 0.00, null),
+  ('budget_category_car_payment', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Transportation', 'Car Payment', 'need', 450.00, false, 0.00, null),
+  ('budget_category_fuel', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Transportation', 'Fuel', 'need', 220.00, false, 0.00, null),
+  ('budget_category_groceries', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Food', 'Groceries', 'need', 850.00, false, 0.00, null),
+  ('budget_category_restaurants', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Food', 'Restaurants', 'want', 260.00, false, 0.00, null),
+  ('budget_category_school', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Kids', 'School', 'need', 160.00, true, 75.00, 'Forms, activity fees, and classroom supplies.'),
+  ('budget_category_medical', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Health', 'Medical', 'need', 175.00, true, 100.00, null),
+  ('budget_category_credit_payment', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Debt', 'Credit Card Payment', 'goal', 700.00, false, 0.00, 'Includes minimums plus extra principal.'),
+  ('budget_category_emergency_fund', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Savings', 'Emergency Fund', 'goal', 500.00, true, 3500.00, null),
+  ('budget_category_streaming', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Lifestyle', 'Streaming', 'want', 25.00, false, 0.00, null)
+on conflict (id) do nothing;
+
+insert into public.financial_transactions (
+  id,
+  family_id,
+  transaction_date,
+  account_name,
+  transaction_type,
+  category,
+  description,
+  amount,
+  cleared,
+  recurring,
+  owner_name,
+  notes,
+  tags,
+  created_by
+)
+values
+  ('transaction_paycheck_1', 'family_rivera_demo', date_trunc('month', current_date)::date, 'Checking', 'income', 'Paycheck', 'Sample paycheck', 3250.00, true, false, 'Household', null, array['income'], 'member_ava_rivera'),
+  ('transaction_rent', 'family_rivera_demo', date_trunc('month', current_date)::date + 2, 'Checking', 'expense', 'Rent / Mortgage', 'Sample housing payment', 2500.00, true, true, 'Household', null, array['housing'], 'member_miles_rivera'),
+  ('transaction_groceries', 'family_rivera_demo', date_trunc('month', current_date)::date + 3, 'Main Visa', 'expense', 'Groceries', 'Sample grocery trip', 185.42, true, false, 'Household', null, array['food'], 'member_ava_rivera'),
+  ('transaction_fuel', 'family_rivera_demo', date_trunc('month', current_date)::date + 4, 'Main Visa', 'expense', 'Fuel', 'Sample fuel', 64.20, true, false, 'Household', null, array['vehicle'], 'member_miles_rivera'),
+  ('transaction_internet', 'family_rivera_demo', date_trunc('month', current_date)::date + 5, 'Checking', 'expense', 'Internet', 'Sample internet bill', 85.00, true, true, 'Household', null, array['utilities'], 'member_ava_rivera'),
+  ('transaction_streaming', 'family_rivera_demo', date_trunc('month', current_date)::date + 7, 'Main Visa', 'expense', 'Streaming', 'Streaming bundle', 24.99, true, true, 'Household', null, array['subscription'], 'member_ava_rivera')
+on conflict (id) do nothing;
+
+insert into public.credit_cards (
+  id,
+  family_id,
+  card_name,
+  issuer,
+  owner_name,
+  last_four,
+  current_balance,
+  credit_limit,
+  apr,
+  minimum_payment,
+  extra_payment,
+  statement_day,
+  due_day,
+  due_date,
+  autopay,
+  payment_account,
+  password_location,
+  notes
+)
+values
+  ('credit_card_main_visa', 'family_rivera_demo', 'Main Visa', 'Example Bank', 'Household', '7712', 4200.00, 10000.00, 0.21990, 140.00, 260.00, 5, 22, date_trunc('month', current_date)::date + 21, true, 'Checking', '1Password Family Vault', 'Sample card record. Replace with real last four only.'),
+  ('credit_card_rewards_mastercard', 'family_rivera_demo', 'Rewards Mastercard', 'Example Credit Union', 'Household', '3855', 1800.00, 6000.00, 0.18990, 65.00, 135.00, 10, 25, date_trunc('month', current_date)::date + 24, true, 'Checking', '1Password Family Vault', 'Used for rotating rewards categories.'),
+  ('credit_card_store', 'family_rivera_demo', 'Store Card', 'Example Store', 'Household', '1048', 650.00, 1500.00, 0.29990, 40.00, 60.00, 18, 12, date_trunc('month', current_date)::date + 11, false, 'Checking', '1Password Family Vault', 'High APR. Avalanche plan prioritizes this card.')
+on conflict (id) do nothing;
+
+insert into public.sinking_funds (id, family_id, goal, category, target_amount, target_date, saved_so_far, planned_monthly, notes)
+values
+  ('sinking_emergency_fund', 'family_rivera_demo', 'Emergency Fund', 'Financial', 10000.00, current_date + 360, 3500.00, 500.00, 'Primary cash buffer.'),
+  ('sinking_vacation', 'family_rivera_demo', 'Vacation', 'Travel', 3000.00, current_date + 270, 600.00, 250.00, 'Summer family trip.'),
+  ('sinking_home_repairs', 'family_rivera_demo', 'Home Repairs', 'Home', 2500.00, current_date + 210, 450.00, 150.00, 'Repairs that should not hit the credit card.'),
+  ('sinking_holiday_gifts', 'family_rivera_demo', 'Holiday Gifts', 'Family', 1200.00, current_date + 90, 300.00, 300.00, 'Gift budget and seasonal expenses.'),
+  ('sinking_car_maintenance', 'family_rivera_demo', 'Car Maintenance', 'Home', 1000.00, current_date + 150, 250.00, 125.00, 'Oil changes, tires, and small repairs.')
+on conflict (id) do nothing;
+
 insert into public.bills (id, family_id, name, category, amount, due_day, due_date, autopay, payment_account, status, notes)
 values
   ('bill_mortgage', 'family_rivera_demo', 'Mortgage', 'Mortgage', 2150.00, 1, current_date + 4, true, 'Checking ending 2481', 'upcoming', 'Autopay confirmation usually arrives two days before due date.'),

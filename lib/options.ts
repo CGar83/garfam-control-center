@@ -2,9 +2,12 @@ import type {
   ActivityAudience,
   ActivityStatus,
   BillStatus,
+  BudgetNeedWantGoal,
+  BudgetPayoffStrategy,
   CalendarConnectionStatus,
   CalendarProvider,
   CalendarSyncDirection,
+  FinancialTransactionType,
   GoalStatus,
   Priority,
   Role,
@@ -21,6 +24,9 @@ export const calendarSyncDirections = ["export", "import", "two_way"] as const s
 export const calendarConnectionStatuses = ["setup_required", "active", "paused", "error"] as const satisfies readonly CalendarConnectionStatus[];
 export const activityAudiences = ["son", "daughter", "all_kids", "date_night", "family"] as const satisfies readonly ActivityAudience[];
 export const activityStatuses = ["idea", "planned", "done"] as const satisfies readonly ActivityStatus[];
+export const budgetNeedWantGoalOptions = ["need", "want", "goal"] as const satisfies readonly BudgetNeedWantGoal[];
+export const budgetPayoffStrategies = ["avalanche", "snowball"] as const satisfies readonly BudgetPayoffStrategy[];
+export const financialTransactionTypes = ["income", "expense", "transfer", "credit_payment"] as const satisfies readonly FinancialTransactionType[];
 
 export const eventCategories = ["Family", "School", "Medical", "Work", "Sports", "Travel", "Bills", "Home", "Vehicle"];
 export const groceryCategories = [
@@ -51,6 +57,50 @@ export const accountCategories = [
 ];
 export const billCategories = ["Mortgage", "Utilities", "Insurance", "School", "Subscriptions", "Medical", "Vehicle", "Other"];
 export const financeTypes = ["Cash", "Credit", "Insurance", "Loan", "Subscription", "Investment"];
+export const budgetGroups = [
+  "Housing",
+  "Utilities",
+  "Transportation",
+  "Food",
+  "Kids",
+  "Health",
+  "Debt",
+  "Insurance",
+  "Giving",
+  "Savings",
+  "Lifestyle",
+  "Other"
+] as const;
+export const budgetCategories = [
+  "Rent / Mortgage",
+  "HOA",
+  "Property Tax",
+  "Home Maintenance",
+  "Electricity",
+  "Gas",
+  "Water",
+  "Internet",
+  "Phone",
+  "Car Payment",
+  "Fuel",
+  "Auto Insurance",
+  "Groceries",
+  "Restaurants",
+  "School",
+  "Childcare",
+  "Medical",
+  "Pharmacy",
+  "Credit Card Payment",
+  "Emergency Fund",
+  "Vacation",
+  "Holiday Gifts",
+  "Streaming",
+  "Clothing",
+  "Personal",
+  "Other"
+] as const;
+export const budgetBillFrequencies = ["Monthly", "Weekly", "Biweekly", "Quarterly", "Annual"] as const;
+export const creditUtilizationBands = ["90%", "80%", "70%", "60%", "50%", "40%", "30%", "20%", "10%", "5%"] as const;
 export const healthTypes = ["Provider", "Insurance", "Medication", "Allergy", "Condition", "Appointment", "Immunization", "Pharmacy"];
 export const homeCategories = [
   "Maintenance",

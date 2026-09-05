@@ -20,7 +20,7 @@ export const defaultFilters: FilterState = {
   date: "all"
 };
 
-const personKeys = ["assigned_to", "person_id", "child_id", "created_by", "added_by", "owner"] as const;
+const personKeys = ["assigned_to", "person_id", "child_id", "created_by", "added_by", "owner", "owner_name"] as const;
 const dateKeys = [
   "due_at",
   "due_date",
@@ -32,7 +32,9 @@ const dateKeys = [
   "renewal_date",
   "target_date",
   "meal_date",
-  "related_date"
+  "related_date",
+  "budget_month",
+  "transaction_date"
 ] as const;
 
 export function recordText(record: AnyRecord) {
@@ -73,7 +75,13 @@ export function applyRecordFilters<TRecord extends AnyRecord>(records: TRecord[]
     const matchesPerson = filters.person === "all" || recordPerson(record) === filters.person;
     const matchesStatus = filters.status === "all" || rec.status === filters.status;
     const matchesPriority = filters.priority === "all" || rec.priority === filters.priority || rec.importance === filters.priority;
-    const matchesCategory = filters.category === "all" || rec.category === filters.category || rec.record_type === filters.category;
+    const matchesCategory =
+      filters.category === "all" ||
+      rec.category === filters.category ||
+      rec.record_type === filters.category ||
+      rec.group_name === filters.category ||
+      rec.need_want_goal === filters.category ||
+      rec.transaction_type === filters.category;
     const date = recordDate(record);
     const matchesDate =
       filters.date === "all" ||
@@ -98,6 +106,11 @@ const searchableTables: TableName[] = [
   "events",
   "grocery_items",
   "bills",
+  "budget_settings",
+  "budget_categories",
+  "financial_transactions",
+  "credit_cards",
+  "sinking_funds",
   "contacts",
   "documents",
   "health_records",
@@ -113,6 +126,11 @@ const routes: Partial<Record<TableName, string>> = {
   events: "/calendar",
   grocery_items: "/grocery",
   bills: "/bills",
+  budget_settings: "/budget",
+  budget_categories: "/budget",
+  financial_transactions: "/budget",
+  credit_cards: "/budget",
+  sinking_funds: "/budget",
   contacts: "/contacts",
   documents: "/documents",
   health_records: "/health",
@@ -129,6 +147,10 @@ export function getRecordTitle(record: AnyRecord) {
     rec.title ??
       rec.name ??
       rec.institution_name ??
+      rec.card_name ??
+      rec.goal ??
+      rec.description ??
+      rec.budget_month ??
       rec.provider_name ??
       rec.school_name ??
       rec.vehicle_name ??

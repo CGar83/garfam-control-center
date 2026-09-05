@@ -76,6 +76,13 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Open family calendar and sync tools.",
         url: "/calendar",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }]
+      },
+      {
+        name: "Budget & Cards",
+        short_name: "Budget",
+        description: "Open budget, cards, utilization, and sinking funds.",
+        url: "/budget",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }]
       }
     ]
   };

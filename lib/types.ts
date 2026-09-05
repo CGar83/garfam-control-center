@@ -8,6 +8,9 @@ export type CalendarSyncDirection = "export" | "import" | "two_way";
 export type CalendarConnectionStatus = "setup_required" | "active" | "paused" | "error";
 export type ActivityAudience = "son" | "daughter" | "all_kids" | "date_night" | "family";
 export type ActivityStatus = "idea" | "planned" | "done";
+export type BudgetNeedWantGoal = "need" | "want" | "goal";
+export type BudgetPayoffStrategy = "avalanche" | "snowball";
+export type FinancialTransactionType = "income" | "expense" | "transfer" | "credit_payment";
 export type NotificationKind =
   | "due_soon"
   | "overdue"
@@ -100,6 +103,74 @@ export interface FinancialAccount extends FamilyScopedRecord {
   support_phone?: string | null;
   renewal_date?: string | null;
   password_location?: string | null;
+  notes?: string | null;
+}
+
+export interface BudgetSettings extends FamilyScopedRecord {
+  budget_year: number;
+  budget_month: string;
+  starting_cash_available: number;
+  planned_monthly_income: number;
+  include_prior_category_balances: boolean;
+  payoff_strategy: BudgetPayoffStrategy;
+  target_utilization: number;
+  excellent_utilization: number;
+  high_utilization_alert: number;
+  notes?: string | null;
+}
+
+export interface BudgetCategory extends FamilyScopedRecord {
+  budget_month: string;
+  group_name: string;
+  category: string;
+  need_want_goal: BudgetNeedWantGoal;
+  monthly_plan: number;
+  rollover: boolean;
+  prior_balance: number;
+  notes?: string | null;
+}
+
+export interface FinancialTransaction extends FamilyScopedRecord {
+  transaction_date: string;
+  account_name: string;
+  transaction_type: FinancialTransactionType;
+  category: string;
+  description: string;
+  amount: number;
+  cleared: boolean;
+  recurring: boolean;
+  owner_name?: string | null;
+  notes?: string | null;
+  tags?: string[];
+  created_by?: string | null;
+}
+
+export interface CreditCard extends FamilyScopedRecord {
+  card_name: string;
+  issuer?: string | null;
+  owner_name?: string | null;
+  last_four?: string | null;
+  current_balance: number;
+  credit_limit: number;
+  apr: number;
+  minimum_payment: number;
+  extra_payment: number;
+  statement_day?: number | null;
+  due_day?: number | null;
+  due_date?: string | null;
+  autopay: boolean;
+  payment_account?: string | null;
+  password_location?: string | null;
+  notes?: string | null;
+}
+
+export interface SinkingFund extends FamilyScopedRecord {
+  goal: string;
+  category: string;
+  target_amount: number;
+  target_date?: string | null;
+  saved_so_far: number;
+  planned_monthly: number;
   notes?: string | null;
 }
 
@@ -301,6 +372,11 @@ export interface DataStore {
   grocery_items: GroceryItem[];
   meal_plans: MealPlan[];
   financial_accounts: FinancialAccount[];
+  budget_settings: BudgetSettings[];
+  budget_categories: BudgetCategory[];
+  financial_transactions: FinancialTransaction[];
+  credit_cards: CreditCard[];
+  sinking_funds: SinkingFund[];
   bills: Bill[];
   health_records: HealthRecord[];
   school_records: SchoolRecord[];
