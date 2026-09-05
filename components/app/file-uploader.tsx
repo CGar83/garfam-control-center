@@ -14,14 +14,14 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({ value, onChange, label }: FileUploaderProps) {
-  const { supabase, familyId, usingDemoData } = useAppData();
+  const { supabase, familyId, usingLocalData } = useAppData();
   const { toast } = useToast();
 
   async function upload(file: File) {
-    if (!supabase || usingDemoData) {
+    if (!supabase || usingLocalData) {
       toast({
         title: "Storage not connected",
-        description: "Paste a Supabase Storage URL or external location for local demo mode.",
+        description: "Paste a Supabase Storage URL or external location while cloud storage is unavailable.",
         variant: "default"
       });
       return;

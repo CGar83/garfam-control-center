@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
-import { createSeedData, demoUser } from "@/lib/seed-data";
+import { createSeedData, localUser } from "@/lib/seed-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { ActivityLog, CurrentUser, DataStore, FamilyMember, NotificationRecord, TableName, TableRecord } from "@/lib/types";
 import { makeId, nowIso, recordMap } from "@/lib/utils";
@@ -168,7 +168,7 @@ interface AppDataContextValue {
   familyId: string;
   supabase: SupabaseClient | null;
   supabaseConfigured: boolean;
-  usingDemoData: boolean;
+  usingLocalData: boolean;
   loading: boolean;
   createWorkspace: (name: string) => Promise<void>;
   updateFamilyName: (name: string) => Promise<void>;
@@ -190,14 +190,14 @@ interface AppDataContextValue {
   ) => void;
   clearCheckedGroceries: () => Promise<void>;
   addIngredientsToGrocery: (ingredients: string, store?: string | null) => Promise<void>;
-  resetDemoData: () => void;
+  restoreStarterData: () => void;
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
-const storageKey = "family-control-center-demo-store";
+const storageKey = "family-control-center-local-store";
 
 type AuthActionResult = {
-  status: "signed_in" | "confirmation_required" | "demo";
+  status: "signed_in" | "confirmation_required" | "local";
   message: string;
 };
 
@@ -257,8 +257,8 @@ function browserIsOnline() {
   return typeof navigator === "undefined" || navigator.onLine;
 }
 
-function assertCanSync(usingDemoData: boolean) {
-  if (!usingDemoData && !browserIsOnline()) {
+function assertCanSync(usingLocalData: boolean) {
+  if (!usingLocalData && !browserIsOnline()) {
     throw new Error("You are offline. Reconnect before saving production family data.");
   }
 }
@@ -412,9 +412,9 @@ async function loadSupabaseData(supabase: SupabaseClient): Promise<DataStore | n
 export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [data, setData] = useState<DataStore>(() => createSeedData());
-  const [currentUser, setCurrentUser] = useState<CurrentUser>(demoUser);
+  const [currentUser, setCurrentUser] = useState<CurrentUser>(localUser);
   const [loading, setLoading] = useState(true);
-  const [usingDemoData, setUsingDemoData] = useState(true);
+  const [usingLocalData, setUsingLocalData] = useState(true);
   const [hydrated, setHydrated] = useState(false);
 
   const familyId = data.families[0]?.id ?? "family_local";
@@ -435,7 +435,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
               const member = memberForUser(remoteData, user.id);
               setCurrentUser(userFromAuth(user, member));
               setData(remoteData);
-              setUsingDemoData(false);
+              setUsingLocalData(false);
               setHydrated(true);
               setLoading(false);
               return;
@@ -445,13 +445,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
             if (!cancelled) {
               setCurrentUser(bootstrapped.user);
               setData(bootstrapped.store);
-              setUsingDemoData(false);
+              setUsingLocalData(false);
               setHydrated(true);
               setLoading(false);
               return;
             }
           } catch (error) {
-            console.warn("Supabase workspace load failed; falling back to local demo data.", error);
+            console.warn("Supabase workspace load failed; falling back to local workspace data.", error);
           }
         }
       }
@@ -462,7 +462,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!cancelled) {
-        setUsingDemoData(true);
+        setUsingLocalData(true);
         setHydrated(true);
         setLoading(false);
       }
@@ -476,15 +476,15 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
-    if (hydrated && usingDemoData) {
+    if (hydrated && usingLocalData) {
       localStorage.setItem(storageKey, JSON.stringify(data));
     }
-  }, [data, hydrated, usingDemoData]);
+  }, [data, hydrated, usingLocalData]);
 
   const createWorkspace = useCallback(
     async (name: string) => {
-      if (supabase && !usingDemoData) {
-        assertCanSync(usingDemoData);
+      if (supabase && !usingLocalData) {
+        assertCanSync(usingLocalData);
         const { data: authData, error } = await supabase.auth.getUser();
         if (error) throw error;
         if (!authData.user) throw new Error("Sign in before creating a Supabase workspace.");
@@ -518,7 +518,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser((user) => ({ ...user, member_id: member.id, role: "admin" }));
       setData({ ...emptyDataStore(), families: [workspace], family_members: [member] });
     },
-    [currentUser, supabase, usingDemoData]
+    [currentUser, supabase, usingLocalData]
   );
 
   const updateFamilyName = useCallback(
@@ -530,29 +530,29 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (supabase && !usingDemoData) assertCanSync(usingDemoData);
+      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
 
       setData((current) => ({
         ...current,
         families: current.families.map((item) => (item.id === family.id ? { ...item, name, updated_at: timestamp } : item))
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { error } = await supabase.from("families").update({ name, updated_at: timestamp }).eq("id", family.id);
         if (error) throw error;
       }
     },
-    [createWorkspace, data.families, supabase, usingDemoData]
+    [createWorkspace, data.families, supabase, usingLocalData]
   );
 
   const signIn = useCallback(
     async (email: string, password: string) => {
       if (!supabase) {
-        setCurrentUser({ ...demoUser, email, display_name: email.split("@")[0] || demoUser.display_name });
-        setUsingDemoData(true);
+        setCurrentUser({ ...localUser, email, display_name: email.split("@")[0] || localUser.display_name });
+        setUsingLocalData(true);
         return {
-          status: "demo",
-          message: "Local demo mode is active. Add Supabase environment variables locally or use the deployed Netlify site."
+          status: "local",
+          message: "Local workspace mode is active. Add Supabase environment variables locally or use the deployed Netlify site for cloud sync."
         } satisfies AuthActionResult;
       }
 
@@ -566,7 +566,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         const member = memberForUser(remoteData, authData.user.id);
         setCurrentUser(userFromAuth(authData.user, member));
         setData(remoteData);
-        setUsingDemoData(false);
+        setUsingLocalData(false);
         return {
           status: "signed_in",
           message: "Remote family workspace loaded from Supabase."
@@ -576,7 +576,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       const bootstrapped = await createRemoteWorkspace(supabase, authData.user);
       setCurrentUser(bootstrapped.user);
       setData(bootstrapped.store);
-      setUsingDemoData(false);
+      setUsingLocalData(false);
       return {
         status: "signed_in",
         message: "New Supabase family workspace created."
@@ -589,10 +589,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string, displayName: string) => {
       if (!supabase) {
         setCurrentUser({ id: makeId("user"), email, display_name: displayName, role: "admin" });
-        setUsingDemoData(true);
+        setUsingLocalData(true);
         return {
-          status: "demo",
-          message: "Local demo mode is active. The account was not created in Supabase."
+          status: "local",
+          message: "Local workspace mode is active. The account was not created in Supabase."
         } satisfies AuthActionResult;
       }
 
@@ -606,7 +606,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         const bootstrapped = await createRemoteWorkspace(supabase, authData.user, `${displayName} Family`);
         setCurrentUser(bootstrapped.user);
         setData(bootstrapped.store);
-        setUsingDemoData(false);
+        setUsingLocalData(false);
         return {
           status: "signed_in",
           message: "Account created and remote family workspace started."
@@ -623,9 +623,9 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (supabase) await supabase.auth.signOut();
-    setCurrentUser(demoUser);
+    setCurrentUser(localUser);
     setData(createSeedData());
-    setUsingDemoData(true);
+    setUsingLocalData(true);
   }, [supabase]);
 
   const appendActivity = useCallback(
@@ -646,12 +646,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         activity_log: [entry, ...current.activity_log].slice(0, 100)
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { error } = await supabase.from("activity_log").insert(entry);
         if (error) console.warn("Activity log insert failed", error);
       }
     },
-    [currentMemberId, familyId, supabase, usingDemoData]
+    [currentMemberId, familyId, supabase, usingLocalData]
   );
 
   const appendNotification = useCallback(
@@ -672,17 +672,17 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         notifications: [notification, ...current.notifications].slice(0, 100)
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { error } = await supabase.from("notifications").insert(notification);
         if (error) console.warn("Notification insert failed", error);
       }
     },
-    [familyId, supabase, usingDemoData]
+    [familyId, supabase, usingLocalData]
   );
 
   const createRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, values: Partial<TableRecord<TTable>>) => {
-      if (supabase && !usingDemoData) assertCanSync(usingDemoData);
+      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
 
       const timestamp = nowIso();
       const previous = data;
@@ -699,7 +699,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         [table]: [...current[table], record]
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { data: inserted, error } = await supabase.from(table).insert(record).select().single();
         if (error) {
           setData(previous);
@@ -719,12 +719,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       await appendNotification(notificationSeed(table, recordMap(record)));
       return record;
     },
-    [appendActivity, appendNotification, data, familyId, supabase, usingDemoData]
+    [appendActivity, appendNotification, data, familyId, supabase, usingLocalData]
   );
 
   const updateRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, id: string, values: Partial<TableRecord<TTable>>) => {
-      if (supabase && !usingDemoData) assertCanSync(usingDemoData);
+      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
 
       const timestamp = nowIso();
       const previous = data;
@@ -739,7 +739,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         [table]: current[table].map((record) => (record.id === id ? ({ ...record, ...values, updated_at: timestamp } as TableRecord<TTable>) : record))
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { data: updated, error } = await supabase
           .from(table)
           .update({ ...values, updated_at: timestamp })
@@ -759,12 +759,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       await appendActivity("updated", table, updatedRecord);
       return updatedRecord;
     },
-    [appendActivity, data, familyId, supabase, usingDemoData]
+    [appendActivity, data, familyId, supabase, usingLocalData]
   );
 
   const deleteRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, id: string) => {
-      if (supabase && !usingDemoData) assertCanSync(usingDemoData);
+      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
 
       const previous = data;
       const deleted = data[table].find((record) => record.id === id);
@@ -773,7 +773,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         [table]: current[table].filter((record) => record.id !== id)
       }));
 
-      if (supabase && !usingDemoData) {
+      if (supabase && !usingLocalData) {
         const { error } = await supabase.from(table).delete().eq("id", id).eq("family_id", familyId);
         if (error) {
           setData(previous);
@@ -783,7 +783,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
       if (deleted) await appendActivity("deleted", table, deleted);
     },
-    [appendActivity, data, familyId, supabase, usingDemoData]
+    [appendActivity, data, familyId, supabase, usingLocalData]
   );
 
   const applyRealtimeChange = useCallback(
@@ -793,7 +793,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       newRecord?: Partial<TableRecord<TTable>> | null,
       oldRecord?: Partial<TableRecord<TTable>> | null
     ) => {
-      if (usingDemoData) return;
+      if (usingLocalData) return;
 
       setData((current) => {
         if (eventType === "DELETE") {
@@ -816,11 +816,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [familyId, usingDemoData]
+    [familyId, usingLocalData]
   );
 
   const clearCheckedGroceries = useCallback(async () => {
-    if (supabase && !usingDemoData) assertCanSync(usingDemoData);
+    if (supabase && !usingLocalData) assertCanSync(usingLocalData);
 
     const checkedIds = data.grocery_items.filter((item) => item.checked).map((item) => item.id);
     setData((current) => ({
@@ -828,11 +828,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       grocery_items: current.grocery_items.filter((item) => !item.checked)
     }));
 
-    if (supabase && !usingDemoData && checkedIds.length > 0) {
+    if (supabase && !usingLocalData && checkedIds.length > 0) {
       await supabase.from("grocery_items").delete().eq("family_id", familyId).in("id", checkedIds);
     }
     if (checkedIds.length > 0) await appendActivity("cleared", "grocery_items", { id: "checked_groceries" });
-  }, [appendActivity, data.grocery_items, familyId, supabase, usingDemoData]);
+  }, [appendActivity, data.grocery_items, familyId, supabase, usingLocalData]);
 
   const addIngredientsToGrocery = useCallback(
     async (ingredients: string, store?: string | null) => {
@@ -859,11 +859,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     [createRecord, currentMemberId]
   );
 
-  const resetDemoData = useCallback(() => {
+  const restoreStarterData = useCallback(() => {
     const seeded = createSeedData();
     setData(seeded);
-    setCurrentUser(demoUser);
-    setUsingDemoData(true);
+    setCurrentUser(localUser);
+    setUsingLocalData(true);
     localStorage.setItem(storageKey, JSON.stringify(seeded));
   }, []);
 
@@ -876,7 +876,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       familyId,
       supabase,
       supabaseConfigured: Boolean(supabase),
-      usingDemoData,
+      usingLocalData,
       loading,
       createWorkspace,
       updateFamilyName,
@@ -889,7 +889,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       applyRealtimeChange,
       clearCheckedGroceries,
       addIngredientsToGrocery,
-      resetDemoData
+      restoreStarterData
     }),
     [
       addIngredientsToGrocery,
@@ -904,14 +904,14 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       familyId,
       loading,
       applyRealtimeChange,
-      resetDemoData,
+      restoreStarterData,
       signIn,
       signOut,
       signUp,
       supabase,
       updateRecord,
       updateFamilyName,
-      usingDemoData
+      usingLocalData
     ]
   );
 

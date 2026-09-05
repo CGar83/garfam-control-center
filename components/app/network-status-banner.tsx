@@ -12,7 +12,7 @@ function getOnlineStatus() {
 
 export function NetworkStatusBanner() {
   const [online, setOnline] = useState(true);
-  const { usingDemoData } = useFamily();
+  const { usingLocalData } = useFamily();
 
   useEffect(() => {
     setOnline(getOnlineStatus());
@@ -41,7 +41,7 @@ export function NetworkStatusBanner() {
         <div className="flex items-start gap-2">
           <WifiOff className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            You are offline. {usingDemoData ? "Demo changes can stay local." : "Production saves are paused until your connection returns."}
+            You are offline. {usingLocalData ? "Local changes stay on this device." : "Cloud saves are paused until your connection returns."}
           </p>
         </div>
         <Button size="sm" variant="outline" className="border-[#ACE1AF]/80 bg-white/55 text-[#235226] hover:bg-white dark:bg-white/10 dark:text-[#D7F2D9]" onClick={() => window.location.reload()}>

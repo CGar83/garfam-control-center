@@ -34,7 +34,7 @@ type MemberValues = {
 };
 
 export default function SettingsPage() {
-  const { family, updateFamilyName, createWorkspace, resetDemoData, currentUser, usingDemoData, supabaseConfigured } = useFamily();
+  const { family, updateFamilyName, createWorkspace, restoreStarterData, currentUser, usingLocalData, supabaseConfigured } = useFamily();
   const { data, createRecord, updateRecord, deleteRecord, signIn, signUp, signOut } = useAppData();
   const { members } = useFamilyMembers();
   const { privacyMode, setPrivacyMode } = usePrivacyMode();
@@ -50,13 +50,17 @@ export default function SettingsPage() {
   const [notificationPrefs, setNotificationPrefs] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(notificationKinds.map((kind) => [kind, true]))
   );
-  const isSignedIn = supabaseConfigured && !usingDemoData;
-  const authStatusTitle = !supabaseConfigured ? "Local demo mode" : usingDemoData ? "Supabase ready, signed out" : "Logged in";
+  const isSignedIn = supabaseConfigured && !usingLocalData;
+  const showWorkspaceControls = !supabaseConfigured || isSignedIn;
+  const authStatusTitle = !supabaseConfigured ? "Local workspace" : usingLocalData ? "Sign in required" : "Logged in";
   const authStatusDescription = !supabaseConfigured
-    ? "This browser is using local demo data. Netlify environment variables do not apply to localhost."
-    : usingDemoData
-      ? "Sign in to load your private family workspace from Supabase. If you just created an account, confirm the email first."
+    ? "This browser is using a local-only workspace. Add Supabase environment variables locally or use the deployed site for cloud sync."
+    : usingLocalData
+      ? "Sign in to load your private family workspace. If you just created an account, confirm the email first."
       : `Signed in as ${currentUser.email}. Changes are saved to Supabase.`;
+  const pageDescription = showWorkspaceControls
+    ? "Workspace profile, members, roles, preferences, privacy, export, theme, and account controls."
+    : "Sign in to manage your private family workspace.";
 
   const familyForm = useForm<{ name: string }>({
     resolver: zodResolver(familySchema),
@@ -90,53 +94,55 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" description="Workspace profile, members, roles, preferences, privacy, export, theme, and account controls." />
+      <PageHeader title="Settings" description={pageDescription} />
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Family Profile</CardTitle>
-            <CardDescription>Current workspace: {family?.name ?? "None"}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="space-y-3"
-              onSubmit={familyForm.handleSubmit(async (values) => {
-                await updateFamilyName(values.name);
-                toast({ title: "Family profile saved", variant: "success" });
-              })}
-            >
-              <label className="text-sm font-medium" htmlFor="family-name">
-                Family name
-              </label>
-              <Input id="family-name" {...familyForm.register("name")} />
-              {familyForm.formState.errors.name?.message ? (
-                <p className="text-xs text-destructive">{familyForm.formState.errors.name.message}</p>
-              ) : null}
-              <div className="flex flex-wrap gap-2">
-                <Button type="submit">Save Family</Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={async () => {
-                    await createWorkspace("New Family Workspace");
-                    toast({ title: "Workspace created", variant: "success" });
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                  Create Workspace
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        {showWorkspaceControls ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Family Profile</CardTitle>
+              <CardDescription>Current workspace: {family?.name ?? "None"}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="space-y-3"
+                onSubmit={familyForm.handleSubmit(async (values) => {
+                  await updateFamilyName(values.name);
+                  toast({ title: "Family profile saved", variant: "success" });
+                })}
+              >
+                <label className="text-sm font-medium" htmlFor="family-name">
+                  Family name
+                </label>
+                <Input id="family-name" {...familyForm.register("name")} />
+                {familyForm.formState.errors.name?.message ? (
+                  <p className="text-xs text-destructive">{familyForm.formState.errors.name.message}</p>
+                ) : null}
+                <div className="flex flex-wrap gap-2">
+                  <Button type="submit">Save Family</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={async () => {
+                      await createWorkspace("New Family Workspace");
+                      toast({ title: "Workspace created", variant: "success" });
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create Workspace
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <Card>
+        <Card className={!showWorkspaceControls ? "xl:col-span-2" : undefined}>
           <CardHeader>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <CardTitle>Authentication</CardTitle>
-                <CardDescription>{supabaseConfigured ? "Supabase email/password auth is configured." : "Local demo mode is active."}</CardDescription>
+                <CardDescription>{supabaseConfigured ? "Secure email/password access is configured." : "Local workspace mode is active."}</CardDescription>
               </div>
               <AuthStatusBadge />
             </div>
@@ -176,13 +182,13 @@ export default function SettingsPage() {
                         title:
                           result.status === "confirmation_required"
                             ? "Confirm your email"
-                            : result.status === "demo"
-                              ? "Demo mode"
+                            : result.status === "local"
+                              ? "Local workspace"
                               : authMode === "signin"
                                 ? "Signed in"
                                 : "Account created",
                         description: result.message,
-                        variant: result.status === "demo" ? undefined : "success"
+                        variant: result.status === "local" ? undefined : "success"
                       });
                       setAuthPassword("");
                     } catch (error) {
@@ -204,11 +210,11 @@ export default function SettingsPage() {
                   <Input aria-label="Email" type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="Email" />
                   <Input aria-label="Password" type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="Password" />
                   <Button type="submit">{authMode === "signin" ? "Sign In" : "Create Account"}</Button>
-                  {usingDemoData ? (
+                  {usingLocalData ? (
                     <p className="text-xs text-muted-foreground">
                       {supabaseConfigured
-                        ? "Demo data is visible while signed out. Sign in to save to Supabase."
-                        : "Demo data is stored in this browser until Supabase is connected."}
+                        ? "Sign in to save changes to your private cloud workspace."
+                        : "Local workspace data is stored in this browser until Supabase is connected."}
                     </p>
                   ) : null}
                 </form>
@@ -218,171 +224,175 @@ export default function SettingsPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Members and Roles</CardTitle>
-          <CardDescription>Admin, Parent, and Viewer role assignments.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <form
-            className="grid gap-3 md:grid-cols-6"
-            onSubmit={memberForm.handleSubmit(async (values) => {
-              await createRecord("family_members", { ...values, user_id: null });
-              memberForm.reset({ display_name: "", role: "viewer", phone: "", email: "", relationship: "", avatar_url: "" });
-              toast({ title: "Family member added", variant: "success" });
-            })}
-          >
-            <Input className="md:col-span-2" placeholder="Display name" {...memberForm.register("display_name")} />
-            <Controller
-              control={memberForm.control}
-              name="role"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roleOptions.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {titleCase(role)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            <Input placeholder="Relationship" {...memberForm.register("relationship")} />
-            <Input placeholder="Email" {...memberForm.register("email")} />
-            <Button type="submit">
-              <Plus className="h-4 w-4" />
-              Add
-            </Button>
-          </form>
-          {memberForm.formState.errors.display_name?.message ? (
-            <p className="text-xs text-destructive">{memberForm.formState.errors.display_name.message}</p>
-          ) : null}
-          <div className="grid gap-2">
-            {members.map((member) => (
-              <div key={member.id} className="flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between">
-                <PersonAvatar personId={member.id} />
-                <div className="flex flex-wrap items-center gap-2">
-                  <Select value={member.role} onValueChange={(role) => updateRecord("family_members", member.id, { role: role as never })}>
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roleOptions.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {titleCase(role)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="ghost" size="icon" onClick={() => setDeleteMemberId(member.id)} title="Delete member">
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete member</span>
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Preferences</CardTitle>
-            <CardDescription>Privacy, theme, and notification structure.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <label className="flex items-center justify-between gap-3 rounded-md border p-3">
-              <span>
-                <span className="block text-sm font-medium">Privacy mode</span>
-                <span className="block text-xs text-muted-foreground">Financial, health, account, and emergency details are hidden.</span>
-              </span>
-              <Checkbox checked={privacyMode} onCheckedChange={(checked) => setPrivacyMode(Boolean(checked))} />
-            </label>
-            <label className="flex items-center justify-between gap-3 rounded-md border p-3">
-              <span>
-                <span className="block text-sm font-medium">Dark mode</span>
-                <span className="block text-xs text-muted-foreground">Switches the app theme.</span>
-              </span>
-              <Checkbox checked={theme === "dark"} onCheckedChange={(checked) => setTheme(Boolean(checked) ? "dark" : "light")} />
-            </label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {notificationKinds.map((kind) => (
-                <label key={kind} className="flex items-center gap-2 rounded-md border p-3 text-sm">
-                  <Checkbox
-                    checked={notificationPrefs[kind]}
-                    onCheckedChange={(checked) => setNotificationPrefs((current) => ({ ...current, [kind]: Boolean(checked) }))}
-                  />
-                  {titleCase(kind)}
-                </label>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Categories</CardTitle>
-            <CardDescription>Current category sets used by forms and filters.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {moduleList
-              .filter((module) => module.categoryOptions)
-              .slice(0, 8)
-              .map((module) => (
-                <div key={module.key}>
-                  <p className="text-sm font-medium">{module.title}</p>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {module.categoryOptions?.slice(0, 8).map((category) => (
-                      <span key={category} className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
-                        {category}
-                      </span>
-                    ))}
+      {showWorkspaceControls ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Members and Roles</CardTitle>
+              <CardDescription>Admin, Parent, and Viewer role assignments.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <form
+                className="grid gap-3 md:grid-cols-6"
+                onSubmit={memberForm.handleSubmit(async (values) => {
+                  await createRecord("family_members", { ...values, user_id: null });
+                  memberForm.reset({ display_name: "", role: "viewer", phone: "", email: "", relationship: "", avatar_url: "" });
+                  toast({ title: "Family member added", variant: "success" });
+                })}
+              >
+                <Input className="md:col-span-2" placeholder="Display name" {...memberForm.register("display_name")} />
+                <Controller
+                  control={memberForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roleOptions.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {titleCase(role)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <Input placeholder="Relationship" {...memberForm.register("relationship")} />
+                <Input placeholder="Email" {...memberForm.register("email")} />
+                <Button type="submit">
+                  <Plus className="h-4 w-4" />
+                  Add
+                </Button>
+              </form>
+              {memberForm.formState.errors.display_name?.message ? (
+                <p className="text-xs text-destructive">{memberForm.formState.errors.display_name.message}</p>
+              ) : null}
+              <div className="grid gap-2">
+                {members.map((member) => (
+                  <div key={member.id} className="flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between">
+                    <PersonAvatar personId={member.id} />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Select value={member.role} onValueChange={(role) => updateRecord("family_members", member.id, { role: role as never })}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roleOptions.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {titleCase(role)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteMemberId(member.id)} title="Delete member">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete member</span>
+                      </Button>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-4 xl:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Preferences</CardTitle>
+                <CardDescription>Privacy, theme, and notification structure.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <label className="flex items-center justify-between gap-3 rounded-md border p-3">
+                  <span>
+                    <span className="block text-sm font-medium">Privacy mode</span>
+                    <span className="block text-xs text-muted-foreground">Financial, health, account, and emergency details are hidden.</span>
+                  </span>
+                  <Checkbox checked={privacyMode} onCheckedChange={(checked) => setPrivacyMode(Boolean(checked))} />
+                </label>
+                <label className="flex items-center justify-between gap-3 rounded-md border p-3">
+                  <span>
+                    <span className="block text-sm font-medium">Dark mode</span>
+                    <span className="block text-xs text-muted-foreground">Switches the app theme.</span>
+                  </span>
+                  <Checkbox checked={theme === "dark"} onCheckedChange={(checked) => setTheme(Boolean(checked) ? "dark" : "light")} />
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {notificationKinds.map((kind) => (
+                    <label key={kind} className="flex items-center gap-2 rounded-md border p-3 text-sm">
+                      <Checkbox
+                        checked={notificationPrefs[kind]}
+                        onCheckedChange={(checked) => setNotificationPrefs((current) => ({ ...current, [kind]: Boolean(checked) }))}
+                      />
+                      {titleCase(kind)}
+                    </label>
+                  ))}
                 </div>
-              ))}
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Data Export</CardTitle>
-            <CardDescription>Export the current workspace data as JSON.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={exportData}>
-              <Download className="h-4 w-4" />
-              Export Data
-            </Button>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+                <CardDescription>Current category sets used by forms and filters.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {moduleList
+                  .filter((module) => module.categoryOptions)
+                  .slice(0, 8)
+                  .map((module) => (
+                    <div key={module.key}>
+                      <p className="text-sm font-medium">{module.title}</p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {module.categoryOptions?.slice(0, 8).map((category) => (
+                          <span key={category} className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card className="border-destructive/40">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <ShieldAlert className="h-5 w-5" />
-              Danger Zone
-            </CardTitle>
-            <CardDescription>Reset or clear the local workspace.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setResetOpen(true)}>
-              <RotateCcw className="h-4 w-4" />
-              Reset Demo Data
-            </Button>
-            <Button variant="destructive" onClick={() => setDeleteWorkspaceOpen(true)}>
-              <Trash2 className="h-4 w-4" />
-              Delete Workspace
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Export</CardTitle>
+                <CardDescription>Export the current workspace data as JSON.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={exportData}>
+                  <Download className="h-4 w-4" />
+                  Export Data
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-destructive/40">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <ShieldAlert className="h-5 w-5" />
+                  Danger Zone
+                </CardTitle>
+                <CardDescription>Restore or clear the local workspace.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                <Button variant="outline" onClick={() => setResetOpen(true)}>
+                  <RotateCcw className="h-4 w-4" />
+                  Restore Starter Workspace
+                </Button>
+                <Button variant="destructive" onClick={() => setDeleteWorkspaceOpen(true)}>
+                  <Trash2 className="h-4 w-4" />
+                  Delete Workspace
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : null}
 
       <ConfirmDialog
         open={Boolean(deleteMemberId)}
@@ -398,12 +408,12 @@ export default function SettingsPage() {
       <ConfirmDialog
         open={resetOpen}
         onOpenChange={setResetOpen}
-        title="Reset demo data?"
-        description="This replaces local demo data with the original sample family records."
-        confirmLabel="Reset"
+        title="Restore starter workspace?"
+        description="This replaces the local workspace with the original starter records."
+        confirmLabel="Restore"
         onConfirm={() => {
-          resetDemoData();
-          toast({ title: "Demo data reset", variant: "success" });
+          restoreStarterData();
+          toast({ title: "Starter workspace restored", variant: "success" });
         }}
       />
       <ConfirmDialog

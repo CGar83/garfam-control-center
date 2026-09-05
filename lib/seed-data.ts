@@ -1,7 +1,7 @@
 import { addDays, format, setHours, setMinutes, startOfDay, startOfMonth } from "date-fns";
 import type { CurrentUser, DataStore } from "@/lib/types";
 
-const familyId = "family_rivera_demo";
+const familyId = "family_rivera_starter";
 const avaId = "member_ava_rivera";
 const milesId = "member_miles_rivera";
 const lilyId = "member_lily_rivera";
@@ -20,8 +20,8 @@ function stamp(days = -7) {
   return addDays(new Date(), days).toISOString();
 }
 
-export const demoUser: CurrentUser = {
-  id: "user_demo_ava",
+export const localUser: CurrentUser = {
+  id: "user_starter_ava",
   member_id: avaId,
   email: "ava.rivera@example.test",
   display_name: "Ava Rivera",
@@ -52,7 +52,7 @@ export function createSeedData(): DataStore {
       {
         id: avaId,
         family_id: familyId,
-        user_id: demoUser.id,
+        user_id: localUser.id,
         display_name: "Ava Rivera",
         role: "admin",
         avatar_url: null,
@@ -65,7 +65,7 @@ export function createSeedData(): DataStore {
       {
         id: milesId,
         family_id: familyId,
-        user_id: "user_demo_miles",
+        user_id: "user_starter_miles",
         display_name: "Miles Rivera",
         role: "parent",
         avatar_url: null,
@@ -371,7 +371,7 @@ export function createSeedData(): DataStore {
         target_utilization: 0.3,
         excellent_utilization: 0.1,
         high_utilization_alert: 0.5,
-        notes: "Demo values based on the workbook setup tab. Replace with household assumptions.",
+        notes: "Starter values based on the workbook setup tab. Replace with household assumptions.",
         created_at: created,
         updated_at: updated
       }
@@ -1489,7 +1489,7 @@ export function createSeedData(): DataStore {
         action: "seeded",
         entity_type: "workspace",
         entity_id: familyId,
-        summary: "Demo workspace was created with sample family records.",
+        summary: "Starter workspace was created with sample family records.",
         created_at: created
       }
     ]

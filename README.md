@@ -26,7 +26,7 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-If Supabase environment variables are missing, the app runs in local demo mode with realistic seeded family data stored in browser local storage.
+If Supabase environment variables are missing, the app runs as a local workspace with starter family records stored in browser local storage.
 
 For a production-like local test:
 
@@ -53,7 +53,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 2. Enable email/password authentication.
 3. Apply the migration in `supabase/migrations/202606230001_family_control_center.sql`.
 4. Create a user in Supabase Auth.
-5. Seed demo data with that user's auth UUID as `SEED_USER_ID`.
+5. Optionally seed starter data with that user's auth UUID as `SEED_USER_ID`.
 
 When a signed-in Supabase user has no family membership yet, the app can bootstrap a private workspace automatically and attach that user as the Admin family member. Additional family members can be added from Settings.
 
@@ -92,17 +92,17 @@ The Budget & Cards page integrates the workbook-style `Ultimate Budget + Credit 
 
 The tracker intentionally does not store full card numbers, account numbers, passwords, SSNs, or credit-score guarantees. Utilization thresholds are planning aids only.
 
-## Seed Data
+## Starter Data
 
-Local demo data is automatic and includes the Rivera family plus sample budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
+Local starter data is automatic and includes a sample family plus budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
 
 For Supabase:
 
 ```bash
-SEED_USER_ID=auth-user-uuid npm run seed:demo
+SEED_USER_ID=auth-user-uuid npm run seed:starter
 ```
 
-`SEED_USER_ID` attaches the first demo parent to your real Supabase Auth user so RLS can read the seeded workspace.
+`SEED_USER_ID` attaches the first sample parent to your real Supabase Auth user so RLS can read the seeded workspace.
 
 The SQL seed file at `supabase/seed.sql` is also available for CLI workflows, but it does not know your auth user UUID unless you edit the inserted `family_members.user_id`.
 
@@ -144,7 +144,7 @@ npm run build
 - Manifest: `app/manifest.ts` defines install name, colors, icons, shortcuts, launch behavior, and standalone display.
 - Icons: `public/icons` contains SVG source icons plus generated PNG icons for Android, desktop, maskable launchers, and iOS home screen installs.
 - Service worker: `public/sw.js` precaches the app shell, common daily routes, manifest, icons, and the offline fallback page. Navigations use a network-first strategy with cached fallback.
-- Offline status: the app shell shows a visible offline banner. Supabase-backed production writes are blocked while offline with a clear error. Local demo data can still be edited because it is browser-local.
+- Offline status: the app shell shows a visible offline banner. Supabase-backed production writes are blocked while offline with a clear error. Local workspace records can still be edited because they are browser-local.
 - Update behavior: production service worker registration checks periodically for updates and notifies the user when a new app version is ready to refresh.
 
 ## Current App Coverage

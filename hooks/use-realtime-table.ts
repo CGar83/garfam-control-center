@@ -5,10 +5,10 @@ import { useAppData } from "@/components/app/providers";
 import type { TableName, TableRecord } from "@/lib/types";
 
 export function useRealtimeTable<TTable extends TableName>(table: TTable) {
-  const { data, supabase, familyId, usingDemoData, applyRealtimeChange } = useAppData();
+  const { data, supabase, familyId, usingLocalData, applyRealtimeChange } = useAppData();
 
   useEffect(() => {
-    if (!supabase || usingDemoData || table === "families" || table === "activity_log") return;
+    if (!supabase || usingLocalData || table === "families" || table === "activity_log") return;
 
     const channel = supabase
       .channel(`${table}:${familyId}`)
@@ -34,7 +34,7 @@ export function useRealtimeTable<TTable extends TableName>(table: TTable) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [applyRealtimeChange, familyId, supabase, table, usingDemoData]);
+  }, [applyRealtimeChange, familyId, supabase, table, usingLocalData]);
 
   return data[table] as TableRecord<TTable>[];
 }

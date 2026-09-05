@@ -1,4 +1,4 @@
-const CACHE_NAME = "family-control-center-v4";
+const CACHE_NAME = "family-control-center-v5";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,

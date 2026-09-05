@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { family } = useFamily();
+  const { family, supabaseConfigured, usingLocalData } = useFamily();
+  const workspaceLabel = supabaseConfigured && usingLocalData ? "Private workspace" : family?.name ?? "Family workspace";
 
   return (
     <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r bg-white/70 shadow-[1px_0_0_rgba(255,255,255,0.55)_inset] backdrop-blur-2xl dark:bg-card/70 md:block">
@@ -21,7 +22,7 @@ export function SidebarNav() {
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">Family Control Center</p>
-              <p className="truncate text-xs text-muted-foreground">{family?.name ?? "Family workspace"}</p>
+              <p className="truncate text-xs text-muted-foreground">{workspaceLabel}</p>
             </div>
           </div>
         </div>

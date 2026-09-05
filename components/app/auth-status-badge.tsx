@@ -5,13 +5,13 @@ import { useFamily } from "@/hooks/use-family";
 import { cn } from "@/lib/utils";
 
 export function AuthStatusBadge({ className }: { className?: string }) {
-  const { currentUser, supabaseConfigured, usingDemoData } = useFamily();
-  const isSignedIn = supabaseConfigured && !usingDemoData;
+  const { currentUser, supabaseConfigured, usingLocalData } = useFamily();
+  const isSignedIn = supabaseConfigured && !usingLocalData;
 
   const state = !supabaseConfigured
     ? {
-        label: "Local demo",
-        detail: "No Supabase connection",
+        label: "Local workspace",
+        detail: "Browser-only",
         icon: CircleDashed,
         className: "border-muted-foreground/20 bg-muted/60 text-muted-foreground"
       }
@@ -23,8 +23,8 @@ export function AuthStatusBadge({ className }: { className?: string }) {
           className: "border-[#ACE1AF] bg-[#ACE1AF]/35 text-[#22552d]"
         }
       : {
-          label: "Signed out demo",
-          detail: "Supabase ready",
+          label: "Sign in required",
+          detail: "Secure cloud ready",
           icon: Database,
           className: "border-[#CC5500]/30 bg-[#CC5500]/10 text-[#8a3900]"
         };

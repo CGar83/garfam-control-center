@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "icons:pwa": "node scripts/generate-pwa-icons.mjs",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:starter": "tsx scripts/seed-starter.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

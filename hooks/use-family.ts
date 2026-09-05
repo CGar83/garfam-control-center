@@ -11,8 +11,8 @@ export function useFamily() {
     currentMemberId,
     createWorkspace,
     updateFamilyName,
-    resetDemoData,
-    usingDemoData,
+    restoreStarterData,
+    usingLocalData,
     supabaseConfigured
   } = useAppData();
 
@@ -24,8 +24,8 @@ export function useFamily() {
     currentMemberId,
     createWorkspace,
     updateFamilyName,
-    resetDemoData,
-    usingDemoData,
+    restoreStarterData,
+    usingLocalData,
     supabaseConfigured
   };
 }
