@@ -35,7 +35,7 @@ export function PwaBoot() {
     if (!("serviceWorker" in navigator)) return;
 
     function notifyUpdateReady() {
-      toast({ title: "Update ready", description: "Refresh when convenient to use the newest Family Control Center." });
+      toast({ title: "Update ready", description: "Refresh when convenient to use the newest version of Gather." });
     }
 
     navigator.serviceWorker

@@ -26,7 +26,7 @@ export function AuthStatusBadge({ className }: { className?: string }) {
         label: "Sign in required",
         detail: "Secure cloud ready",
         icon: Database,
-        className: "border-[#CC5500]/35 bg-[#CC5500]/10 text-[#8a3900] dark:border-[#CC5500]/50 dark:text-[#ffbc8a]"
+        className: "border-[#F0705A]/35 bg-[#F0705A]/10 text-[#8E3A2B] dark:border-[#F0705A]/50 dark:text-[#F5A797]"
       };
 
   const Icon = state.icon;

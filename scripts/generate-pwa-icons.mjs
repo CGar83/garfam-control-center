@@ -10,12 +10,12 @@ const outputs = [
 ];
 
 const colors = {
-  burnt: [204, 85, 0, 255],
-  burntDark: [150, 61, 0, 255],
+  burnt: [240, 112, 90, 255],
+  burntDark: [201, 74, 54, 255],
   sage: [172, 225, 175, 255],
   ink: [29, 29, 31, 255],
   paper: [255, 255, 255, 255],
-  vellum: [245, 245, 247, 255]
+  vellum: [251, 247, 242, 255]
 };
 
 function crc32(bytes) {

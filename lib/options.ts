@@ -1,5 +1,10 @@
 import type {
   ActivityAudience,
+  ChoreFrequency,
+  ListKind,
+  MemberColor,
+  MilestoneKind,
+  TimeOfDay,
   ActivityStatus,
   AccessSection,
   BillStatus,
@@ -219,5 +224,24 @@ export const notificationKinds = [
   "assigned_task",
   "upcoming_event",
   "upcoming_bill",
-  "upcoming_appointment"
+  "upcoming_appointment",
+  "chore_completed",
+  "reward_claimed",
+  "checkin_shared",
+  "milestone_soon",
+  "nudge"
 ] as const;
+
+export const choreFrequencies = ["daily", "weekdays", "weekends", "weekly", "custom"] as const satisfies readonly ChoreFrequency[];
+export const timesOfDay = ["morning", "afternoon", "evening", "anytime"] as const satisfies readonly TimeOfDay[];
+export const milestoneKinds = ["birthday", "anniversary", "trip", "holiday", "school", "custom"] as const satisfies readonly MilestoneKind[];
+export const listKinds = ["todo", "shopping", "packing", "wishlist", "project", "custom"] as const satisfies readonly ListKind[];
+export const memberColors = ["coral", "ocean", "sunshine", "meadow", "lavender", "sky", "peach", "rose"] as const satisfies readonly MemberColor[];
+export const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+export const recipeMealTypes = ["Dinner", "Lunch", "Breakfast", "Snack", "Dessert", "Side"] as const;
+export const cuisineOptions = ["American", "Italian", "Mexican", "Asian", "Mediterranean", "Comfort", "Grill", "Vegetarian", "Other"] as const;
+export const journalMoods = ["Joyful", "Grateful", "Calm", "Proud", "Silly", "Tired", "Tough day", "Big milestone"] as const;
+export const choreEmojis = ["🧹", "🛏️", "🍽️", "🗑️", "🐕", "🧺", "🪴", "📚", "🧸", "🚿", "🥣", "🚗"] as const;
+export const rewardEmojis = ["🎮", "🍦", "🎬", "🌙", "🎟️", "🧸", "🍕", "🛹", "📱", "🎨", "⚽", "💵"] as const;
+export const listEmojis = ["📝", "🛒", "🧳", "🎁", "🏠", "🎉", "🏕️", "🎒", "🧰", "✈️"] as const;
+export const routineEmojis = ["🌅", "🌙", "🎒", "🦷", "📖", "🏫", "🛁", "🏃"] as const;

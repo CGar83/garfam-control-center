@@ -238,7 +238,7 @@ function GroupSummaryGrid({ groups }: { groups: GroupSummary[] }) {
             </div>
             <div className="mt-4 h-2 rounded-full bg-muted">
               <div
-                className="h-2 rounded-full bg-[#CC5500]"
+                className="h-2 rounded-full bg-[#F0705A]"
                 style={{ width: `${Math.min(100, group.available > 0 ? (group.actual / group.available) * 100 : 0)}%` }}
               />
             </div>
@@ -295,7 +295,7 @@ function CreditCardPanel({
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </div>
                   <div className="mt-4 h-2 rounded-full bg-muted">
-                    <div className="h-2 rounded-full bg-[#CC5500]" style={{ width: `${Math.min(100, utilization * 100)}%` }} />
+                    <div className="h-2 rounded-full bg-[#F0705A]" style={{ width: `${Math.min(100, utilization * 100)}%` }} />
                   </div>
                   <div className="grid-auto-fit-xs mt-3 text-sm">
                     <span>

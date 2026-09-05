@@ -25,6 +25,8 @@ const routeSections: Array<{ path: string; section: AccessSection }> = [
   { path: "/contacts", section: "contacts" },
   { path: "/communication", section: "communication" },
   { path: "/relationship", section: "relationship" },
+  { path: "/checkin", section: "relationship" },
+  { path: "/planning", section: "relationship" },
   { path: "/emergency", section: "emergency" }
 ];
 

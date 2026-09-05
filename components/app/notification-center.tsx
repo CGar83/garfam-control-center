@@ -33,7 +33,20 @@ const notificationRoutes: Record<string, string> = {
   documents: "/documents",
   contacts: "/contacts",
   home_records: "/home",
-  vehicle_records: "/vehicles"
+  vehicle_records: "/vehicles",
+  chores: "/chores",
+  chore_completions: "/chores",
+  rewards: "/chores",
+  reward_claims: "/chores",
+  routines: "/routines",
+  routine_completions: "/routines",
+  checkins: "/checkin",
+  journal_entries: "/memories",
+  milestones: "/memories",
+  shared_lists: "/lists",
+  list_items: "/lists",
+  recipes: "/recipes",
+  weekly_reviews: "/planning"
 };
 
 function routeForNotification(notification: NotificationRecord) {

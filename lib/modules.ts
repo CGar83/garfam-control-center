@@ -4,6 +4,17 @@ import {
   activityAudiences,
   activityCategories,
   activitySeasons,
+  choreEmojis,
+  choreFrequencies,
+  cuisineOptions,
+  journalMoods,
+  listEmojis,
+  listKinds,
+  milestoneKinds,
+  recipeMealTypes,
+  rewardEmojis,
+  routineEmojis,
+  timesOfDay,
   activityStatuses,
   billCategories,
   billStatusOptions,
@@ -48,7 +59,11 @@ export type FieldType =
   | "checkbox"
   | "url"
   | "tags"
-  | "file";
+  | "file"
+  | "lines"
+  | "weekdays"
+  | "emoji"
+  | "people";
 
 export interface FieldConfig {
   name: string;
@@ -147,7 +162,7 @@ export const moduleConfigs = {
     ],
     defaultValues: {
       provider: "google",
-      calendar_name: "Family Control Center",
+      calendar_name: "Gather Family Calendar",
       sync_direction: "export",
       sync_status: "setup_required",
       include_events: true,
@@ -861,6 +876,221 @@ export const moduleConfigs = {
       { name: "details", label: "Details", type: "textarea", sensitive: true, fullWidth: true }
     ],
     defaultValues: { title: "", category: "Emergency Contact", priority: "high" }
+  },
+  chores: {
+    key: "chores",
+    route: "/chores",
+    table: "chores",
+    schemaKey: "chores",
+    schema: schemas.chores,
+    title: "Chores",
+    description: "Recurring chores with points, so kids see what is theirs today and parents see what got done.",
+    addLabel: "Add Chore",
+    emptyTitle: "No chores yet",
+    emptyDescription: "Add a first chore, assign it, and it shows up on that person's Today view.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "assigned_to", "frequency", "time_of_day", "points", "active"],
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: choreEmojis },
+      { name: "title", label: "Chore", type: "text", required: true, placeholder: "Feed the dog" },
+      { name: "assigned_to", label: "Assigned to", type: "person" },
+      { name: "points", label: "Points", type: "number", helper: "Kids redeem points in the reward store." },
+      { name: "frequency", label: "Repeats", type: "select", options: choreFrequencies, required: true },
+      { name: "time_of_day", label: "Time of day", type: "select", options: timesOfDay, required: true },
+      { name: "days_of_week", label: "Days", type: "weekdays", helper: "Only used when repeats is set to custom or weekly.", fullWidth: true },
+      { name: "active", label: "Active", type: "checkbox" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", emoji: "🧹", points: 5, frequency: "daily", time_of_day: "anytime", active: true, days_of_week: [] }
+  },
+  rewards: {
+    key: "rewards",
+    route: "/chores",
+    table: "rewards",
+    schemaKey: "rewards",
+    schema: schemas.rewards,
+    title: "Rewards",
+    description: "Things kids can spend chore points on.",
+    addLabel: "Add Reward",
+    emptyTitle: "No rewards yet",
+    emptyDescription: "Add a reward like extra screen time or picking the Friday movie.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "cost_points", "for_member_id", "available"],
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: rewardEmojis },
+      { name: "title", label: "Reward", type: "text", required: true, placeholder: "Pick the Friday movie" },
+      { name: "cost_points", label: "Cost in points", type: "number", required: true },
+      { name: "for_member_id", label: "Just for", type: "person", helper: "Leave empty to offer it to everyone." },
+      { name: "available", label: "Available", type: "checkbox" },
+      { name: "description", label: "Details", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", emoji: "🎬", cost_points: 30, available: true }
+  },
+  routines: {
+    key: "routines",
+    route: "/routines",
+    table: "routines",
+    schemaKey: "routines",
+    schema: schemas.routines,
+    title: "Routines",
+    description: "Morning launches, bedtime wind-downs, and family resets as tappable checklists.",
+    addLabel: "Add Routine",
+    emptyTitle: "No routines yet",
+    emptyDescription: "Build a morning routine for each kid so the launch runs itself.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "member_id", "time_of_day", "active"],
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: routineEmojis },
+      { name: "title", label: "Routine", type: "text", required: true, placeholder: "Morning launch" },
+      { name: "member_id", label: "Who", type: "person", helper: "Leave empty for a whole-family routine." },
+      { name: "time_of_day", label: "Time of day", type: "select", options: timesOfDay, required: true },
+      { name: "days_of_week", label: "Days", type: "weekdays", helper: "Leave all off to run every day.", fullWidth: true },
+      { name: "steps", label: "Steps", type: "lines", required: true, helper: "One step per line.", fullWidth: true },
+      { name: "active", label: "Active", type: "checkbox" }
+    ],
+    defaultValues: { title: "", emoji: "🌅", time_of_day: "morning", steps: [], days_of_week: [], active: true }
+  },
+  milestones: {
+    key: "milestones",
+    route: "/memories",
+    table: "milestones",
+    schemaKey: "milestones",
+    schema: schemas.milestones,
+    title: "Milestones & Countdowns",
+    description: "Birthdays, anniversaries, trips, and the dates the family is counting down to.",
+    addLabel: "Add Countdown",
+    emptyTitle: "Nothing to count down to",
+    emptyDescription: "Add a birthday, trip, or big day.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "kind", "date", "member_id", "recurring_yearly"],
+    categoryOptions: milestoneKinds,
+    primaryDateField: "date",
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: ["🎂", "💍", "🏖️", "🎒", "🎄", "🎃", "✈️", "🏕️", "🎓", "⭐"] },
+      { name: "title", label: "Title", type: "text", required: true },
+      { name: "kind", label: "Type", type: "select", options: milestoneKinds, required: true },
+      { name: "date", label: "Date", type: "date", required: true },
+      { name: "member_id", label: "Person", type: "person" },
+      { name: "recurring_yearly", label: "Repeats every year", type: "checkbox" },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", kind: "custom", date: "", emoji: "⭐", recurring_yearly: false }
+  },
+  journal: {
+    key: "journal",
+    route: "/memories",
+    table: "journal_entries",
+    schemaKey: "journal_entries",
+    schema: schemas.journal_entries,
+    title: "Family Memories",
+    description: "One-line moments worth remembering. Firsts, funny quotes, proud days.",
+    addLabel: "Add Memory",
+    emptyTitle: "No memories saved yet",
+    emptyDescription: "Capture one small moment from today. It takes ten seconds.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["entry_date", "title", "author_id", "mood", "highlight"],
+    primaryDateField: "entry_date",
+    fields: [
+      { name: "entry_date", label: "Date", type: "date", required: true },
+      { name: "title", label: "What happened", type: "text", required: true, placeholder: "Lily rode without training wheels" },
+      { name: "author_id", label: "Written by", type: "person" },
+      { name: "mood", label: "Feeling", type: "select", options: journalMoods },
+      { name: "people", label: "People", type: "people", helper: "Who was part of this moment.", fullWidth: true },
+      { name: "tags", label: "Tags", type: "tags", placeholder: "firsts, soccer, holidays" },
+      { name: "highlight", label: "Highlight of the year", type: "checkbox" },
+      { name: "body", label: "The story", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { entry_date: "", title: "", highlight: false }
+  },
+  lists: {
+    key: "lists",
+    route: "/lists",
+    table: "shared_lists",
+    schemaKey: "shared_lists",
+    schema: schemas.shared_lists,
+    title: "Shared Lists",
+    description: "Packing lists, weekend to-dos, wishlists, and project checklists the whole family can edit.",
+    addLabel: "New List",
+    emptyTitle: "No lists yet",
+    emptyDescription: "Start a packing list or a weekend to-do list.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["name", "kind", "archived"],
+    categoryOptions: listKinds,
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: listEmojis },
+      { name: "name", label: "List name", type: "text", required: true, placeholder: "Beach week packing" },
+      { name: "kind", label: "Type", type: "select", options: listKinds, required: true },
+      { name: "description", label: "Description", type: "textarea", fullWidth: true },
+      { name: "archived", label: "Archived", type: "checkbox" }
+    ],
+    defaultValues: { name: "", kind: "todo", emoji: "📝", archived: false }
+  },
+  recipes: {
+    key: "recipes",
+    route: "/recipes",
+    table: "recipes",
+    schemaKey: "recipes",
+    schema: schemas.recipes,
+    title: "Recipe Box",
+    description: "The meals your family actually eats, ready to drop onto the weekly plan and the grocery list.",
+    addLabel: "Add Recipe",
+    emptyTitle: "No recipes yet",
+    emptyDescription: "Save the five dinners you make on repeat. Meal planning gets easy fast.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["title", "meal_type", "cuisine", "prep_minutes", "favorite", "kid_approved"],
+    categoryOptions: recipeMealTypes,
+    fields: [
+      { name: "emoji", label: "Icon", type: "emoji", options: ["🍋", "🌮", "🍝", "🥢", "🍲", "🐟", "🥞", "🍕", "🥗", "🍔", "🍛", "🥘"] },
+      { name: "title", label: "Recipe", type: "text", required: true },
+      { name: "meal_type", label: "Meal", type: "select", options: recipeMealTypes, required: true },
+      { name: "cuisine", label: "Cuisine", type: "select", options: cuisineOptions },
+      { name: "prep_minutes", label: "Prep minutes", type: "number" },
+      { name: "cook_minutes", label: "Cook minutes", type: "number" },
+      { name: "servings", label: "Servings", type: "number" },
+      { name: "source_url", label: "Source link", type: "url" },
+      { name: "tags", label: "Tags", type: "tags", placeholder: "weeknight, freezer, kid favorite" },
+      { name: "favorite", label: "Favorite", type: "checkbox" },
+      { name: "kid_approved", label: "Kid approved", type: "checkbox" },
+      { name: "ingredients", label: "Ingredients", type: "textarea", helper: "Comma-separated so they can be sent to the grocery list.", fullWidth: true },
+      { name: "instructions", label: "Instructions", type: "textarea", fullWidth: true },
+      { name: "notes", label: "Notes", type: "textarea", fullWidth: true }
+    ],
+    defaultValues: { title: "", meal_type: "Dinner", emoji: "🍲", favorite: false, kid_approved: false }
+  },
+  checkins: {
+    key: "checkins",
+    route: "/checkin",
+    table: "checkins",
+    schemaKey: "checkins",
+    schema: schemas.checkins,
+    title: "Daily Check-in",
+    description: "A thirty-second pulse for each parent: mood, energy, one gratitude, one need.",
+    addLabel: "Add Check-in",
+    emptyTitle: "No check-ins yet",
+    emptyDescription: "Log how today is going. Your partner sees it and can meet you there.",
+    viewModes: ["list"],
+    defaultView: "list",
+    columns: ["checkin_date", "member_id", "mood", "energy", "gratitude"],
+    primaryDateField: "checkin_date",
+    sensitive: true,
+    fields: [
+      { name: "checkin_date", label: "Date", type: "date", required: true },
+      { name: "member_id", label: "Who", type: "person" },
+      { name: "mood", label: "Mood (1-5)", type: "number", required: true },
+      { name: "energy", label: "Energy (1-5)", type: "number", required: true },
+      { name: "gratitude", label: "One thing I'm grateful for", type: "textarea", fullWidth: true },
+      { name: "needs", label: "One thing I need", type: "textarea", fullWidth: true },
+      { name: "note", label: "Anything else", type: "textarea", fullWidth: true },
+      { name: "shared_with_partner", label: "Share with partner", type: "checkbox" }
+    ],
+    defaultValues: { checkin_date: "", mood: 3, energy: 3, shared_with_partner: true }
   },
   goals: {
     key: "goals",
