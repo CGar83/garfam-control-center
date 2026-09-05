@@ -3,6 +3,7 @@
 import { Eye, EyeOff, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppProviders } from "@/components/app/providers";
+import { AuthStatusBadge } from "@/components/app/auth-status-badge";
 import { GlobalSearch } from "@/components/app/global-search";
 import { MobileNav } from "@/components/app/mobile-nav";
 import { NetworkStatusBanner } from "@/components/app/network-status-banner";
@@ -11,14 +12,12 @@ import { PwaBoot } from "@/components/app/pwa-boot";
 import { QuickAddMenu } from "@/components/app/quick-add-menu";
 import { SidebarNav } from "@/components/app/sidebar-nav";
 import { ToastViewport } from "@/components/app/toast-viewport";
-import { useFamily } from "@/hooks/use-family";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 import { useTheme } from "@/hooks/use-theme";
 
 function ShellContent({ children }: { children: React.ReactNode }) {
   const { privacyMode, setPrivacyMode } = usePrivacyMode();
   const { theme, setTheme } = useTheme();
-  const { usingDemoData, supabaseConfigured } = useFamily();
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -28,11 +27,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           <div className="flex min-h-16 flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
             <GlobalSearch />
             <div className="flex items-center gap-2">
-              {usingDemoData ? (
-                <span className="hidden rounded-md border bg-white/60 px-2 py-1 text-xs font-medium text-muted-foreground shadow-[0_1px_1px_rgba(0,0,0,0.03)] backdrop-blur sm:inline-flex dark:bg-white/5">
-                  {supabaseConfigured ? "Signed out demo" : "Local demo"}
-                </span>
-              ) : null}
+              <AuthStatusBadge className="hidden sm:inline-flex" />
               <NotificationCenter />
               <Button variant="outline" size="icon" onClick={() => setPrivacyMode(!privacyMode)} title="Toggle privacy mode">
                 {privacyMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

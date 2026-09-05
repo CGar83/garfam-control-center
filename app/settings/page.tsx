@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { Download, Plus, RotateCcw, ShieldAlert, Trash2 } from "lucide-react";
+import { CheckCircle2, Download, LogOut, Plus, RotateCcw, ShieldAlert, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AuthStatusBadge } from "@/components/app/auth-status-badge";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { PageHeader } from "@/components/app/page-header";
 import { PersonAvatar } from "@/components/app/person-avatar";
@@ -49,7 +50,8 @@ export default function SettingsPage() {
   const [notificationPrefs, setNotificationPrefs] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(notificationKinds.map((kind) => [kind, true]))
   );
-  const authStatusTitle = !supabaseConfigured ? "Local demo mode" : usingDemoData ? "Supabase ready, signed out" : "Supabase connected";
+  const isSignedIn = supabaseConfigured && !usingDemoData;
+  const authStatusTitle = !supabaseConfigured ? "Local demo mode" : usingDemoData ? "Supabase ready, signed out" : "Logged in";
   const authStatusDescription = !supabaseConfigured
     ? "This browser is using local demo data. Netlify environment variables do not apply to localhost."
     : usingDemoData
@@ -131,63 +133,87 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Authentication</CardTitle>
-            <CardDescription>{supabaseConfigured ? "Supabase email/password auth is configured." : "Local demo mode is active."}</CardDescription>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle>Authentication</CardTitle>
+                <CardDescription>{supabaseConfigured ? "Supabase email/password auth is configured." : "Local demo mode is active."}</CardDescription>
+              </div>
+              <AuthStatusBadge />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="mb-4 rounded-md border bg-muted/40 p-3 text-sm">
-              <p className="font-medium">{authStatusTitle}</p>
-              <p className="mt-1 text-muted-foreground">{authStatusDescription}</p>
-            </div>
-            <form
-              className="grid gap-3"
-              onSubmit={async (event) => {
-                event.preventDefault();
-                try {
-                  const result = authMode === "signin" ? await signIn(authEmail, authPassword) : await signUp(authEmail, authPassword, authName);
-                  toast({
-                    title:
-                      result.status === "confirmation_required"
-                        ? "Confirm your email"
-                        : result.status === "demo"
-                          ? "Demo mode"
-                          : authMode === "signin"
-                            ? "Signed in"
-                            : "Account created",
-                    description: result.message,
-                    variant: result.status === "demo" ? undefined : "success"
-                  });
-                  setAuthPassword("");
-                } catch (error) {
-                  toast({ title: "Auth failed", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
-                }
-              }}
-            >
-              <div className="flex gap-2">
-                <Button type="button" variant={authMode === "signin" ? "default" : "outline"} onClick={() => setAuthMode("signin")}>
-                  Sign In
-                </Button>
-                <Button type="button" variant={authMode === "signup" ? "default" : "outline"} onClick={() => setAuthMode("signup")}>
-                  Sign Up
-                </Button>
+            {isSignedIn ? (
+              <div className="rounded-md border border-[#ACE1AF] bg-[#ACE1AF]/25 p-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#ACE1AF] text-[#22552d]">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#22552d]">{authStatusTitle}</p>
+                      <p className="mt-1 text-sm text-[#22552d]/80">{authStatusDescription}</p>
+                    </div>
+                  </div>
+                  <Button type="button" variant="outline" onClick={signOut}>
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </div>
               </div>
-              {authMode === "signup" ? <Input aria-label="Display name" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Display name" /> : null}
-              <Input aria-label="Email" type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="Email" />
-              <Input aria-label="Password" type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="Password" />
-              <div className="flex flex-wrap gap-2">
-                <Button type="submit">{authMode === "signin" ? "Sign In" : "Create Account"}</Button>
-                <Button type="button" variant="outline" onClick={signOut}>
-                  Sign Out
-                </Button>
-              </div>
-              {usingDemoData ? (
-                <p className="text-xs text-muted-foreground">
-                  {supabaseConfigured
-                    ? "Demo data is visible while signed out. Sign in to save to Supabase."
-                    : "Demo data is stored in this browser until Supabase is connected."}
-                </p>
-              ) : null}
-            </form>
+            ) : (
+              <>
+                <div className="mb-4 rounded-md border bg-muted/40 p-3 text-sm">
+                  <p className="font-medium">{authStatusTitle}</p>
+                  <p className="mt-1 text-muted-foreground">{authStatusDescription}</p>
+                </div>
+                <form
+                  className="grid gap-3"
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    try {
+                      const result = authMode === "signin" ? await signIn(authEmail, authPassword) : await signUp(authEmail, authPassword, authName);
+                      toast({
+                        title:
+                          result.status === "confirmation_required"
+                            ? "Confirm your email"
+                            : result.status === "demo"
+                              ? "Demo mode"
+                              : authMode === "signin"
+                                ? "Signed in"
+                                : "Account created",
+                        description: result.message,
+                        variant: result.status === "demo" ? undefined : "success"
+                      });
+                      setAuthPassword("");
+                    } catch (error) {
+                      toast({ title: "Auth failed", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <div className="flex gap-2">
+                    <Button type="button" variant={authMode === "signin" ? "default" : "outline"} onClick={() => setAuthMode("signin")}>
+                      Sign In
+                    </Button>
+                    <Button type="button" variant={authMode === "signup" ? "default" : "outline"} onClick={() => setAuthMode("signup")}>
+                      Sign Up
+                    </Button>
+                  </div>
+                  {authMode === "signup" ? (
+                    <Input aria-label="Display name" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Display name" />
+                  ) : null}
+                  <Input aria-label="Email" type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="Email" />
+                  <Input aria-label="Password" type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="Password" />
+                  <Button type="submit">{authMode === "signin" ? "Sign In" : "Create Account"}</Button>
+                  {usingDemoData ? (
+                    <p className="text-xs text-muted-foreground">
+                      {supabaseConfigured
+                        ? "Demo data is visible while signed out. Sign in to save to Supabase."
+                        : "Demo data is stored in this browser until Supabase is connected."}
+                    </p>
+                  ) : null}
+                </form>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
