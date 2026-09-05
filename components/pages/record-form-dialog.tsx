@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUploader } from "@/components/app/file-uploader";
+import { MemberAvatar } from "@/components/app/member-avatar";
 import { useAppData } from "@/components/app/providers";
 import { useFamilyMembers } from "@/hooks/use-family-members";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +42,7 @@ function formatInputValue(value: unknown, field: FieldConfig) {
   if (value === null || value === undefined) return field.type === "checkbox" ? false : "";
   if (field.type === "tags" && Array.isArray(value)) return value.join(", ");
   if (field.type === "lines" && Array.isArray(value)) return value.join("\n");
-  if (field.type === "weekdays") return Array.isArray(value) ? value : [];
+  if (field.type === "weekdays" || field.type === "people") return Array.isArray(value) ? value : [];
   if ((field.type === "date" || field.type === "datetime") && typeof value === "string" && value) {
     const parsed = parseISO(value);
     if (Number.isNaN(parsed.getTime())) return value;
@@ -175,6 +176,40 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
                         )}
                       >
                         {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          />
+        );
+      }
+
+      if (field.type === "people") {
+        return (
+          <Controller
+            control={form.control}
+            name={field.name}
+            render={({ field: controllerField }) => {
+              const selected: string[] = Array.isArray(controllerField.value) ? (controllerField.value as string[]) : [];
+              return (
+                <div className="flex flex-wrap gap-1.5" role="group" aria-label={field.label}>
+                  {members.map((member) => {
+                    const active = selected.includes(member.id);
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => controllerField.onChange(active ? selected.filter((id) => id !== member.id) : [...selected, member.id])}
+                        className={cn(
+                          "inline-flex h-9 items-center gap-2 rounded-full border pl-1 pr-3 text-xs font-semibold transition-all focus-ring",
+                          active ? "border-primary bg-primary/10 text-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
+                        )}
+                      >
+                        <MemberAvatar member={member} size="sm" />
+                        {member.display_name.split(" ")[0]}
                       </button>
                     );
                   })}

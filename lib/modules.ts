@@ -62,7 +62,8 @@ export type FieldType =
   | "file"
   | "lines"
   | "weekdays"
-  | "emoji";
+  | "emoji"
+  | "people";
 
 export interface FieldConfig {
   name: string;
@@ -999,7 +1000,7 @@ export const moduleConfigs = {
       { name: "title", label: "What happened", type: "text", required: true, placeholder: "Lily rode without training wheels" },
       { name: "author_id", label: "Written by", type: "person" },
       { name: "mood", label: "Feeling", type: "select", options: journalMoods },
-      { name: "people", label: "People", type: "tags", placeholder: "Comma-separated names", helper: "Who was part of this moment." },
+      { name: "people", label: "People", type: "people", helper: "Who was part of this moment.", fullWidth: true },
       { name: "tags", label: "Tags", type: "tags", placeholder: "firsts, soccer, holidays" },
       { name: "highlight", label: "Highlight of the year", type: "checkbox" },
       { name: "body", label: "The story", type: "textarea", fullWidth: true }

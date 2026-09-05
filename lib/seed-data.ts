@@ -319,6 +319,20 @@ export function createSeedData(): DataStore {
     ],
     meal_plans: [
       {
+        id: "meal_tonight_chicken",
+        family_id: familyId,
+        meal_date: isoDate(0),
+        meal_type: "Dinner",
+        title: "Sheet-pan lemon chicken",
+        recipe_url: null,
+        recipe_id: "recipe_sheet_pan_chicken",
+        ingredients: "Chicken thighs, baby potatoes, lemon, garlic, green beans, olive oil, oregano",
+        notes: "Double the potatoes.",
+        cook_id: milesId,
+        created_at: created,
+        updated_at: updated
+      },
+      {
         id: "meal_taco_bowls",
         family_id: familyId,
         meal_date: isoDate(1),

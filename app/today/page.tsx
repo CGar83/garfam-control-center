@@ -249,7 +249,7 @@ export default function TodayPage() {
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Button variant="secondary" className="bg-white text-foreground hover:bg-white/90" onClick={() => setQuickOpen(true)}>
+            <Button variant="secondary" className="bg-white text-neutral-900 hover:bg-white/90" onClick={() => setQuickOpen(true)}>
               <Plus className="h-4 w-4" />
               Quick add
             </Button>
