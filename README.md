@@ -51,7 +51,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 1. Create a Supabase project.
 2. Enable email/password authentication.
-3. Apply the migration in `supabase/migrations/202606230001_family_control_center.sql`.
+3. Apply all migrations in `supabase/migrations` in timestamp order.
 4. Create a user in Supabase Auth.
 5. Optionally seed starter data with that user's auth UUID as `SEED_USER_ID`.
 
@@ -67,7 +67,9 @@ supabase db push
 
 Or paste the SQL migration into the Supabase SQL editor.
 
-The migration creates all family tables, budget tracker tables, notifications, activity log, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
+The migrations create all family tables, child profile fields, budget tracker tables, notifications, activity log, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
+
+If your Supabase project already has the original schema, run `supabase/migrations/20260905053711_family_member_profiles_and_access.sql` next. It adds child age fields and viewer access restrictions for sensitive areas.
 
 ## Calendar Sync
 
@@ -94,7 +96,7 @@ The tracker intentionally does not store full card numbers, account numbers, pas
 
 ## Starter Data
 
-Local starter data is automatic and includes a starter family workspace with budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
+Local starter data is automatic and includes a family workspace with adults, child profiles, age-aware activity ideas, budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
 
 For Supabase:
 

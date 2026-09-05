@@ -57,6 +57,15 @@ function emptyDataStore(): DataStore {
   };
 }
 
+function normalizeFamilyMember(member: FamilyMember): FamilyMember {
+  return {
+    ...member,
+    birthdate: member.birthdate ?? null,
+    age_label: member.age_label ?? null,
+    blocked_sections: member.blocked_sections ?? []
+  };
+}
+
 function normalizeDataStore(store: Partial<DataStore>): DataStore {
   const seeded = createSeedData();
 
@@ -64,7 +73,7 @@ function normalizeDataStore(store: Partial<DataStore>): DataStore {
     ...seeded,
     ...store,
     families: store.families?.length ? store.families : seeded.families,
-    family_members: store.family_members?.length ? store.family_members : seeded.family_members,
+    family_members: (store.family_members?.length ? store.family_members : seeded.family_members).map(normalizeFamilyMember),
     relationship_records: store.relationship_records ?? seeded.relationship_records
   };
 }
@@ -278,7 +287,8 @@ function userFromAuth(user: User, member?: FamilyMember | null): CurrentUser {
     member_id: member?.id ?? null,
     email: user.email ?? "unknown@example.test",
     display_name: member?.display_name ?? authDisplayName(user),
-    role: member?.role ?? "admin"
+    role: member?.role ?? "admin",
+    blocked_sections: member?.blocked_sections ?? []
   };
 }
 
@@ -300,6 +310,9 @@ async function createRemoteWorkspace(supabase: SupabaseClient, user: User, name?
     phone: null,
     email: user.email ?? null,
     relationship: "Parent",
+    birthdate: null,
+    age_label: "Adult",
+    blocked_sections: [],
     created_at: timestamp,
     updated_at: timestamp
   };
@@ -396,7 +409,7 @@ async function loadSupabaseData(supabase: SupabaseClient): Promise<DataStore | n
 
   const nextData = emptyDataStore();
   nextData.families = families ?? [];
-  nextData.family_members = memberships;
+  nextData.family_members = (memberships as FamilyMember[]).map(normalizeFamilyMember);
 
   tableResponses.forEach((response, index) => {
     const table = syncTables[index];
@@ -511,11 +524,14 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         phone: null,
         email: currentUser.email,
         relationship: "Parent",
+        birthdate: null,
+        age_label: "Adult",
+        blocked_sections: [],
         created_at: timestamp,
         updated_at: timestamp
       };
 
-      setCurrentUser((user) => ({ ...user, member_id: member.id, role: "admin" }));
+      setCurrentUser((user) => ({ ...user, member_id: member.id, role: "admin", blocked_sections: [] }));
       setData({ ...emptyDataStore(), families: [workspace], family_members: [member] });
     },
     [currentUser, supabase, usingLocalData]
@@ -548,7 +564,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const signIn = useCallback(
     async (email: string, password: string) => {
       if (!supabase) {
-        setCurrentUser({ ...localUser, email, display_name: email.split("@")[0] || localUser.display_name });
+        setCurrentUser({ ...localUser, email, display_name: email.split("@")[0] || localUser.display_name, blocked_sections: [] });
         setUsingLocalData(true);
         return {
           status: "local",
@@ -588,7 +604,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const signUp = useCallback(
     async (email: string, password: string, displayName: string) => {
       if (!supabase) {
-        setCurrentUser({ id: makeId("user"), email, display_name: displayName, role: "admin" });
+        setCurrentUser({ id: makeId("user"), email, display_name: displayName, role: "admin", blocked_sections: [] });
         setUsingLocalData(true);
         return {
           status: "local",

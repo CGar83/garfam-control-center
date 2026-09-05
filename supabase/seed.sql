@@ -2,13 +2,45 @@ insert into public.families (id, name)
 values ('family_rivera_demo', 'Rivera Family')
 on conflict (id) do update set name = excluded.name;
 
-insert into public.family_members (id, family_id, user_id, display_name, role, phone, email, relationship)
+insert into public.family_members (id, family_id, user_id, display_name, role, phone, email, relationship, birthdate, age_label, blocked_sections)
 values
-  ('member_ava_rivera', 'family_rivera_demo', null, 'Ava Rivera', 'admin', '555-0101', 'ava.rivera@example.test', 'Mom'),
-  ('member_miles_rivera', 'family_rivera_demo', null, 'Miles Rivera', 'parent', '555-0102', 'miles.rivera@example.test', 'Dad'),
-  ('member_lily_rivera', 'family_rivera_demo', null, 'Lily Rivera', 'viewer', null, null, 'Child'),
-  ('member_noah_rivera', 'family_rivera_demo', null, 'Noah Rivera', 'viewer', null, null, 'Child')
-on conflict (id) do nothing;
+  ('member_ava_rivera', 'family_rivera_demo', null, 'Ava Rivera', 'admin', '555-0101', 'ava.rivera@example.test', 'Mom', null, 'Adult', '{}'),
+  ('member_miles_rivera', 'family_rivera_demo', null, 'Miles Rivera', 'parent', '555-0102', 'miles.rivera@example.test', 'Dad', null, 'Adult', '{}'),
+  (
+    'member_lily_rivera',
+    'family_rivera_demo',
+    null,
+    'Lily Rivera',
+    'viewer',
+    null,
+    null,
+    'Daughter',
+    '2017-04-18',
+    '9',
+    array['finances', 'accounts', 'health', 'documents', 'contacts', 'communication', 'relationship', 'emergency']
+  ),
+  (
+    'member_noah_rivera',
+    'family_rivera_demo',
+    null,
+    'Noah Rivera',
+    'viewer',
+    null,
+    null,
+    'Son',
+    '2014-02-11',
+    '12',
+    array['finances', 'accounts', 'health', 'documents', 'contacts', 'communication', 'relationship', 'emergency']
+  )
+on conflict (id) do update set
+  display_name = excluded.display_name,
+  role = excluded.role,
+  phone = excluded.phone,
+  email = excluded.email,
+  relationship = excluded.relationship,
+  birthdate = excluded.birthdate,
+  age_label = excluded.age_label,
+  blocked_sections = excluded.blocked_sections;
 
 insert into public.events (id, family_id, title, description, category, location, start_at, end_at, all_day, recurrence_rule, assigned_to, created_by)
 values
@@ -68,7 +100,7 @@ values (
   0.30,
   0.10,
   0.50,
-  'Demo values based on the workbook setup tab. Replace with household assumptions.'
+  'Household planning assumptions imported from the workbook setup tab.'
 )
 on conflict (id) do nothing;
 

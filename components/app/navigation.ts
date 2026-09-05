@@ -42,13 +42,13 @@ type NavSectionInput = NavItem & {
 
 const navigationSectionInputs: NavSectionInput[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Calendar", href: "/calendar", icon: CalendarDays },
   {
     title: "Daily Life",
-    mobileTitle: "Calendar",
-    href: "/calendar",
-    icon: CalendarDays,
+    mobileTitle: "Life",
+    href: "/activities",
+    icon: PartyPopper,
     items: [
-      { title: "Activities", href: "/activities", icon: PartyPopper },
       { title: "Tasks", href: "/tasks", icon: ClipboardList },
       { title: "Grocery", href: "/grocery", icon: ShoppingCart },
       { title: "Meals", href: "/meals", icon: Utensils },

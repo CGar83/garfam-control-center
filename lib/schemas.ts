@@ -2,6 +2,7 @@ import { isValid, parseISO } from "date-fns";
 import { z } from "zod";
 import {
   billStatusOptions,
+  accessSectionOptions,
   activityAudiences,
   activityStatuses,
   calendarConnectionStatuses,
@@ -90,7 +91,10 @@ export const familyMemberSchema = z.object({
   avatar_url: optionalUrl,
   phone: optionalText(40),
   email: optionalEmail,
-  relationship: optionalText(80)
+  relationship: optionalText(80),
+  birthdate: optionalDateString.refine((value) => !value || parseISO(value) <= new Date(), "Birthdate cannot be in the future."),
+  age_label: optionalText(40),
+  blocked_sections: z.array(z.enum(accessSectionOptions)).default([])
 });
 
 export const eventSchema = z

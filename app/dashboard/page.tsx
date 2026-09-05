@@ -6,7 +6,9 @@ import Link from "next/link";
 import { format, isSameDay, parseISO } from "date-fns";
 import {
   AlertTriangle,
+  ArrowRight,
   Banknote,
+  CalendarDays,
   CalendarPlus,
   ClipboardPlus,
   CreditCard,
@@ -34,6 +36,7 @@ import { StatusBadge } from "@/components/app/status-badge";
 import { useAppData } from "@/components/app/providers";
 import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 import { useFamilyMembers } from "@/hooks/use-family-members";
+import { memberCanAccessPath } from "@/lib/access-control";
 import { recordDate } from "@/lib/filtering";
 import { moduleConfigs, type ModuleKey } from "@/lib/modules";
 import type { AnyRecord, Bill, EventRecord, HealthRecord, HomeRecord, TaskRecord, VehicleRecord } from "@/lib/types";
@@ -64,6 +67,73 @@ function MiniList({ records, empty, render }: { records: AnyRecord[]; empty: str
   return <div className="space-y-3">{records.slice(0, 5).map(render)}</div>;
 }
 
+function CalendarFocusCard({ todayEvents, upcomingEvents }: { todayEvents: EventRecord[]; upcomingEvents: EventRecord[] }) {
+  return (
+    <Card className="border-[#ACE1AF]/80 bg-white/85 shadow-[var(--shadow-elevated)] dark:border-[#ACE1AF]/35 dark:bg-card/85">
+      <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <CalendarDays className="h-5 w-5 text-primary" />
+            Family Calendar
+          </CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">Today, next up, and schedule conflicts at the center of the home operating view.</p>
+        </div>
+        <Button asChild variant="outline" className="shrink-0">
+          <Link href="/calendar">
+            Open Calendar
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </CardHeader>
+      <CardContent className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold">Today</h3>
+            <span className="rounded-md bg-[#ACE1AF]/35 px-2 py-1 text-xs font-medium text-[#235226]">{todayEvents.length} scheduled</span>
+          </div>
+          <MiniList
+            records={todayEvents}
+            empty="No events scheduled today."
+            render={(record) => {
+              const event = record as EventRecord;
+              return (
+                <div key={event.id} className="record-tile">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium">{event.title}</p>
+                      <p className="text-sm text-muted-foreground">{formatDateTime(event.start_at)}</p>
+                    </div>
+                    <StatusBadge status={event.category} />
+                  </div>
+                </div>
+              );
+            }}
+          />
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold">Next Up</h3>
+          <MiniList
+            records={upcomingEvents}
+            empty="No upcoming events."
+            render={(record) => {
+              const event = record as EventRecord;
+              return (
+                <div key={event.id} className="record-tile flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">{event.title}</p>
+                    <p className="text-sm text-muted-foreground">{event.location || event.category}</p>
+                  </div>
+                  <DateBadge value={event.start_at} />
+                </div>
+              );
+            }}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 const quickAdds: Array<{ label: string; module: ModuleKey; icon: typeof Plus; defaults?: Record<string, unknown> }> = [
   { label: "Add event", module: "calendar", icon: CalendarPlus },
   { label: "Add task", module: "tasks", icon: ClipboardPlus },
@@ -76,10 +146,19 @@ const quickAdds: Array<{ label: string; module: ModuleKey; icon: typeof Plus; de
 ];
 
 export default function DashboardPage() {
-  const { data } = useAppData();
+  const { data, currentMember } = useAppData();
   const { parents } = useFamilyMembers();
   const [selectedQuickAdd, setSelectedQuickAdd] = useState<(typeof quickAdds)[number] | null>(null);
   const selectedConfig = selectedQuickAdd ? moduleConfigs[selectedQuickAdd.module] : null;
+  const canAccessFinances = memberCanAccessPath(currentMember, "/finances");
+  const canAccessHealth = memberCanAccessPath(currentMember, "/health");
+  const canAccessCommunication = memberCanAccessPath(currentMember, "/communication");
+  const canAccessRelationship = memberCanAccessPath(currentMember, "/relationship");
+  const canAccessEmergency = memberCanAccessPath(currentMember, "/emergency");
+  const visibleQuickAdds = useMemo(
+    () => quickAdds.filter((item) => memberCanAccessPath(currentMember, moduleConfigs[item.module].route)),
+    [currentMember]
+  );
 
   const dashboard = useMemo(() => {
     const todayEvents = data.events.filter((event) => isSameDay(parseISO(event.start_at), new Date()));
@@ -159,44 +238,55 @@ export default function DashboardPage() {
         <StatCard label="Today" value={dashboard.todayEvents.length} helper="scheduled events" tone="sage" />
         <StatCard label="Overdue Tasks" value={dashboard.overdueTasks.length} tone={dashboard.overdueTasks.length ? "red" : "green"} />
         <StatCard label="Grocery Items" value={dashboard.groceryOpen} helper="still needed" tone={dashboard.groceryOpen ? "yellow" : "green"} />
-        <StatCard
-          label="Monthly Bills"
-          value={
-            <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)} sensitive>
-              {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)}
-            </PrivacyMask>
-          }
-          tone="sage"
-        />
-        <StatCard
-          label="Budget Remaining"
-          value={
-            <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)} sensitive>
-              {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)}
-            </PrivacyMask>
-          }
-          tone={dashboard.budgetRemaining < 0 ? "red" : "green"}
-        />
-        <StatCard
-          label="Card Utilization"
-          value={
-            <PrivacyMask value={`${Math.round(dashboard.cardUtilization * 1000) / 10}%`} sensitive>
-              {Math.round(dashboard.cardUtilization * 1000) / 10}%
-            </PrivacyMask>
-          }
-          tone={dashboard.cardUtilization > 0.5 ? "red" : dashboard.cardUtilization > 0.3 ? "yellow" : "green"}
-        />
+        {canAccessFinances ? (
+          <>
+            <StatCard
+              label="Monthly Bills"
+              value={
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.monthlyBillTotal)}
+                </PrivacyMask>
+              }
+              tone="sage"
+            />
+            <StatCard
+              label="Budget Remaining"
+              value={
+                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)} sensitive>
+                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetRemaining)}
+                </PrivacyMask>
+              }
+              tone={dashboard.budgetRemaining < 0 ? "red" : "green"}
+            />
+            <StatCard
+              label="Card Utilization"
+              value={
+                <PrivacyMask value={`${Math.round(dashboard.cardUtilization * 1000) / 10}%`} sensitive>
+                  {Math.round(dashboard.cardUtilization * 1000) / 10}%
+                </PrivacyMask>
+              }
+              tone={dashboard.cardUtilization > 0.5 ? "red" : dashboard.cardUtilization > 0.3 ? "yellow" : "green"}
+            />
+          </>
+        ) : null}
       </div>
+
+      <CalendarFocusCard todayEvents={dashboard.todayEvents} upcomingEvents={dashboard.upcomingEvents} />
 
       <Card>
         <CardHeader>
           <CardTitle>Quick Add</CardTitle>
         </CardHeader>
-        <CardContent className="grid-auto-fit-xs">
-          {quickAdds.map((item) => {
+        <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
+          {visibleQuickAdds.map((item) => {
             const Icon = item.icon;
             return (
-              <Button key={item.label} variant="outline" className="justify-start" onClick={() => setSelectedQuickAdd(item)}>
+              <Button
+                key={item.label}
+                variant="outline"
+                className="h-auto min-h-11 justify-start whitespace-normal py-2 text-left leading-tight"
+                onClick={() => setSelectedQuickAdd(item)}
+              >
                 <Icon className="h-4 w-4" />
                 {item.label}
               </Button>
@@ -206,46 +296,6 @@ export default function DashboardPage() {
       </Card>
 
       <div className="grid-auto-fit-lg">
-        <DashboardCard title="Today's Schedule" icon={<CalendarPlus className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.todayEvents}
-            empty="No events today."
-            render={(record) => {
-              const event = record as EventRecord;
-              return (
-                <div key={event.id} className="record-tile">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-medium">{event.title}</p>
-                      <p className="text-sm text-muted-foreground">{formatDateTime(event.start_at)}</p>
-                    </div>
-                    <StatusBadge status={event.category} />
-                  </div>
-                </div>
-              );
-            }}
-          />
-        </DashboardCard>
-
-        <DashboardCard title="Upcoming Events" icon={<CalendarPlus className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.upcomingEvents}
-            empty="No upcoming events."
-            render={(record) => {
-              const event = record as EventRecord;
-              return (
-                <div key={event.id} className="record-tile flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium">{event.title}</p>
-                    <p className="text-sm text-muted-foreground">{event.location}</p>
-                  </div>
-                  <DateBadge value={event.start_at} />
-                </div>
-              );
-            }}
-          />
-        </DashboardCard>
-
         <DashboardCard title="Overdue Tasks" icon={<AlertTriangle className="h-5 w-5" />}>
           <MiniList
             records={dashboard.overdueTasks}
@@ -286,49 +336,53 @@ export default function DashboardPage() {
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Upcoming Bills" icon={<ReceiptText className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.upcomingBills}
-            empty="No upcoming bills."
-            render={(record) => {
-              const bill = record as Bill;
-              return (
-                <div key={bill.id} className="record-tile flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium">{bill.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)} sensitive>
-                        {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)}
-                      </PrivacyMask>
-                    </p>
-                  </div>
-                  <DateBadge value={bill.due_date} />
-                </div>
-              );
-            }}
-          />
-        </DashboardCard>
-
-        <DashboardCard title="Appointments" icon={<HeartPulse className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.upcomingAppointments}
-            empty="No appointments soon."
-            render={(record) => {
-              const health = record as HealthRecord;
-              return (
-                <div key={health.id} className="record-tile">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-medium">{health.provider_name || health.record_type}</p>
-                      <PersonAvatar personId={health.person_id} size="sm" />
+        {canAccessFinances ? (
+          <DashboardCard title="Upcoming Bills" icon={<ReceiptText className="h-5 w-5" />}>
+            <MiniList
+              records={dashboard.upcomingBills}
+              empty="No upcoming bills."
+              render={(record) => {
+                const bill = record as Bill;
+                return (
+                  <div key={bill.id} className="record-tile flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium">{bill.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)} sensitive>
+                          {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(bill.amount)}
+                        </PrivacyMask>
+                      </p>
                     </div>
-                    <DateBadge value={health.appointment_date} />
+                    <DateBadge value={bill.due_date} />
                   </div>
-                </div>
-              );
-            }}
-          />
-        </DashboardCard>
+                );
+              }}
+            />
+          </DashboardCard>
+        ) : null}
+
+        {canAccessHealth ? (
+          <DashboardCard title="Appointments" icon={<HeartPulse className="h-5 w-5" />}>
+            <MiniList
+              records={dashboard.upcomingAppointments}
+              empty="No appointments soon."
+              render={(record) => {
+                const health = record as HealthRecord;
+                return (
+                  <div key={health.id} className="record-tile">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{health.provider_name || health.record_type}</p>
+                        <PersonAvatar personId={health.person_id} size="sm" />
+                      </div>
+                      <DateBadge value={health.appointment_date} />
+                    </div>
+                  </div>
+                );
+              }}
+            />
+          </DashboardCard>
+        ) : null}
       </div>
 
       <div className="grid-auto-fit-lg">
@@ -362,104 +416,112 @@ export default function DashboardPage() {
           />
         </DashboardCard>
 
-        <DashboardCard title="Emergency Quick Access" icon={<Home className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.emergency}
-            empty="No emergency plan items."
-            render={(record) => (
-              <div key={record.id} className="record-tile">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium">{String(recordMap(record).title)}</p>
-                  <PriorityBadge priority={String(recordMap(record).priority)} />
+        {canAccessEmergency ? (
+          <DashboardCard title="Emergency Quick Access" icon={<Home className="h-5 w-5" />}>
+            <MiniList
+              records={dashboard.emergency}
+              empty="No emergency plan items."
+              render={(record) => (
+                <div key={record.id} className="record-tile">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium">{String(recordMap(record).title)}</p>
+                    <PriorityBadge priority={String(recordMap(record).priority)} />
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <PrivacyMask value={String(recordMap(record).details ?? "")} sensitive>
+                      {String(recordMap(record).details ?? "")}
+                    </PrivacyMask>
+                  </p>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  <PrivacyMask value={String(recordMap(record).details ?? "")} sensitive>
-                    {String(recordMap(record).details ?? "")}
+              )}
+            />
+          </DashboardCard>
+        ) : null}
+      </div>
+
+      <div className="grid-auto-fit-lg">
+        {canAccessCommunication ? (
+          <DashboardCard title="Recent Communication Notes" icon={<MessageSquarePlus className="h-5 w-5" />}>
+            <MiniList
+              records={dashboard.recentNotes}
+              empty="No notes yet."
+              render={(record) => (
+                <div key={record.id} className="record-tile">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium">{String(recordMap(record).title)}</p>
+                    <PriorityBadge priority={String(recordMap(record).importance)} />
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{String(recordMap(record).message)}</p>
+                </div>
+              )}
+            />
+          </DashboardCard>
+        ) : null}
+
+        {canAccessRelationship ? (
+          <DashboardCard title="Relationship Touchpoints" icon={<HeartHandshake className="h-5 w-5" />}>
+            <MiniList
+              records={dashboard.relationshipDue}
+              empty="No relationship touchpoints."
+              render={(record) => (
+                <div key={record.id} className="record-tile">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium">{String(recordMap(record).title)}</p>
+                    <StatusBadge status={String(recordMap(record).status)} />
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{String(recordMap(record).practice ?? recordMap(record).category ?? "")}</p>
+                </div>
+              )}
+            />
+          </DashboardCard>
+        ) : null}
+      </div>
+
+      <div className="grid-auto-fit-lg">
+        {canAccessFinances ? (
+          <DashboardCard title="Budget & Cards" icon={<WalletCards className="h-5 w-5" />}>
+            <div className="grid-auto-fit-xs">
+              <div className="record-tile">
+                <p className="text-sm text-muted-foreground">Income</p>
+                <p className="mt-1 text-lg font-semibold">
+                  <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)} sensitive>
+                    {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)}
                   </PrivacyMask>
                 </p>
               </div>
-            )}
-          />
-        </DashboardCard>
-      </div>
-
-      <div className="grid-auto-fit-lg">
-        <DashboardCard title="Recent Communication Notes" icon={<MessageSquarePlus className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.recentNotes}
-            empty="No notes yet."
-            render={(record) => (
-              <div key={record.id} className="record-tile">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium">{String(recordMap(record).title)}</p>
-                  <PriorityBadge priority={String(recordMap(record).importance)} />
-                </div>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{String(recordMap(record).message)}</p>
+              <div className="record-tile">
+                <p className="text-sm text-muted-foreground">Spending</p>
+                <p className="mt-1 text-lg font-semibold">
+                  <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)} sensitive>
+                    {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)}
+                  </PrivacyMask>
+                </p>
               </div>
-            )}
-          />
-        </DashboardCard>
-
-        <DashboardCard title="Relationship Touchpoints" icon={<HeartHandshake className="h-5 w-5" />}>
-          <MiniList
-            records={dashboard.relationshipDue}
-            empty="No relationship touchpoints."
-            render={(record) => (
-              <div key={record.id} className="record-tile">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium">{String(recordMap(record).title)}</p>
-                  <StatusBadge status={String(recordMap(record).status)} />
-                </div>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{String(recordMap(record).practice ?? recordMap(record).category ?? "")}</p>
+              <div className="record-tile">
+                <p className="text-sm text-muted-foreground">Card debt</p>
+                <p className="mt-1 text-lg font-semibold">
+                  <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)} sensitive>
+                    {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)}
+                  </PrivacyMask>
+                </p>
               </div>
-            )}
-          />
-        </DashboardCard>
-      </div>
-
-      <div className="grid-auto-fit-lg">
-        <DashboardCard title="Budget & Cards" icon={<WalletCards className="h-5 w-5" />}>
-          <div className="grid-auto-fit-xs">
-            <div className="record-tile">
-              <p className="text-sm text-muted-foreground">Income</p>
-              <p className="mt-1 text-lg font-semibold">
-                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)} sensitive>
-                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetIncome)}
-                </PrivacyMask>
-              </p>
+              <div className="record-tile">
+                <p className="text-sm text-muted-foreground">Sinking funds saved</p>
+                <p className="mt-1 text-lg font-semibold">
+                  <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)} sensitive>
+                    {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)}
+                  </PrivacyMask>
+                </p>
+              </div>
             </div>
-            <div className="record-tile">
-              <p className="text-sm text-muted-foreground">Spending</p>
-              <p className="mt-1 text-lg font-semibold">
-                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)} sensitive>
-                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.budgetSpending)}
-                </PrivacyMask>
-              </p>
-            </div>
-            <div className="record-tile">
-              <p className="text-sm text-muted-foreground">Card debt</p>
-              <p className="mt-1 text-lg font-semibold">
-                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)} sensitive>
-                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.cardDebt)}
-                </PrivacyMask>
-              </p>
-            </div>
-            <div className="record-tile">
-              <p className="text-sm text-muted-foreground">Sinking funds saved</p>
-              <p className="mt-1 text-lg font-semibold">
-                <PrivacyMask value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)} sensitive>
-                  {Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.sinkingSaved)}
-                </PrivacyMask>
-              </p>
-            </div>
-          </div>
-          <Button asChild variant="outline" className="mt-4 w-full">
-            <Link href="/budget">
-              <CreditCard className="h-4 w-4" />
-              Open Budget & Cards
-            </Link>
-          </Button>
-        </DashboardCard>
+            <Button asChild variant="outline" className="mt-4 w-full">
+              <Link href="/budget">
+                <CreditCard className="h-4 w-4" />
+                Open Budget & Cards
+              </Link>
+            </Button>
+          </DashboardCard>
+        ) : null}
 
         <DashboardCard title="Family Goals Progress" icon={<Goal className="h-5 w-5" />}>
           <MiniList

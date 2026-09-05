@@ -17,13 +17,21 @@ import { ToastViewport } from "@/components/app/toast-viewport";
 import { useFamily } from "@/hooks/use-family";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 import { useTheme } from "@/hooks/use-theme";
+import { blockedSectionForPath, memberCanAccessSection } from "@/lib/access-control";
+import { titleCase } from "@/lib/utils";
 
 function ShellContent({ children }: { children: React.ReactNode }) {
   const { privacyMode, setPrivacyMode } = usePrivacyMode();
   const { theme, setTheme } = useTheme();
-  const { supabaseConfigured, usingLocalData } = useFamily();
+  const { currentMember, supabaseConfigured, usingLocalData } = useFamily();
   const pathname = usePathname();
-  const showAccessGate = supabaseConfigured && usingLocalData && pathname !== "/settings";
+  const blockedSection = blockedSectionForPath(pathname);
+  const profileRestricted = !memberCanAccessSection(currentMember, blockedSection);
+  const showAccessGate = (supabaseConfigured && usingLocalData && pathname !== "/settings") || profileRestricted;
+  const accessGateTitle = profileRestricted ? "Restricted area" : "Private family workspace";
+  const accessGateDescription = profileRestricted
+    ? `Your profile does not have access to ${titleCase(blockedSection ?? "this area")}. Ask a workspace admin to update your access.`
+    : "Sign in to continue to your secure Family Control Center.";
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -55,8 +63,8 @@ function ShellContent({ children }: { children: React.ReactNode }) {
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[#ACE1AF]/45 text-[#22552d]">
                   <LockKeyhole className="h-6 w-6" />
                 </div>
-                <h1 className="mt-5 text-2xl font-semibold tracking-normal">Private family workspace</h1>
-                <p className="mt-2 text-sm text-muted-foreground">Sign in to continue to your secure Family Control Center.</p>
+                <h1 className="mt-5 text-2xl font-semibold tracking-normal">{accessGateTitle}</h1>
+                <p className="mt-2 text-sm text-muted-foreground">{accessGateDescription}</p>
                 <Button asChild className="mt-5 w-full">
                   <Link href="/settings">Open Account Access</Link>
                 </Button>

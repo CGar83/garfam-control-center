@@ -8,14 +8,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { useAppData } from "@/components/app/providers";
 import { searchData } from "@/lib/filtering";
+import { memberCanAccessPath } from "@/lib/access-control";
 import { titleCase } from "@/lib/utils";
 
 export function GlobalSearch() {
   const router = useRouter();
-  const { data } = useAppData();
+  const { data, currentMember } = useAppData();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const results = useMemo(() => searchData(data, query).slice(0, 12), [data, query]);
+  const results = useMemo(() => searchData(data, query).filter((result) => memberCanAccessPath(currentMember, result.route)).slice(0, 12), [currentMember, data, query]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

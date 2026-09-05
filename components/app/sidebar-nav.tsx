@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ShieldCheck } from "lucide-react";
 import { navigationSections, type NavSection } from "@/components/app/navigation";
 import { useFamily } from "@/hooks/use-family";
+import { memberCanAccessPath } from "@/lib/access-control";
 import { cn } from "@/lib/utils";
 
 function isSectionActive(section: NavSection, pathname: string) {
@@ -14,16 +15,28 @@ function isSectionActive(section: NavSection, pathname: string) {
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { family, supabaseConfigured, usingLocalData } = useFamily();
+  const { family, currentMember, supabaseConfigured, usingLocalData } = useFamily();
   const workspaceLabel = supabaseConfigured && usingLocalData ? "Private workspace" : family?.name ?? "Family workspace";
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const visibleSections = useMemo(
+    () =>
+      navigationSections
+        .map((section) => {
+          const visibleItems = section.items.filter((item) => memberCanAccessPath(currentMember, item.href));
+          const sectionVisible = memberCanAccessPath(currentMember, section.href);
+          const href = sectionVisible ? section.href : visibleItems[0]?.href;
+          return href ? { ...section, href, items: visibleItems } : null;
+        })
+        .filter((section): section is NavSection => Boolean(section)),
+    [currentMember]
+  );
 
   useEffect(() => {
     setOpenSections((current) => {
       let changed = false;
       const next = { ...current };
 
-      navigationSections.forEach((section) => {
+      visibleSections.forEach((section) => {
         if (isSectionActive(section, pathname) && section.items.length > 0 && !next[section.title]) {
           next[section.title] = true;
           changed = true;
@@ -32,7 +45,7 @@ export function SidebarNav() {
 
       return changed ? next : current;
     });
-  }, [pathname]);
+  }, [pathname, visibleSections]);
 
   return (
     <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r bg-white/70 shadow-[1px_0_0_rgba(255,255,255,0.55)_inset] backdrop-blur-2xl dark:bg-card/70 lg:block">
@@ -49,7 +62,7 @@ export function SidebarNav() {
           </div>
         </div>
         <nav className="scrollbar-thin flex-1 space-y-1 overflow-y-auto p-3" aria-label="Primary">
-          {navigationSections.map((section) => {
+          {visibleSections.map((section) => {
             const active = isSectionActive(section, pathname);
             const exactActive = pathname === section.href;
             const open = section.items.length > 0 && (openSections[section.title] ?? active);

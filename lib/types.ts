@@ -8,6 +8,15 @@ export type CalendarSyncDirection = "export" | "import" | "two_way";
 export type CalendarConnectionStatus = "setup_required" | "active" | "paused" | "error";
 export type ActivityAudience = "son" | "daughter" | "all_kids" | "date_night" | "family";
 export type ActivityStatus = "idea" | "planned" | "done";
+export type AccessSection =
+  | "finances"
+  | "accounts"
+  | "health"
+  | "documents"
+  | "contacts"
+  | "communication"
+  | "relationship"
+  | "emergency";
 export type BudgetNeedWantGoal = "need" | "want" | "goal";
 export type BudgetPayoffStrategy = "avalanche" | "snowball";
 export type FinancialTransactionType = "income" | "expense" | "transfer" | "credit_payment";
@@ -44,6 +53,9 @@ export interface FamilyMember extends FamilyScopedRecord {
   phone?: string | null;
   email?: string | null;
   relationship?: string | null;
+  birthdate?: string | null;
+  age_label?: string | null;
+  blocked_sections?: AccessSection[];
 }
 
 export interface EventRecord extends FamilyScopedRecord {
@@ -404,4 +416,5 @@ export interface CurrentUser {
   email: string;
   display_name: string;
   role: Role;
+  blocked_sections?: AccessSection[];
 }

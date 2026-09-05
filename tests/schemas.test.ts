@@ -6,6 +6,7 @@ import {
   calendarConnectionSchema,
   creditCardSchema,
   eventSchema,
+  familyMemberSchema,
   financialAccountSchema,
   financialTransactionSchema,
   relationshipRecordSchema,
@@ -30,6 +31,24 @@ describe("validation schemas", () => {
     if (result.success) {
       expect(result.data.due_at).toBeNull();
       expect(result.data.tags).toEqual(["home", "weekly"]);
+    }
+  });
+
+  it("accepts child profiles without email and with restricted sections", () => {
+    const result = familyMemberSchema.safeParse({
+      display_name: "Lily Rivera",
+      role: "viewer",
+      relationship: "Daughter",
+      birthdate: "2017-04-18",
+      age_label: "9",
+      email: "",
+      blocked_sections: ["finances", "relationship"]
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.email).toBeNull();
+      expect(result.data.blocked_sections).toEqual(["finances", "relationship"]);
     }
   });
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { CheckCircle2, Download, LogOut, Plus, RotateCcw, ShieldAlert, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,9 +20,12 @@ import { useFamilyMembers } from "@/hooks/use-family-members";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 import { useTheme } from "@/hooks/use-theme";
 import { useToast } from "@/hooks/use-toast";
+import { accessSections } from "@/lib/access-control";
+import { getMemberAgeLabel, isChildMember } from "@/lib/family-members";
 import { moduleList } from "@/lib/modules";
 import { notificationKinds, roleOptions } from "@/lib/options";
 import { familyMemberSchema, familySchema } from "@/lib/schemas";
+import type { AccessSection, FamilyMember } from "@/lib/types";
 import { titleCase } from "@/lib/utils";
 
 type MemberValues = {
@@ -31,10 +35,13 @@ type MemberValues = {
   email?: string | null;
   relationship?: string | null;
   avatar_url?: string | null;
+  birthdate?: string | null;
+  age_label?: string | null;
+  blocked_sections?: AccessSection[];
 };
 
 export default function SettingsPage() {
-  const { family, updateFamilyName, createWorkspace, restoreStarterData, currentUser, usingLocalData, supabaseConfigured } = useFamily();
+  const { family, updateFamilyName, createWorkspace, restoreStarterData, currentUser, currentMember, usingLocalData, supabaseConfigured } = useFamily();
   const { data, createRecord, updateRecord, deleteRecord, signIn, signUp, signOut } = useAppData();
   const { members } = useFamilyMembers();
   const { privacyMode, setPrivacyMode } = usePrivacyMode();
@@ -52,6 +59,7 @@ export default function SettingsPage() {
   );
   const isSignedIn = supabaseConfigured && !usingLocalData;
   const showWorkspaceControls = !supabaseConfigured || isSignedIn;
+  const canManageMembers = showWorkspaceControls && currentMember?.role === "admin";
   const authStatusTitle = !supabaseConfigured ? "Local workspace" : usingLocalData ? "Sign in required" : "Logged in";
   const authStatusDescription = !supabaseConfigured
     ? "This browser is using a local-only workspace. Add Supabase environment variables locally or use the deployed site for cloud sync."
@@ -74,7 +82,10 @@ export default function SettingsPage() {
       phone: "",
       email: "",
       relationship: "",
-      avatar_url: ""
+      avatar_url: "",
+      birthdate: "",
+      age_label: "",
+      blocked_sections: []
     }
   });
 
@@ -92,6 +103,19 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function setMemberSectionRestriction(member: FamilyMember, section: AccessSection, restricted: boolean) {
+    if (!canManageMembers) return;
+    const nextSections = new Set(member.blocked_sections ?? []);
+    if (restricted) {
+      nextSections.add(section);
+    } else {
+      nextSections.delete(section);
+    }
+
+    await updateRecord("family_members", member.id, { blocked_sections: Array.from(nextSections) });
+    toast({ title: "Access updated", description: `${member.display_name}'s viewing access was saved.`, variant: "success" });
+  }
+
   return (
     <div className="app-page">
       <PageHeader title="Settings" description={pageDescription} />
@@ -107,6 +131,7 @@ export default function SettingsPage() {
               <form
                 className="space-y-3"
                 onSubmit={familyForm.handleSubmit(async (values) => {
+                  if (!canManageMembers) return;
                   await updateFamilyName(values.name);
                   toast({ title: "Family profile saved", variant: "success" });
                 })}
@@ -114,15 +139,18 @@ export default function SettingsPage() {
                 <label className="text-sm font-medium" htmlFor="family-name">
                   Family name
                 </label>
-                <Input id="family-name" {...familyForm.register("name")} />
+                <Input id="family-name" disabled={!canManageMembers} {...familyForm.register("name")} />
                 {familyForm.formState.errors.name?.message ? (
                   <p className="text-xs text-destructive">{familyForm.formState.errors.name.message}</p>
                 ) : null}
                 <div className="app-toolbar">
-                  <Button type="submit">Save Family</Button>
+                  <Button type="submit" disabled={!canManageMembers}>
+                    Save Family
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
+                    disabled={!canManageMembers}
                     onClick={async () => {
                       await createWorkspace("New Family Workspace");
                       toast({ title: "Workspace created", variant: "success" });
@@ -160,7 +188,7 @@ export default function SettingsPage() {
                       <p className="text-wrap-safe mt-1 text-sm text-[#22552d]/80 dark:text-[#D7F2D9]/80">{authStatusDescription}</p>
                     </div>
                   </div>
-                    <Button type="button" variant="outline" className="shrink-0" onClick={signOut}>
+                  <Button type="button" variant="outline" className="shrink-0" onClick={signOut}>
                     <LogOut className="h-4 w-4" />
                     Sign Out
                   </Button>
@@ -228,71 +256,170 @@ export default function SettingsPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Members and Roles</CardTitle>
-              <CardDescription>Admin, Parent, and Viewer role assignments.</CardDescription>
+              <CardTitle>Family Members and Access</CardTitle>
+              <CardDescription>Add adults, children, and teens. Email is optional unless the person needs their own login.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <form
-                className="grid-auto-fit-sm"
-                onSubmit={memberForm.handleSubmit(async (values) => {
-                  await createRecord("family_members", { ...values, user_id: null });
-                  memberForm.reset({ display_name: "", role: "viewer", phone: "", email: "", relationship: "", avatar_url: "" });
-                  toast({ title: "Family member added", variant: "success" });
-                })}
-              >
-                <Input placeholder="Display name" {...memberForm.register("display_name")} />
-                <Controller
-                  control={memberForm.control}
-                  name="role"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roleOptions.map((role) => (
-                          <SelectItem key={role} value={role}>
-                            {titleCase(role)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Input placeholder="Relationship" {...memberForm.register("relationship")} />
-                <Input placeholder="Email" {...memberForm.register("email")} />
-                <Button type="submit" className="w-full sm:w-auto">
-                  <Plus className="h-4 w-4" />
-                  Add
-                </Button>
-              </form>
+              {canManageMembers ? (
+                <form
+                  className="grid-auto-fit-sm"
+                  onSubmit={memberForm.handleSubmit(async (values) => {
+                    if (!canManageMembers) return;
+                    const blocked_sections = values.role === "viewer" ? accessSections.map((section) => section.key) : [];
+                    await createRecord("family_members", { ...values, blocked_sections, user_id: null });
+                    memberForm.reset({
+                      display_name: "",
+                      role: "viewer",
+                      phone: "",
+                      email: "",
+                      relationship: "",
+                      avatar_url: "",
+                      birthdate: "",
+                      age_label: "",
+                      blocked_sections: []
+                    });
+                    toast({ title: "Family member added", variant: "success" });
+                  })}
+                >
+                  <div>
+                    <label htmlFor="member-display-name" className="text-xs font-medium text-muted-foreground">
+                      Name
+                    </label>
+                    <Input id="member-display-name" className="mt-1" placeholder="Display name" {...memberForm.register("display_name")} />
+                  </div>
+                  <div>
+                    <label htmlFor="member-relationship" className="text-xs font-medium text-muted-foreground">
+                      Relationship
+                    </label>
+                    <Input id="member-relationship" className="mt-1" placeholder="Son, daughter, parent, caregiver" {...memberForm.register("relationship")} />
+                  </div>
+                  <div>
+                    <label htmlFor="member-birthdate" className="text-xs font-medium text-muted-foreground">
+                      Birthdate
+                    </label>
+                    <Input id="member-birthdate" className="mt-1" type="date" {...memberForm.register("birthdate")} />
+                  </div>
+                  <div>
+                    <label htmlFor="member-age-label" className="text-xs font-medium text-muted-foreground">
+                      Age label
+                    </label>
+                    <Input id="member-age-label" className="mt-1" placeholder="9, teen, adult" {...memberForm.register("age_label")} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Role</label>
+                    <Controller
+                      control={memberForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roleOptions.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {titleCase(role)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="member-email" className="text-xs font-medium text-muted-foreground">
+                      Email for login
+                    </label>
+                    <Input id="member-email" className="mt-1" placeholder="Optional for children" {...memberForm.register("email")} />
+                  </div>
+                  <Button type="submit" className="h-11 w-full self-end sm:w-auto">
+                    <Plus className="h-4 w-4" />
+                    Add Member
+                  </Button>
+                </form>
+              ) : (
+                <div className="rounded-md border bg-muted/40 p-4 text-sm text-muted-foreground">
+                  Only workspace admins can add family members or change viewing access.
+                </div>
+              )}
               {memberForm.formState.errors.display_name?.message ? (
                 <p className="text-xs text-destructive">{memberForm.formState.errors.display_name.message}</p>
               ) : null}
+              {memberForm.formState.errors.email?.message ? (
+                <p className="text-xs text-destructive">{memberForm.formState.errors.email.message}</p>
+              ) : null}
+              {memberForm.formState.errors.birthdate?.message ? (
+                <p className="text-xs text-destructive">{memberForm.formState.errors.birthdate.message}</p>
+              ) : null}
               <div className="grid gap-2">
-                {members.map((member) => (
-                  <div key={member.id} className="record-tile flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <PersonAvatar personId={member.id} />
-                    <div className="app-toolbar">
-                      <Select value={member.role} onValueChange={(role) => updateRecord("family_members", member.id, { role: role as never })}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roleOptions.map((role) => (
-                            <SelectItem key={role} value={role}>
-                              {titleCase(role)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteMemberId(member.id)} title="Delete member">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete member</span>
-                      </Button>
+                {members.map((member) => {
+                  const childProfile = isChildMember(member);
+                  const restrictedSections = member.blocked_sections ?? [];
+
+                  return (
+                    <div key={member.id} className="record-tile">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <PersonAvatar personId={member.id} />
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Badge variant="outline">{titleCase(member.role)}</Badge>
+                            {childProfile ? <Badge variant="secondary">Child profile</Badge> : <Badge variant="info">Adult profile</Badge>}
+                            <Badge variant="outline">Age {getMemberAgeLabel(member)}</Badge>
+                            {member.email ? <Badge variant="outline">Login email</Badge> : <Badge variant="secondary">No login email</Badge>}
+                          </div>
+                        </div>
+                        <div className="app-toolbar md:justify-end">
+                          <Select
+                            value={member.role}
+                            disabled={!canManageMembers}
+                            onValueChange={(role) => updateRecord("family_members", member.id, { role: role as never })}
+                          >
+                            <SelectTrigger className="w-36">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roleOptions.map((role) => (
+                                <SelectItem key={role} value={role}>
+                                  {titleCase(role)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {canManageMembers ? (
+                            <Button variant="ghost" size="icon" onClick={() => setDeleteMemberId(member.id)} title="Delete member">
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete member</span>
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                      {member.role === "viewer" ? (
+                        <div className="mt-4">
+                          <p className="text-xs font-medium uppercase text-muted-foreground">Restricted viewer areas</p>
+                          <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                            {accessSections.map((section) => (
+                              <label key={section.key} className="record-tile flex min-h-12 items-center justify-between gap-3 px-3 py-2 text-sm">
+                                <span className="min-w-0">
+                                  <span className="block font-medium">{section.label}</span>
+                                  <span className="line-clamp-1 text-xs text-muted-foreground">{section.description}</span>
+                                </span>
+                                <Checkbox
+                                  checked={restrictedSections.includes(section.key)}
+                                  disabled={!canManageMembers}
+                                  onCheckedChange={(checked) => setMemberSectionRestriction(member, section.key, Boolean(checked))}
+                                />
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-4 rounded-md border border-[#ACE1AF]/70 bg-[#ACE1AF]/20 p-3 text-sm text-[#22552d] dark:border-[#ACE1AF]/45 dark:text-[#D7F2D9]">
+                          Admin and Parent roles have full workspace access.
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -357,7 +484,8 @@ export default function SettingsPage() {
             </Card>
           </div>
 
-          <div className="grid-auto-fit-lg">
+          {canManageMembers ? (
+            <div className="grid-auto-fit-lg">
             <Card>
               <CardHeader>
                 <CardTitle>Data Export</CardTitle>
@@ -390,7 +518,8 @@ export default function SettingsPage() {
                 </Button>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          ) : null}
         </>
       ) : null}
 

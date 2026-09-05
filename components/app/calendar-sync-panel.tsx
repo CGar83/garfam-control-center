@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CalendarClock, Download, Plus, Upload } from "lucide-react";
+import { CalendarClock, Download, HelpCircle, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,49 @@ const providerCards: Array<{
   }
 ];
 
+const syncGuides = [
+  {
+    title: "Google Calendar",
+    steps: [
+      "Click Export ICS in this panel.",
+      "Open Google Calendar settings, then Import & export.",
+      "Choose the downloaded family-control-center.ics file.",
+      "Pick the target Google calendar and import.",
+      "Return here and mark the Google connection Active after confirming the events."
+    ]
+  },
+  {
+    title: "Apple Calendar",
+    steps: [
+      "Click Export ICS in this panel.",
+      "Open Apple Calendar on Mac, then choose File > Import.",
+      "Select the downloaded ICS file.",
+      "Choose the calendar where family events should appear.",
+      "For iPhone-only use, save the ICS to iCloud Drive and open it from the Files app."
+    ]
+  },
+  {
+    title: "Outlook",
+    steps: [
+      "Click Export ICS in this panel.",
+      "Open Outlook Calendar and choose Add calendar.",
+      "Use Upload from file when available.",
+      "Select the ICS file and choose the destination calendar.",
+      "Confirm that bills, appointments, and dated tasks imported as expected."
+    ]
+  },
+  {
+    title: "WebCal / ICS subscription",
+    steps: [
+      "Use this once a hosted feed URL exists for the app.",
+      "Copy the feed URL from the Calendar Sync record.",
+      "In your calendar app, choose Subscribe from URL or Add calendar from web.",
+      "Paste the URL, name the calendar, and set refresh preferences.",
+      "Keep account passwords in a password manager, not in this app."
+    ]
+  }
+];
+
 function downloadFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -53,13 +96,15 @@ function downloadFile(filename: string, contents: string) {
 }
 
 export function CalendarSyncPanel() {
-  const { data, createRecord, updateRecord } = useAppData();
+  const { data, createRecord, updateRecord, currentMember } = useAppData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDefaults, setConnectionDefaults] = useState<Record<string, unknown> | undefined>();
   const connectionConfig = moduleConfigs.calendarConnections;
   const connections = data.calendar_connections;
+
+  if (currentMember?.role === "viewer") return null;
 
   async function exportCalendar() {
     const items = familyCalendarItems({
@@ -183,6 +228,32 @@ export function CalendarSyncPanel() {
           </Card>
         ))}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <HelpCircle className="h-4 w-4 text-primary" />
+            Sync Setup FAQ
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 lg:grid-cols-2">
+          {syncGuides.map((guide) => (
+            <div key={guide.title} className="record-tile">
+              <h3 className="font-semibold">{guide.title}</h3>
+              <ol className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+                {guide.steps.map((step, index) => (
+                  <li key={step} className="flex gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#ACE1AF]/40 text-xs font-semibold text-[#235226]">
+                      {index + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {connections.length ? <DataTable config={connectionConfig} records={connections} /> : null}
 

@@ -25,7 +25,8 @@ export const localUser: CurrentUser = {
   member_id: avaId,
   email: "ava.rivera@example.test",
   display_name: "Ava Rivera",
-  role: "admin"
+  role: "admin",
+  blocked_sections: []
 };
 
 export function createSeedData(): DataStore {
@@ -59,6 +60,9 @@ export function createSeedData(): DataStore {
         phone: "555-0101",
         email: "ava.rivera@example.test",
         relationship: "Mom",
+        birthdate: null,
+        age_label: "Adult",
+        blocked_sections: [],
         created_at: created,
         updated_at: updated
       },
@@ -72,6 +76,9 @@ export function createSeedData(): DataStore {
         phone: "555-0102",
         email: "miles.rivera@example.test",
         relationship: "Dad",
+        birthdate: null,
+        age_label: "Adult",
+        blocked_sections: [],
         created_at: created,
         updated_at: updated
       },
@@ -84,7 +91,10 @@ export function createSeedData(): DataStore {
         avatar_url: null,
         phone: null,
         email: null,
-        relationship: "Child",
+        relationship: "Daughter",
+        birthdate: "2017-04-18",
+        age_label: "9",
+        blocked_sections: ["finances", "accounts", "health", "documents", "contacts", "communication", "relationship", "emergency"],
         created_at: created,
         updated_at: updated
       },
@@ -97,7 +107,10 @@ export function createSeedData(): DataStore {
         avatar_url: null,
         phone: null,
         email: null,
-        relationship: "Child",
+        relationship: "Son",
+        birthdate: "2014-02-11",
+        age_label: "12",
+        blocked_sections: ["finances", "accounts", "health", "documents", "contacts", "communication", "relationship", "emergency"],
         created_at: created,
         updated_at: updated
       }
@@ -371,7 +384,7 @@ export function createSeedData(): DataStore {
         target_utilization: 0.3,
         excellent_utilization: 0.1,
         high_utilization_alert: 0.5,
-        notes: "Starter values based on the workbook setup tab. Replace with household assumptions.",
+        notes: "Household planning assumptions imported from the workbook setup tab.",
         created_at: created,
         updated_at: updated
       }
@@ -1489,7 +1502,7 @@ export function createSeedData(): DataStore {
         action: "seeded",
         entity_type: "workspace",
         entity_id: familyId,
-        summary: "Starter workspace was created with initial family records.",
+        summary: "Workspace was created with initial family records.",
         created_at: created
       }
     ]

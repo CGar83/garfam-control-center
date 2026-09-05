@@ -1,6 +1,7 @@
 import type {
   ActivityAudience,
   ActivityStatus,
+  AccessSection,
   BillStatus,
   BudgetNeedWantGoal,
   BudgetPayoffStrategy,
@@ -24,6 +25,16 @@ export const calendarSyncDirections = ["export", "import", "two_way"] as const s
 export const calendarConnectionStatuses = ["setup_required", "active", "paused", "error"] as const satisfies readonly CalendarConnectionStatus[];
 export const activityAudiences = ["son", "daughter", "all_kids", "date_night", "family"] as const satisfies readonly ActivityAudience[];
 export const activityStatuses = ["idea", "planned", "done"] as const satisfies readonly ActivityStatus[];
+export const accessSectionOptions = [
+  "finances",
+  "accounts",
+  "health",
+  "documents",
+  "contacts",
+  "communication",
+  "relationship",
+  "emergency"
+] as const satisfies readonly AccessSection[];
 export const budgetNeedWantGoalOptions = ["need", "want", "goal"] as const satisfies readonly BudgetNeedWantGoal[];
 export const budgetPayoffStrategies = ["avalanche", "snowball"] as const satisfies readonly BudgetPayoffStrategy[];
 export const financialTransactionTypes = ["income", "expense", "transfer", "credit_payment"] as const satisfies readonly FinancialTransactionType[];
