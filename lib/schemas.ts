@@ -21,7 +21,12 @@ import {
   relationshipCycles,
   relationshipPractices,
   activityCategories,
-  activitySeasons
+  activitySeasons,
+  choreFrequencies,
+  listKinds,
+  memberColors,
+  milestoneKinds,
+  timesOfDay
 } from "@/lib/options";
 import { isGoogleCalendarEmbedUrl } from "@/lib/calendar-embed";
 import { containsUnsafeSecret } from "@/lib/utils";
@@ -95,7 +100,8 @@ export const familyMemberSchema = z.object({
   relationship: optionalText(80),
   birthdate: optionalDateString.refine((value) => !value || parseISO(value) <= new Date(), "Birthdate cannot be in the future."),
   age_label: optionalText(40),
-  blocked_sections: z.array(z.enum(accessSectionOptions)).default([])
+  blocked_sections: z.array(z.enum(accessSectionOptions)).default([]),
+  color: z.preprocess((value) => (value === "" ? null : value), z.enum(memberColors).nullable().optional())
 });
 
 export const eventSchema = z
@@ -152,8 +158,10 @@ export const mealPlanSchema = z.object({
   meal_type: requiredText("Meal type", 40),
   title: requiredText("Title"),
   recipe_url: optionalUrl,
+  recipe_id: optionalText(120),
   ingredients: optionalText(2000),
-  notes: optionalText(1200)
+  notes: optionalText(1200),
+  cook_id: optionalText(80)
 });
 
 export const financialAccountSchema = z.object({
@@ -460,6 +468,173 @@ export const notificationSchema = z.object({
   entity_id: optionalText(120)
 });
 
+const tagsField = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? value
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      : value,
+  z.array(z.string()).optional()
+);
+
+const weekdayArray = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? value
+          .split(",")
+          .map((part) => Number(part.trim()))
+          .filter((part) => Number.isInteger(part) && part >= 0 && part <= 6)
+      : value,
+  z.array(z.number().int().min(0).max(6)).optional()
+);
+
+const stepsField = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? value
+          .split(/\n|,/)
+          .map((step) => step.trim())
+          .filter(Boolean)
+      : value,
+  z.array(z.string().max(120)).min(1, "Add at least one step").max(20)
+);
+
+export const choreSchema = z.object({
+  title: requiredText("Chore"),
+  emoji: optionalText(8),
+  assigned_to: optionalText(80),
+  points: z.coerce.number().int().min(0).max(1000).default(5),
+  frequency: z.enum(choreFrequencies),
+  days_of_week: weekdayArray,
+  time_of_day: z.enum(timesOfDay),
+  active: z.coerce.boolean().default(true),
+  notes: optionalText(500)
+});
+
+export const choreCompletionSchema = z.object({
+  chore_id: requiredText("Chore", 120),
+  member_id: optionalText(80),
+  completed_on: requiredDateString("Completed on"),
+  points_awarded: z.coerce.number().int().min(0).default(0),
+  approved_by: optionalText(80)
+});
+
+export const rewardSchema = z.object({
+  title: requiredText("Reward"),
+  emoji: optionalText(8),
+  cost_points: z.coerce.number().int().min(1).max(100000),
+  description: optionalText(500),
+  available: z.coerce.boolean().default(true),
+  for_member_id: optionalText(80)
+});
+
+export const rewardClaimSchema = z.object({
+  reward_id: requiredText("Reward", 120),
+  member_id: requiredText("Member", 80),
+  points_spent: z.coerce.number().int().min(0),
+  claimed_on: requiredDateString("Claimed on"),
+  fulfilled: z.coerce.boolean().default(false)
+});
+
+export const routineSchema = z.object({
+  title: requiredText("Routine"),
+  emoji: optionalText(8),
+  member_id: optionalText(80),
+  time_of_day: z.enum(timesOfDay),
+  steps: stepsField,
+  days_of_week: weekdayArray,
+  active: z.coerce.boolean().default(true)
+});
+
+export const routineCompletionSchema = z.object({
+  routine_id: requiredText("Routine", 120),
+  member_id: optionalText(80),
+  completed_on: requiredDateString("Completed on"),
+  steps_done: z.array(z.number().int().min(0)).default([])
+});
+
+export const checkinSchema = z.object({
+  member_id: optionalText(80),
+  checkin_date: requiredDateString("Date"),
+  mood: z.coerce.number().int().min(1).max(5),
+  energy: z.coerce.number().int().min(1).max(5),
+  gratitude: optionalText(400),
+  needs: optionalText(400),
+  note: optionalText(800),
+  shared_with_partner: z.coerce.boolean().default(true)
+});
+
+export const journalEntrySchema = z.object({
+  entry_date: requiredDateString("Date"),
+  title: requiredText("Title"),
+  body: optionalText(3000),
+  author_id: optionalText(80),
+  people: tagsField,
+  tags: tagsField,
+  mood: optionalText(40),
+  highlight: z.coerce.boolean().default(false)
+});
+
+export const milestoneSchema = z.object({
+  title: requiredText("Title"),
+  kind: z.enum(milestoneKinds),
+  date: requiredDateString("Date"),
+  emoji: optionalText(8),
+  member_id: optionalText(80),
+  recurring_yearly: z.coerce.boolean().default(false),
+  notes: optionalText(500)
+});
+
+export const sharedListSchema = z.object({
+  name: requiredText("List name", 120),
+  kind: z.enum(listKinds),
+  emoji: optionalText(8),
+  description: optionalText(300),
+  archived: z.coerce.boolean().default(false)
+});
+
+export const listItemSchema = z.object({
+  list_id: requiredText("List", 120),
+  name: requiredText("Item", 160),
+  checked: z.coerce.boolean().default(false),
+  quantity: optionalText(40),
+  note: optionalText(300),
+  assigned_to: optionalText(80),
+  sort_order: z.coerce.number().int().min(0).default(0)
+});
+
+export const recipeSchema = z.object({
+  title: requiredText("Recipe"),
+  emoji: optionalText(8),
+  cuisine: optionalText(60),
+  meal_type: requiredText("Meal type", 40),
+  prep_minutes: optionalNonNegativeInteger,
+  cook_minutes: optionalNonNegativeInteger,
+  servings: optionalInteger,
+  ingredients: optionalText(3000),
+  instructions: optionalText(6000),
+  source_url: optionalUrl,
+  tags: tagsField,
+  favorite: z.coerce.boolean().default(false),
+  kid_approved: z.coerce.boolean().default(false),
+  last_cooked_on: optionalDateString,
+  rating: z.preprocess((value) => (value === "" || value === null ? null : value), z.coerce.number().int().min(1).max(5).nullable().optional()),
+  notes: optionalText(1000)
+});
+
+export const weeklyReviewSchema = z.object({
+  week_start: requiredDateString("Week start"),
+  completed_steps: z.array(z.string()).default([]),
+  wins: optionalText(1500),
+  focus: optionalText(1500),
+  worries: optionalText(1500),
+  date_night_plan: optionalText(400),
+  completed_at: optionalDateString,
+  reviewed_by: z.array(z.string()).default([])
+});
+
 export const schemas = {
   family_members: familyMemberSchema,
   events: eventSchema,
@@ -485,6 +660,19 @@ export const schemas = {
   calendar_connections: calendarConnectionSchema,
   emergency_plan_items: emergencyPlanItemSchema,
   family_goals: familyGoalSchema,
+  chores: choreSchema,
+  chore_completions: choreCompletionSchema,
+  rewards: rewardSchema,
+  reward_claims: rewardClaimSchema,
+  routines: routineSchema,
+  routine_completions: routineCompletionSchema,
+  checkins: checkinSchema,
+  journal_entries: journalEntrySchema,
+  milestones: milestoneSchema,
+  shared_lists: sharedListSchema,
+  list_items: listItemSchema,
+  recipes: recipeSchema,
+  weekly_reviews: weeklyReviewSchema,
   notifications: notificationSchema
 };
 

@@ -3,15 +3,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
+import { LOCAL_STORE_KEY } from "@/lib/constants";
 import { createSeedData, localUser } from "@/lib/seed-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type {
   ActivityLog,
   CalendarConnection,
+  Chore,
   CurrentUser,
   DataStore,
   FamilyMember,
+  MemberColor,
   NotificationRecord,
+  Reward,
+  Role,
+  Routine,
   TableName,
   TableRecord
 } from "@/lib/types";
@@ -61,6 +67,19 @@ function emptyDataStore(): DataStore {
     calendar_connections: [],
     emergency_plan_items: [],
     family_goals: [],
+    chores: [],
+    chore_completions: [],
+    rewards: [],
+    reward_claims: [],
+    routines: [],
+    routine_completions: [],
+    checkins: [],
+    journal_entries: [],
+    milestones: [],
+    shared_lists: [],
+    list_items: [],
+    recipes: [],
+    weekly_reviews: [],
     notifications: [],
     activity_log: []
   };
@@ -71,7 +90,8 @@ function normalizeFamilyMember(member: FamilyMember): FamilyMember {
     ...member,
     birthdate: member.birthdate ?? null,
     age_label: member.age_label ?? null,
-    blocked_sections: member.blocked_sections ?? []
+    blocked_sections: member.blocked_sections ?? [],
+    color: member.color ?? null
   };
 }
 
@@ -219,10 +239,31 @@ interface AppDataContextValue {
   clearCheckedGroceries: () => Promise<void>;
   addIngredientsToGrocery: (ingredients: string, store?: string | null) => Promise<void>;
   restoreStarterData: () => void;
+  /** Switch which family member this device is acting as (shared tablet / kid mode). */
+  switchMember: (memberId: string | null) => void;
+  /** Onboarding: replace the local workspace with a freshly set up family in one step. */
+  setupFamily: (setup: FamilySetup) => Promise<void>;
+}
+
+export interface FamilySetupMember {
+  display_name: string;
+  role: Role;
+  relationship: string;
+  birthdate?: string | null;
+  color: MemberColor;
+}
+
+export interface FamilySetup {
+  familyName: string;
+  members: FamilySetupMember[];
+  chores?: Array<Pick<Chore, "title" | "emoji" | "points" | "frequency" | "time_of_day"> & { memberIndex: number }>;
+  routines?: Array<Pick<Routine, "title" | "emoji" | "time_of_day" | "steps" | "days_of_week"> & { memberIndex: number | null }>;
+  rewards?: Array<Pick<Reward, "title" | "emoji" | "cost_points">>;
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
-const storageKey = "family-control-center-local-store";
+const storageKey = LOCAL_STORE_KEY;
+const activeMemberKey = "family-control-center-active-member";
 
 type AuthActionResult = {
   status: "signed_in" | "confirmation_required" | "local";
@@ -254,6 +295,19 @@ const syncTables: EditableTable[] = [
   "calendar_connections",
   "emergency_plan_items",
   "family_goals",
+  "chores",
+  "chore_completions",
+  "rewards",
+  "reward_claims",
+  "routines",
+  "routine_completions",
+  "checkins",
+  "journal_entries",
+  "milestones",
+  "shared_lists",
+  "list_items",
+  "recipes",
+  "weekly_reviews",
   "notifications"
 ];
 
@@ -279,6 +333,11 @@ function recordTitle(record: unknown) {
 function authDisplayName(user: User) {
   const metadataName = user.user_metadata?.display_name;
   return typeof metadataName === "string" && metadataName.trim() ? metadataName.trim() : user.email?.split("@")[0] || "Family user";
+}
+
+function safeNumberFromRecord(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function browserIsOnline() {
@@ -332,6 +391,7 @@ async function createRemoteWorkspace(supabase: SupabaseClient, user: User, name?
     birthdate: null,
     age_label: "Adult",
     blocked_sections: [],
+    color: "coral",
     created_at: timestamp,
     updated_at: timestamp
   };
@@ -398,6 +458,36 @@ function notificationSeed(table: EditableTable, record: Record<string, unknown>)
       kind: "upcoming_appointment",
       title: `Appointment added: ${title}`,
       body: "A health appointment was added.",
+      entity_type: table,
+      entity_id: String(record.id)
+    };
+  }
+
+  if (table === "chore_completions") {
+    return {
+      kind: "chore_completed",
+      title: "Chore checked off",
+      body: `${safeNumberFromRecord(record.points_awarded)} points earned.`,
+      entity_type: table,
+      entity_id: String(record.id)
+    };
+  }
+
+  if (table === "reward_claims") {
+    return {
+      kind: "reward_claimed",
+      title: "Reward claimed",
+      body: `${safeNumberFromRecord(record.points_spent)} points redeemed. Time to make good on it.`,
+      entity_type: table,
+      entity_id: String(record.id)
+    };
+  }
+
+  if (table === "checkins" && record.shared_with_partner) {
+    return {
+      kind: "checkin_shared",
+      title: "A check-in was shared",
+      body: typeof record.gratitude === "string" && record.gratitude ? `Grateful for: ${record.gratitude.slice(0, 140)}` : "Open the check-in to see how your partner is doing.",
       entity_type: table,
       entity_id: String(record.id)
     };
@@ -494,6 +584,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         setData(normalizeDataStore(JSON.parse(saved) as Partial<DataStore>));
       }
 
+      const savedMember = localStorage.getItem(activeMemberKey);
+      if (!cancelled && savedMember) {
+        setCurrentUser((user) => ({ ...user, member_id: savedMember }));
+      }
+
       if (!cancelled) {
         setUsingLocalData(true);
         setHydrated(true);
@@ -547,6 +642,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         birthdate: null,
         age_label: "Adult",
         blocked_sections: [],
+        color: "coral" as const,
         created_at: timestamp,
         updated_at: timestamp
       };
@@ -895,12 +991,123 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     [createRecord, currentMemberId]
   );
 
+  const switchMember = useCallback(
+    (memberId: string | null) => {
+      const member = memberId ? data.family_members.find((item) => item.id === memberId) ?? null : null;
+      setCurrentUser((user) => ({
+        ...user,
+        member_id: member?.id ?? null,
+        display_name: member?.display_name ?? user.display_name,
+        role: member?.role ?? user.role,
+        blocked_sections: member?.blocked_sections ?? []
+      }));
+      if (usingLocalData) {
+        if (memberId) localStorage.setItem(activeMemberKey, memberId);
+        else localStorage.removeItem(activeMemberKey);
+      }
+    },
+    [data.family_members, usingLocalData]
+  );
+
+  const setupFamily = useCallback(
+    async (setup: FamilySetup) => {
+      const timestamp = nowIso();
+      const workspace = { id: makeId("family"), name: setup.familyName.trim() || "Our Family", created_at: timestamp, updated_at: timestamp };
+      const members: FamilyMember[] = setup.members.map((member, index) => ({
+        id: makeId("member"),
+        family_id: workspace.id,
+        user_id: index === 0 ? currentUser.id : null,
+        display_name: member.display_name.trim(),
+        role: member.role,
+        avatar_url: null,
+        phone: null,
+        email: index === 0 ? currentUser.email : null,
+        relationship: member.relationship,
+        birthdate: member.birthdate ?? null,
+        age_label: member.role === "viewer" ? null : "Adult",
+        blocked_sections: member.role === "viewer" ? ["finances", "accounts", "health", "documents", "contacts", "communication", "relationship", "emergency"] : [],
+        color: member.color,
+        created_at: timestamp,
+        updated_at: timestamp
+      }));
+      const chores: Chore[] = (setup.chores ?? []).map((chore) => ({
+        id: makeId("chore"),
+        family_id: workspace.id,
+        title: chore.title,
+        emoji: chore.emoji,
+        assigned_to: members[chore.memberIndex]?.id ?? null,
+        points: chore.points,
+        frequency: chore.frequency,
+        days_of_week: [],
+        time_of_day: chore.time_of_day,
+        active: true,
+        notes: null,
+        created_by: members[0]?.id ?? null,
+        created_at: timestamp,
+        updated_at: timestamp
+      }));
+      const routines: Routine[] = (setup.routines ?? []).map((routine) => ({
+        id: makeId("routine"),
+        family_id: workspace.id,
+        title: routine.title,
+        emoji: routine.emoji,
+        member_id: routine.memberIndex === null ? null : members[routine.memberIndex]?.id ?? null,
+        time_of_day: routine.time_of_day,
+        steps: routine.steps,
+        days_of_week: routine.days_of_week ?? [],
+        active: true,
+        created_at: timestamp,
+        updated_at: timestamp
+      }));
+      const rewards: Reward[] = (setup.rewards ?? []).map((reward) => ({
+        id: makeId("reward"),
+        family_id: workspace.id,
+        title: reward.title,
+        emoji: reward.emoji,
+        cost_points: reward.cost_points,
+        description: null,
+        available: true,
+        for_member_id: null,
+        created_at: timestamp,
+        updated_at: timestamp
+      }));
+
+      const store: DataStore = { ...emptyDataStore(), families: [workspace], family_members: members, chores, routines, rewards };
+
+      if (supabase && !usingLocalData) {
+        assertCanSync(usingLocalData);
+        const { error: familyError } = await supabase.from("families").insert(workspace);
+        if (familyError) throw familyError;
+        const { error: memberError } = await supabase.from("family_members").insert(members);
+        if (memberError) throw memberError;
+        if (chores.length) await supabase.from("chores").insert(chores);
+        if (routines.length) await supabase.from("routines").insert(routines);
+        if (rewards.length) await supabase.from("rewards").insert(rewards);
+      }
+
+      setCurrentUser((user) => ({
+        ...user,
+        member_id: members[0]?.id ?? null,
+        display_name: members[0]?.display_name ?? user.display_name,
+        role: "admin",
+        blocked_sections: []
+      }));
+      setData(store);
+      if (usingLocalData) {
+        localStorage.setItem(storageKey, JSON.stringify(store));
+        if (members[0]) localStorage.setItem(activeMemberKey, members[0].id);
+      }
+    },
+    [currentUser.email, currentUser.id, supabase, usingLocalData]
+  );
+
   const restoreStarterData = useCallback(() => {
     const seeded = createSeedData();
     setData(seeded);
     setCurrentUser(localUser);
     setUsingLocalData(true);
     localStorage.setItem(storageKey, JSON.stringify(seeded));
+    localStorage.removeItem(activeMemberKey);
   }, []);
 
   const value = useMemo(
@@ -925,9 +1132,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       applyRealtimeChange,
       clearCheckedGroceries,
       addIngredientsToGrocery,
-      restoreStarterData
+      restoreStarterData,
+      switchMember,
+      setupFamily
     }),
     [
+      switchMember,
+      setupFamily,
       addIngredientsToGrocery,
       clearCheckedGroceries,
       createRecord,

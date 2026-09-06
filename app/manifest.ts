@@ -2,16 +2,16 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/dashboard",
-    name: "Family Control Center",
-    short_name: "Family Center",
-    description: "A private family operating system for schedules, tasks, groceries, records, and relationship health.",
-    start_url: "/dashboard",
+    id: "/today",
+    name: "Gather: Family Home Base",
+    short_name: "Gather",
+    description: "Your family's shared hub for today: calendar, chores, routines, meals, lists, memories, and check-ins.",
+    start_url: "/today",
     scope: "/",
     display: "standalone",
     display_override: ["standalone", "minimal-ui"],
-    background_color: "#f5f5f7",
-    theme_color: "#CC5500",
+    background_color: "#fbf7f2",
+    theme_color: "#F0705A",
     orientation: "portrait",
     categories: ["productivity", "lifestyle", "utilities"],
     launch_handler: {
@@ -57,10 +57,17 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       {
-        name: "Dashboard",
-        short_name: "Dashboard",
-        description: "Open the family command center.",
-        url: "/dashboard",
+        name: "Today",
+        short_name: "Today",
+        description: "Open today's family brief.",
+        url: "/today",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }]
+      },
+      {
+        name: "Chores",
+        short_name: "Chores",
+        description: "Check off chores and see points.",
+        url: "/chores",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }]
       },
       {

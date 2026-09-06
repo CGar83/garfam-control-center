@@ -1,75 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import {
-  CalendarPlus,
-  ClipboardPlus,
-  FilePlus2,
-  HeartHandshake,
-  MessageSquarePlus,
-  PartyPopper,
-  Plus,
-  ReceiptText,
-  ShoppingCart,
-  WalletCards
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { RecordFormDialog } from "@/components/pages/record-form-dialog";
-import { moduleConfigs, type ModuleKey } from "@/lib/modules";
+import { QuickAddSheet } from "@/components/app/quick-add-sheet";
 
-const quickItems: Array<{ label: string; module: ModuleKey; icon: typeof Plus; defaults?: Record<string, unknown> }> = [
-  { label: "Add event", module: "calendar", icon: CalendarPlus },
-  { label: "Add task", module: "tasks", icon: ClipboardPlus },
-  { label: "Add activity idea", module: "activities", icon: PartyPopper },
-  { label: "Add grocery item", module: "grocery", icon: ShoppingCart },
-  { label: "Add bill", module: "bills", icon: ReceiptText },
-  { label: "Add transaction", module: "transactions", icon: WalletCards },
-  { label: "Add appointment", module: "health", icon: CalendarPlus, defaults: { record_type: "Appointment" } },
-  { label: "Add note", module: "communication", icon: MessageSquarePlus },
-  { label: "Add relationship check-in", module: "relationship", icon: HeartHandshake },
-  { label: "Add document", module: "documents", icon: FilePlus2 }
-];
-
+/** Header quick-add button. Also opens with the "n" shortcut when nothing is focused. */
 export function QuickAddMenu() {
-  const [selected, setSelected] = useState<(typeof quickItems)[number] | null>(null);
-  const config = selected ? moduleConfigs[selected.module] : null;
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const typing = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+      if (!typing && !event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        setOpen(true);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button>
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Quick Add</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {quickItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <DropdownMenuItem key={item.label} onSelect={() => setSelected(item)}>
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {config ? (
-        <RecordFormDialog
-          config={config}
-          open={Boolean(selected)}
-          defaultOverrides={selected?.defaults}
-          onOpenChange={(open) => !open && setSelected(null)}
-        />
-      ) : null}
+      <Button onClick={() => setOpen(true)} className="hidden lg:inline-flex">
+        <Plus className="h-4 w-4" />
+        Quick add
+        <span className="ml-1 hidden rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold xl:inline">N</span>
+      </Button>
+      <QuickAddSheet open={open} onOpenChange={setOpen} />
     </>
   );
 }

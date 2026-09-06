@@ -21,11 +21,13 @@ import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 import { useTheme } from "@/hooks/use-theme";
 import { useToast } from "@/hooks/use-toast";
 import { accessSections } from "@/lib/access-control";
+import { ONBOARDING_KEY } from "@/lib/constants";
 import { getMemberAgeLabel, isChildMember } from "@/lib/family-members";
 import { moduleList } from "@/lib/modules";
 import { notificationKinds, roleOptions } from "@/lib/options";
 import { familyMemberSchema, familySchema } from "@/lib/schemas";
-import type { AccessSection, FamilyMember } from "@/lib/types";
+import type { AccessSection, FamilyMember, MemberColor } from "@/lib/types";
+import { memberColorOrder, memberPalettes, nextAvailableColor } from "@/lib/member-colors";
 import { titleCase } from "@/lib/utils";
 
 type MemberValues = {
@@ -38,6 +40,7 @@ type MemberValues = {
   birthdate?: string | null;
   age_label?: string | null;
   blocked_sections?: AccessSection[];
+  color?: MemberColor | null;
 };
 
 export default function SettingsPage() {
@@ -85,7 +88,8 @@ export default function SettingsPage() {
       avatar_url: "",
       birthdate: "",
       age_label: "",
-      blocked_sections: []
+      blocked_sections: [],
+      color: null
     }
   });
 
@@ -266,7 +270,8 @@ export default function SettingsPage() {
                   onSubmit={memberForm.handleSubmit(async (values) => {
                     if (!canManageMembers) return;
                     const blocked_sections = values.role === "viewer" ? accessSections.map((section) => section.key) : [];
-                    await createRecord("family_members", { ...values, blocked_sections, user_id: null });
+                    const color = values.color ?? nextAvailableColor(members);
+                    await createRecord("family_members", { ...values, color, blocked_sections, user_id: null });
                     memberForm.reset({
                       display_name: "",
                       role: "viewer",
@@ -276,7 +281,8 @@ export default function SettingsPage() {
                       avatar_url: "",
                       birthdate: "",
                       age_label: "",
-                      blocked_sections: []
+                      blocked_sections: [],
+                      color: null
                     });
                     toast({ title: "Family member added", variant: "success" });
                   })}
@@ -332,6 +338,34 @@ export default function SettingsPage() {
                     </label>
                     <Input id="member-email" className="mt-1" placeholder="Optional for children" {...memberForm.register("email")} />
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-medium text-muted-foreground">Color</label>
+                    <Controller
+                      control={memberForm.control}
+                      name="color"
+                      render={({ field }) => (
+                        <div className="mt-1 flex flex-wrap gap-2" role="radiogroup" aria-label="Member color">
+                          {memberColorOrder.map((color) => {
+                            const palette = memberPalettes[color];
+                            const active = field.value === color;
+                            return (
+                              <button
+                                key={color}
+                                type="button"
+                                role="radio"
+                                aria-checked={active}
+                                aria-label={palette.label}
+                                title={palette.label}
+                                onClick={() => field.onChange(active ? null : color)}
+                                className={`h-9 w-9 rounded-full border-2 transition-all focus-ring ${active ? "scale-110 border-foreground" : "border-transparent"}`}
+                                style={{ backgroundColor: palette.solid }}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                    />
+                  </div>
                   <Button type="submit" className="h-11 w-full self-end sm:w-auto">
                     <Plus className="h-4 w-4" />
                     Add Member
@@ -367,6 +401,27 @@ export default function SettingsPage() {
                             <Badge variant="outline">Age {getMemberAgeLabel(member)}</Badge>
                             {member.email ? <Badge variant="outline">Login email</Badge> : <Badge variant="secondary">No login email</Badge>}
                           </div>
+                          {canManageMembers ? (
+                            <div className="mt-3 flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label={`${member.display_name} color`}>
+                              {memberColorOrder.map((color) => {
+                                const palette = memberPalettes[color];
+                                const active = member.color === color;
+                                return (
+                                  <button
+                                    key={color}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={active}
+                                    aria-label={palette.label}
+                                    title={palette.label}
+                                    onClick={() => updateRecord("family_members", member.id, { color })}
+                                    className={`h-6 w-6 rounded-full border-2 transition-all focus-ring ${active ? "scale-110 border-foreground" : "border-transparent opacity-80 hover:opacity-100"}`}
+                                    style={{ backgroundColor: palette.solid }}
+                                  />
+                                );
+                              })}
+                            </div>
+                          ) : null}
                         </div>
                         <div className="app-toolbar md:justify-end">
                           <Select
@@ -510,8 +565,19 @@ export default function SettingsPage() {
               <CardContent className="app-toolbar">
                 <Button variant="outline" onClick={() => setResetOpen(true)}>
                   <RotateCcw className="h-4 w-4" />
-                  Restore Starter Workspace
+                  Restore Sample Family
                 </Button>
+                {usingLocalData ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      localStorage.removeItem(ONBOARDING_KEY);
+                      window.location.assign("/welcome");
+                    }}
+                  >
+                    Run setup again
+                  </Button>
+                ) : null}
                 <Button variant="destructive" onClick={() => setDeleteWorkspaceOpen(true)}>
                   <Trash2 className="h-4 w-4" />
                   Delete Workspace

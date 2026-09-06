@@ -1,41 +1,55 @@
-# Family Control Center
+# Gather — your family's home base
 
-A private family management web app for centralizing calendars, calendar sync setup, activity ideas, tasks, groceries, meal planning, finances, budget and credit-card tracking, bills, safe account references, health details, school records, home and vehicle maintenance, documents, contacts, communication notes, relationship health, emergency planning, family goals, notifications, and settings.
+Gather is a shared family hub built for daily use by two parents and their kids. It started as a private "family control center" of records and grew into a consumer-grade app: a Today brief that answers "what's happening and who's on it," a color-coded calendar, chores with points and rewards, tappable routines, a recipe box that feeds a weekly meal plan and the grocery list, shared lists, a one-line family memory journal with countdowns, a thirty-second daily check-in between partners, and a guided Sunday planning ritual. Underneath, every family record still has a home: budget and cards, bills, accounts, health, school, home, vehicles, documents, contacts, emergency plan, and goals.
 
-The app is designed as a clean family operating system: fast enough for daily use, structured enough to replace scattered notes, texts, spreadsheets, paper folders, and fridge lists.
+It works out of the box with no backend (local-first in the browser) and syncs across devices when connected to Supabase.
 
-## Tech Stack
+## What's inside
 
-- Next.js App Router
-- TypeScript
-- Tailwind CSS
-- shadcn/ui-style local components
-- Supabase Auth, Postgres, Realtime, Row Level Security, and Storage
-- Zod validation
-- React Hook Form
-- date-fns
-- lucide-react
-- Vitest
+**Daily rhythm**
+- **Today** (`/today`): greeting, next-up, member cards with progress rings, a unified timeline of events, tasks, chores, routines, meals, bills, appointments and milestones, smart nudges, tonight's dinner, grocery quick-check, kids' points, countdowns, and an inline mood check-in.
+- **Quick add**: type it like you'd say it ("Dentist for Lily tomorrow 3pm", "Buy milk and eggs", "Pay water bill Friday", "$42 gas", "Memory: first lost tooth") and Gather files it as the right record. Center button on mobile, `N` on desktop.
+- **Calendar**: month, week, day and agenda views, color-coded by person, with layer toggles for tasks, chores, meals, bills and milestones, member filters, overlap warnings, a day sheet, ICS import/export for Google, Apple and Outlook, and display-only Google Calendar iframe embeds.
 
-## Local Setup
+**Family**
+- **Chores & Rewards**: today's chores per kid as big tap tiles, a weekly chore chart, points, streaks, a reward store kids redeem from, parent approval and fulfillment, age-based starter chores.
+- **Routines**: morning launches, bedtime wind-downs and family resets as step checklists with progress rings and celebrations.
+- **Memories**: one-line moments, highlights, "on this day," and countdowns to birthdays, trips and big days.
+- Tasks, Activities and Goals carried over from the original app.
+
+**Lists & Meals**
+- **Grocery** with store grouping; **Shared Lists** for packing, weekend to-dos, wishlists and projects, with templates; **Meal Plan** with a recipe picker, "pick for me," cook assignment and one-tap grocery export; **Recipe Box** with favorites, kid-approved, ratings and cook history.
+
+**Us**
+- **Daily Check-in**: mood, energy, one gratitude, one need, shared with your partner; fourteen-day trends.
+- **Weekly Plan**: a six-step Sunday reset covering wins, calendar, meals, chores, money and connection.
+- **Relationship** hub and the parent **Notes Board** from the original app.
+
+**Money and Records**: Budget & Cards, Bills, Accounts, Health, School, Home, Vehicles, Documents, Contacts, Emergency, and an **Overview** dashboard of every open loop.
+
+**Profiles**: each member has a color that follows them everywhere. A "Who is using this?" switcher makes a shared kitchen tablet work: switching to a kid personalizes Today and hides money, health, and adult areas.
+
+## Tech stack
+
+Next.js App Router, React 19, TypeScript, Tailwind CSS, shadcn-style local components, Supabase (Auth, Postgres, Realtime, RLS, Storage), Zod, React Hook Form, date-fns, lucide-react, Vitest.
+
+## Local setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Without Supabase environment variables the app runs as a local workspace stored in the browser. First launch opens a short onboarding flow; you can also explore with the sample Rivera family.
 
-If Supabase environment variables are missing, the app runs as a local workspace with starter family records stored in browser local storage.
-
-For a production-like local test:
+Production-like local test:
 
 ```bash
 npm run build
 npm run start
 ```
 
-## Environment Variables
+## Environment variables
 
 Create `.env.local`:
 
@@ -49,144 +63,59 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 Future calendar OAuth work should add provider credentials only as server-side environment variables, such as `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `MICROSOFT_CALENDAR_CLIENT_ID`, `MICROSOFT_CALENDAR_CLIENT_SECRET`, and a token encryption key.
 
-## Supabase Setup
+## Supabase setup
 
-1. Create a Supabase project.
-2. Enable email/password authentication.
-3. Apply all migrations in `supabase/migrations` in timestamp order.
-4. Create a user in Supabase Auth.
-5. Optionally seed starter data with that user's auth UUID as `SEED_USER_ID`.
+1. Create a Supabase project and turn on email/password auth.
+2. Apply all migrations in `supabase/migrations` in timestamp order. `20260905090000_daily_life_hub.sql` adds chores, rewards, routines, check-ins, memories, milestones, shared lists, recipes, weekly reviews, member colors, and row-level security that lets kids check off their own chores, routines and list items while only parents manage definitions.
+3. Apply `20260906145331_calendar_embed_fields.sql` if your project already existed before the embedded calendar work. It adds the Google Calendar embed URL, display toggle, and iframe height fields to `calendar_connections`.
+4. Create a user in Supabase Auth and sign in from Settings. A workspace is bootstrapped automatically for a new user.
+5. Optionally seed the sample family: `SEED_USER_ID=auth-user-uuid npm run seed:starter`.
 
-When a signed-in Supabase user has no family membership yet, the app can bootstrap a private workspace automatically and attach that user as the Admin family member. Additional family members can be added from Settings.
+## Calendar embeds and sync
 
-## Database Migrations
+The Calendar page supports three calendar integration levels:
 
-With the Supabase CLI:
+- **Embedded view**: paste a Google Calendar iframe snippet or `calendar.google.com/calendar/embed` URL into Embedded Calendar View. Gather stores only the sanitized Google embed URL and displays it inside the app. This is display-only; Google Calendar sharing settings decide who can view it.
+- **ICS import/export**: export Gather events, dated tasks, bills, and appointments into an `.ics` file, or import external `.ics` events into the Family Calendar.
+- **Provider tracking**: save connection records for Google, Apple, Outlook, ICS/WebCal, and other calendar providers so setup status, feed URLs, external IDs, and notes are tracked in one place.
 
-```bash
-supabase db push
-```
+Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus hosted callback/feed endpoints. Do not store calendar account passwords in Gather.
 
-Or paste the SQL migration into the Supabase SQL editor.
-
-The migrations create all family tables, child profile fields, budget tracker tables, notifications, activity log, calendar embed fields, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
-
-If your Supabase project already has the original schema, run `supabase/migrations/20260905053711_family_member_profiles_and_access.sql` next. It adds child age fields and viewer access restrictions for sensitive areas.
-
-Then run `supabase/migrations/20260906145331_calendar_embed_fields.sql`. It adds the Google Calendar embed URL, display toggle, and iframe height fields to `calendar_connections`.
-
-## Calendar Sync
-
-The Calendar page includes a Calendar Sync panel for Google Calendar, Apple Calendar, Outlook, and generic ICS/WebCal workflows.
-
-- Use `Export ICS` to download a family calendar feed containing events, dated open tasks, bills, and health appointments. That file can be imported into Google Calendar, Apple Calendar, Outlook, and other calendar apps that support `.ics` files.
-- Use `Import ICS` to import external `.ics` events into the Family Calendar.
-- Use `Embedded Calendar View` to paste a Google Calendar iframe snippet or `calendar.google.com/calendar/embed` URL and show that calendar inside the app. This is display-only; Google Calendar sharing settings still decide who can view it.
-- Use provider connection records to track calendar name, provider, sync direction, feed URL, embed URL, status, and notes.
-
-Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus a hosted feed/callback endpoint. This first version includes the database and UI structure, `.ics` import/export, and provider tracking without storing calendar account passwords.
-
-### Calendar OAuth Setup Plan
+## Calendar OAuth setup plan
 
 1. Create a Google Cloud project, turn on the Google Calendar API, and create OAuth credentials for a Web application.
 2. Add authorized redirect URIs for local and production, for example `http://localhost:3000/api/calendar/google/callback` and `https://your-domain.com/api/calendar/google/callback`.
 3. Store the Google client ID and client secret as server-side environment variables. Do not expose the secret through `NEXT_PUBLIC_` variables.
-4. Add a server route that redirects the user to Google with the minimum required Calendar scopes, such as `calendar.events` for event create/update/delete or `calendar.events.readonly` for read-only sync.
+4. Add a server route that redirects the user to Google with the smallest required Calendar scopes, such as `calendar.events` for event create/update/delete or `calendar.events.readonly` for read-only sync.
 5. Add a callback route that exchanges the authorization code for access and refresh tokens on the server.
 6. Store refresh tokens encrypted in Supabase, scoped by `family_id`, member ID, provider, and external calendar ID.
 7. Build server actions or API routes for creating, updating, deleting, and importing events. Client components should call your server, not Google directly.
 8. Add token refresh, disconnect, retry/error status, and activity logging before calling it production-ready.
 
-For Outlook/Microsoft 365, use Microsoft Entra app registration, request Microsoft Graph calendar permissions, and follow the same server-side token storage pattern. For Apple Calendar, start with ICS/WebCal display/import/export unless you choose to build CalDAV support; do not ask users to store Apple passwords in this app.
+For Outlook/Microsoft 365, use Microsoft Entra app registration, request Microsoft Graph calendar permissions, and follow the same server-side token storage pattern. For Apple Calendar, start with ICS/WebCal display/import/export unless you choose to build CalDAV support.
 
-## Budget and Credit Card Tracker
-
-The Budget & Cards page integrates the workbook-style `Ultimate Budget + Credit Card Tracker` into the app as live records instead of static spreadsheet formulas.
-
-- Budget settings track month, year, planned income, starting cash, prior-balance handling, payoff strategy, and utilization thresholds.
-- Budget categories track group, category, need/want/goal, monthly plan, rollover, and prior balance.
-- Transactions log positive-amount income, expenses, transfers, and credit-card payments.
-- Credit cards track issuer, owner, last four only, balance, limit, APR, payment assumptions, due dates, autopay, and password-vault location.
-- Sinking funds track target amount, target date, saved amount, planned monthly contribution, and progress.
-- The page computes monthly income, spending, savings rate, remaining budget, card debt, utilization targets, avalanche/snowball payoff order, and annual income/spending/savings summaries.
-
-The tracker intentionally does not store full card numbers, account numbers, passwords, SSNs, or credit-score guarantees. Utilization thresholds are planning aids only.
-
-## Starter Data
-
-Local starter data is automatic and includes a family workspace with adults, child profiles, age-aware activity ideas, budget settings, budget categories, transactions, credit cards, utilization targets, payoff planning data, bills, and sinking funds.
-
-For Supabase:
+## Quality commands
 
 ```bash
-SEED_USER_ID=auth-user-uuid npm run seed:starter
-```
-
-`SEED_USER_ID` attaches the first parent record to your real Supabase Auth user so RLS can read the seeded workspace.
-
-The SQL seed file at `supabase/seed.sql` is also available for CLI workflows, but it does not know your auth user UUID unless you edit the inserted `family_members.user_id`.
-
-## Quality Commands
-
-```bash
-npm run icons:pwa
 npm run lint
 npm run typecheck
 npm run test
 npm run build
+npm run icons:pwa
 ```
 
-`npm run icons:pwa` regenerates the PNG app icons from `scripts/generate-pwa-icons.mjs`.
+Tests cover schemas, filtering, access control, calendar sync and embeds, PWA config, the natural-language quick-add parser, chore scheduling and streak math, and the daily brief builder.
 
-## Security Notes
+## Security notes
 
-- This is not a password manager.
-- Do not store full passwords, full SSNs, full financial account numbers, or full medical record numbers.
-- Account, finance, budget, credit-card, transaction, vehicle, health, and emergency forms validate partial identifiers and block obvious stored secrets.
-- Store last four digits only where applicable.
-- Use the `password_location` field for references such as `1Password Family Vault`.
-- Privacy mode hides sensitive financial, budget, card, transaction, health, account, vehicle, and emergency details on shared screens.
-- Supabase RLS scopes records by `family_id` and membership.
+- Not a password manager. Forms block obvious secrets (full card or account numbers, SSNs, passwords). Store last four digits and a `password_location` reference only.
+- Privacy mode hides money, health, account, vehicle, and emergency details on shared screens.
+- Supabase RLS scopes every table by family membership. Check-ins are visible to the author and, when shared, to the other parents. Kid profiles (role `viewer`) are blocked from finance, accounts, health, documents, contacts, communication, relationship and emergency areas by default.
 
-## Deployment Notes
+## Deployment
 
-1. Deploy the Next.js app to Vercel, Netlify, or another Node-compatible host.
-2. Add the three Supabase environment variables in the hosting dashboard.
-3. Apply the Supabase migration before inviting family members.
-4. Use Supabase Auth for email/password access.
-5. Keep Storage bucket policies private unless you intentionally add signed URL workflows.
-6. Production builds include a web app manifest, iOS metadata, generated PNG icons, maskable icons, safe-area mobile nav support, and a service worker for installable app behavior with an offline fallback page.
-7. In Supabase Auth settings, add your production URL to allowed redirect URLs before testing sign-in/sign-up from the deployed site.
-8. Run Lighthouse against the deployed HTTPS URL and confirm the PWA installability checks pass.
+Deploy to Vercel, Netlify or any Node host, add the three Supabase variables, apply migrations, and add the production URL to Supabase Auth redirect URLs. The build ships a web manifest, iOS metadata, maskable icons and a service worker with an offline fallback so it installs as a standalone app.
 
-## Production PWA Notes
+## Product name
 
-- Manifest: `app/manifest.ts` defines install name, colors, icons, shortcuts, launch behavior, and standalone display.
-- Icons: `public/icons` contains SVG source icons plus generated PNG icons for Android, desktop, maskable launchers, and iOS home screen installs.
-- Service worker: `public/sw.js` precaches the app shell, common daily routes, manifest, icons, and the offline fallback page. Navigations use a network-first strategy with cached fallback.
-- Offline status: the app shell shows a visible offline banner. Supabase-backed production writes are blocked while offline with a clear error. Local workspace records can still be edited because they are browser-local.
-- Update behavior: production service worker registration checks periodically for updates and notifies the user when a new app version is ready to refresh.
-
-## Current App Coverage
-
-- Create a family workspace.
-- Add and manage family members and roles.
-- Add, edit, complete, and delete tasks.
-- Add and check off grocery items.
-- Add calendar events.
-- Export and import `.ics` calendar data for Google Calendar, Apple Calendar, Outlook, and other popular calendar apps.
-- Embed display-only Google Calendar views from Google Calendar iframe URLs.
-- Track calendar sync provider connections and status.
-- Use the Activities hub for son, daughter, all-kids, family, and date-night ideas, then add ideas directly to the Family Calendar.
-- Use the Budget & Cards hub for workbook-style budget settings, category plans, transactions, credit cards, utilization targets, debt payoff planning, sinking funds, and annual summaries.
-- Add bills and see upcoming and overdue bills.
-- Add health, school, home, vehicle, document, contact, emergency, communication, and goal records.
-- Use the Relationship hub for marriage-health check-ins, connection rituals, conflict repair, stress conversations, and weekly state-of-the-union notes.
-- Search across the app.
-- Toggle privacy mode and dark mode.
-- Export workspace data as JSON.
-- Use desktop sidebar navigation and mobile bottom navigation.
-- Use the notification center for assigned tasks, new notes, events, bills, and appointments.
-- Install the production build as a standalone web app from supported browsers with generated PNG icons, maskable icons, and iOS home-screen metadata.
-- Use cached app shell/offline fallback behavior when the network is unavailable.
-- See a visible offline banner, with Supabase-backed production writes blocked until reconnect.
+The name is a single constant in `lib/constants.ts` (`APP_NAME`, `APP_TAGLINE`). Change it there and in `app/manifest.ts` if you want something else.

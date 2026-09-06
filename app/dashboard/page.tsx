@@ -230,8 +230,8 @@ export default function DashboardPage() {
   return (
     <div className="app-page">
       <PageHeader
-        title="Dashboard"
-        description="A daily command center for the family schedule, urgent follow-up, shared notes, bills, appointments, maintenance, and goals."
+        title="Overview"
+        description="The wide-angle view: every open loop across schedule, money, health, home, and goals. For the day itself, use Today."
       />
 
       <div className="grid-auto-fit-sm">

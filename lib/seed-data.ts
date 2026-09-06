@@ -63,6 +63,7 @@ export function createSeedData(): DataStore {
         birthdate: null,
         age_label: "Adult",
         blocked_sections: [],
+        color: "coral",
         created_at: created,
         updated_at: updated
       },
@@ -79,6 +80,7 @@ export function createSeedData(): DataStore {
         birthdate: null,
         age_label: "Adult",
         blocked_sections: [],
+        color: "ocean",
         created_at: created,
         updated_at: updated
       },
@@ -95,6 +97,7 @@ export function createSeedData(): DataStore {
         birthdate: "2017-04-18",
         age_label: "9",
         blocked_sections: ["finances", "accounts", "health", "documents", "contacts", "communication", "relationship", "emergency"],
+        color: "lavender",
         created_at: created,
         updated_at: updated
       },
@@ -111,6 +114,7 @@ export function createSeedData(): DataStore {
         birthdate: "2014-02-11",
         age_label: "12",
         blocked_sections: ["finances", "accounts", "health", "documents", "contacts", "communication", "relationship", "emergency"],
+        color: "meadow",
         created_at: created,
         updated_at: updated
       }
@@ -314,6 +318,20 @@ export function createSeedData(): DataStore {
       }
     ],
     meal_plans: [
+      {
+        id: "meal_tonight_chicken",
+        family_id: familyId,
+        meal_date: isoDate(0),
+        meal_type: "Dinner",
+        title: "Sheet-pan lemon chicken",
+        recipe_url: null,
+        recipe_id: "recipe_sheet_pan_chicken",
+        ingredients: "Chicken thighs, baby potatoes, lemon, garlic, green beans, olive oil, oregano",
+        notes: "Double the potatoes.",
+        cook_id: milesId,
+        created_at: created,
+        updated_at: updated
+      },
       {
         id: "meal_taco_bowls",
         family_id: familyId,
@@ -1473,6 +1491,108 @@ export function createSeedData(): DataStore {
         created_at: created,
         updated_at: updated
       }
+    ],
+    chores: [
+      { id: "chore_lily_bed", family_id: familyId, title: "Make bed", emoji: "🛏️", assigned_to: lilyId, points: 5, frequency: "daily", days_of_week: [], time_of_day: "morning", active: true, notes: null, created_by: avaId, created_at: created, updated_at: updated },
+      { id: "chore_lily_table", family_id: familyId, title: "Set the table", emoji: "🍽️", assigned_to: lilyId, points: 5, frequency: "daily", days_of_week: [], time_of_day: "evening", active: true, notes: null, created_by: avaId, created_at: created, updated_at: updated },
+      { id: "chore_lily_toys", family_id: familyId, title: "Tidy playroom", emoji: "🧸", assigned_to: lilyId, points: 10, frequency: "weekdays", days_of_week: [], time_of_day: "afternoon", active: true, notes: "Before screen time.", created_by: avaId, created_at: created, updated_at: updated },
+      { id: "chore_noah_dishes", family_id: familyId, title: "Unload dishwasher", emoji: "🍽️", assigned_to: noahId, points: 10, frequency: "daily", days_of_week: [], time_of_day: "morning", active: true, notes: null, created_by: milesId, created_at: created, updated_at: updated },
+      { id: "chore_noah_trash", family_id: familyId, title: "Take out trash and recycling", emoji: "🗑️", assigned_to: noahId, points: 10, frequency: "custom", days_of_week: [1, 4], time_of_day: "evening", active: true, notes: "Pickup is Tuesday and Friday morning.", created_by: milesId, created_at: created, updated_at: updated },
+      { id: "chore_noah_dog", family_id: familyId, title: "Walk Biscuit", emoji: "🐕", assigned_to: noahId, points: 10, frequency: "daily", days_of_week: [], time_of_day: "afternoon", active: true, notes: "Twenty minutes minimum.", created_by: milesId, created_at: created, updated_at: updated },
+      { id: "chore_noah_laundry", family_id: familyId, title: "Fold and put away laundry", emoji: "🧺", assigned_to: noahId, points: 15, frequency: "weekly", days_of_week: [0], time_of_day: "anytime", active: true, notes: null, created_by: avaId, created_at: created, updated_at: updated },
+      { id: "chore_miles_kitchen", family_id: familyId, title: "Kitchen reset", emoji: "🧹", assigned_to: milesId, points: 0, frequency: "daily", days_of_week: [], time_of_day: "evening", active: true, notes: "Counters, sink, run dishwasher.", created_by: milesId, created_at: created, updated_at: updated },
+      { id: "chore_ava_plants", family_id: familyId, title: "Water plants", emoji: "🪴", assigned_to: avaId, points: 0, frequency: "custom", days_of_week: [3, 6], time_of_day: "morning", active: true, notes: null, created_by: avaId, created_at: created, updated_at: updated }
+    ],
+    chore_completions: [
+      ...[-6, -5, -4, -3, -2, -1].flatMap((offset) => [
+        { id: `cc_lily_bed_${offset}`, family_id: familyId, chore_id: "chore_lily_bed", member_id: lilyId, completed_on: isoDate(offset), points_awarded: 5, approved_by: avaId, created_at: stamp(offset), updated_at: stamp(offset) },
+        { id: `cc_noah_dog_${offset}`, family_id: familyId, chore_id: "chore_noah_dog", member_id: noahId, completed_on: isoDate(offset), points_awarded: 10, approved_by: milesId, created_at: stamp(offset), updated_at: stamp(offset) }
+      ]),
+      ...[-6, -4, -3, -1].map((offset) => ({ id: `cc_noah_dishes_${offset}`, family_id: familyId, chore_id: "chore_noah_dishes", member_id: noahId, completed_on: isoDate(offset), points_awarded: 10, approved_by: null, created_at: stamp(offset), updated_at: stamp(offset) })),
+      ...[-5, -3, -2].map((offset) => ({ id: `cc_lily_table_${offset}`, family_id: familyId, chore_id: "chore_lily_table", member_id: lilyId, completed_on: isoDate(offset), points_awarded: 5, approved_by: null, created_at: stamp(offset), updated_at: stamp(offset) })),
+      { id: "cc_lily_bed_today", family_id: familyId, chore_id: "chore_lily_bed", member_id: lilyId, completed_on: isoDate(0), points_awarded: 5, approved_by: null, created_at: stamp(0), updated_at: stamp(0) },
+      { id: "cc_noah_dishes_today", family_id: familyId, chore_id: "chore_noah_dishes", member_id: noahId, completed_on: isoDate(0), points_awarded: 10, approved_by: null, created_at: stamp(0), updated_at: stamp(0) }
+    ],
+    rewards: [
+      { id: "reward_movie_pick", family_id: familyId, title: "Pick Friday movie", emoji: "🎬", cost_points: 40, description: "Choose the family movie and the snack.", available: true, for_member_id: null, created_at: created, updated_at: updated },
+      { id: "reward_screen_time", family_id: familyId, title: "30 extra minutes of screen time", emoji: "🎮", cost_points: 30, description: "Weekend only.", available: true, for_member_id: null, created_at: created, updated_at: updated },
+      { id: "reward_ice_cream", family_id: familyId, title: "Ice cream run", emoji: "🍦", cost_points: 50, description: "One scoop, any topping.", available: true, for_member_id: null, created_at: created, updated_at: updated },
+      { id: "reward_late_bedtime", family_id: familyId, title: "Stay up 30 minutes late", emoji: "🌙", cost_points: 35, description: "Friday or Saturday.", available: true, for_member_id: null, created_at: created, updated_at: updated },
+      { id: "reward_allowance", family_id: familyId, title: "$5 allowance boost", emoji: "💵", cost_points: 100, description: null, available: true, for_member_id: noahId, created_at: created, updated_at: updated }
+    ],
+    reward_claims: [
+      { id: "claim_noah_screen", family_id: familyId, reward_id: "reward_screen_time", member_id: noahId, points_spent: 30, claimed_on: isoDate(-2), fulfilled: true, created_at: stamp(-2), updated_at: stamp(-2) }
+    ],
+    routines: [
+      { id: "routine_lily_morning", family_id: familyId, title: "Lily's morning launch", emoji: "🌅", member_id: lilyId, time_of_day: "morning", steps: ["Get dressed", "Eat breakfast", "Brush teeth", "Pack backpack", "Shoes on by 7:40"], days_of_week: [1, 2, 3, 4, 5], active: true, created_at: created, updated_at: updated },
+      { id: "routine_lily_bedtime", family_id: familyId, title: "Lily's bedtime wind-down", emoji: "🌙", member_id: lilyId, time_of_day: "evening", steps: ["Bath", "Pajamas", "Brush teeth", "Two books", "Lights out 8:00"], days_of_week: [], active: true, created_at: created, updated_at: updated },
+      { id: "routine_noah_morning", family_id: familyId, title: "Noah's morning launch", emoji: "🎒", member_id: noahId, time_of_day: "morning", steps: ["Breakfast", "Brush teeth", "Check homework folder", "Fill water bottle", "Bus at 7:25"], days_of_week: [1, 2, 3, 4, 5], active: true, created_at: created, updated_at: updated },
+      { id: "routine_noah_evening", family_id: familyId, title: "Noah's evening reset", emoji: "📖", member_id: noahId, time_of_day: "evening", steps: ["Homework done", "Screens off 8:30", "Shower", "Read 20 minutes", "Lights out 9:15"], days_of_week: [], active: true, created_at: created, updated_at: updated },
+      { id: "routine_family_sunday", family_id: familyId, title: "Sunday family reset", emoji: "🏠", member_id: null, time_of_day: "afternoon", steps: ["Review the week's calendar", "Plan dinners", "Finish grocery order", "Kids lay out school clothes", "Family walk"], days_of_week: [0], active: true, created_at: created, updated_at: updated }
+    ],
+    routine_completions: [
+      { id: "rc_lily_morning_today", family_id: familyId, routine_id: "routine_lily_morning", member_id: lilyId, completed_on: isoDate(0), steps_done: [0, 1, 2], created_at: stamp(0), updated_at: stamp(0) },
+      { id: "rc_noah_morning_today", family_id: familyId, routine_id: "routine_noah_morning", member_id: noahId, completed_on: isoDate(0), steps_done: [0, 1, 2, 3, 4], created_at: stamp(0), updated_at: stamp(0) },
+      { id: "rc_lily_bed_yesterday", family_id: familyId, routine_id: "routine_lily_bedtime", member_id: lilyId, completed_on: isoDate(-1), steps_done: [0, 1, 2, 3, 4], created_at: stamp(-1), updated_at: stamp(-1) }
+    ],
+    checkins: [
+      { id: "checkin_ava_-1", family_id: familyId, member_id: avaId, checkin_date: isoDate(-1), mood: 4, energy: 3, gratitude: "Miles handled bedtime so I could finish the grant draft.", needs: "A quiet hour Saturday morning.", note: null, shared_with_partner: true, created_at: stamp(-1), updated_at: stamp(-1) },
+      { id: "checkin_miles_-1", family_id: familyId, member_id: milesId, checkin_date: isoDate(-1), mood: 3, energy: 2, gratitude: "Noah walked the dog without being asked.", needs: "Help deciding on the car repair.", note: "Work deadline Thursday.", shared_with_partner: true, created_at: stamp(-1), updated_at: stamp(-1) },
+      { id: "checkin_ava_-2", family_id: familyId, member_id: avaId, checkin_date: isoDate(-2), mood: 3, energy: 3, gratitude: "Sunny walk with Lily.", needs: null, note: null, shared_with_partner: true, created_at: stamp(-2), updated_at: stamp(-2) },
+      { id: "checkin_miles_-2", family_id: familyId, member_id: milesId, checkin_date: isoDate(-2), mood: 4, energy: 4, gratitude: "Good gym session.", needs: null, note: null, shared_with_partner: true, created_at: stamp(-2), updated_at: stamp(-2) },
+      { id: "checkin_ava_-3", family_id: familyId, member_id: avaId, checkin_date: isoDate(-3), mood: 2, energy: 2, gratitude: "Coffee.", needs: "Fewer evening obligations this week.", note: "Felt stretched thin.", shared_with_partner: true, created_at: stamp(-3), updated_at: stamp(-3) },
+      { id: "checkin_miles_-3", family_id: familyId, member_id: milesId, checkin_date: isoDate(-3), mood: 3, energy: 3, gratitude: "Lily's piano progress.", needs: null, note: null, shared_with_partner: true, created_at: stamp(-3), updated_at: stamp(-3) },
+      { id: "checkin_ava_-5", family_id: familyId, member_id: avaId, checkin_date: isoDate(-5), mood: 4, energy: 4, gratitude: "Date night actually happened.", needs: null, note: null, shared_with_partner: true, created_at: stamp(-5), updated_at: stamp(-5) },
+      { id: "checkin_miles_-5", family_id: familyId, member_id: milesId, checkin_date: isoDate(-5), mood: 5, energy: 4, gratitude: "Date night.", needs: null, note: null, shared_with_partner: true, created_at: stamp(-5), updated_at: stamp(-5) }
+    ],
+    journal_entries: [
+      { id: "journal_lost_tooth", family_id: familyId, entry_date: isoDate(-2), title: "Lily lost her first molar", body: "Wiggled it all through dinner, then it popped out during dessert. She insisted on writing the tooth fairy a thank-you note in advance.", author_id: avaId, people: [lilyId], tags: ["firsts", "kids"], mood: "Joyful", highlight: true, created_at: stamp(-2), updated_at: stamp(-2) },
+      { id: "journal_noah_goal", family_id: familyId, entry_date: isoDate(-4), title: "Noah scored the tying goal", body: "Rainy game, muddy socks, huge grin. Coach said his positioning has really improved.", author_id: milesId, people: [noahId], tags: ["soccer", "proud"], mood: "Proud", highlight: true, created_at: stamp(-4), updated_at: stamp(-4) },
+      { id: "journal_pancakes", family_id: familyId, entry_date: isoDate(-6), title: "Sunday pancake experiment", body: "Kids ran the griddle. Blueberry-chocolate chip hybrid was a surprising win. Kitchen took an hour to recover.", author_id: avaId, people: [lilyId, noahId], tags: ["food", "weekend"], mood: "Silly", highlight: false, created_at: stamp(-6), updated_at: stamp(-6) },
+      { id: "journal_date_night", family_id: familyId, entry_date: isoDate(-5), title: "Date night at the taco place", body: "Two hours, no phones, talked about the summer trip. Felt like us again.", author_id: milesId, people: [avaId, milesId], tags: ["marriage"], mood: "Grateful", highlight: false, created_at: stamp(-5), updated_at: stamp(-5) }
+    ],
+    milestones: [
+      { id: "milestone_lily_birthday", family_id: familyId, title: "Lily's birthday", kind: "birthday", date: "2017-04-18", emoji: "🎂", member_id: lilyId, recurring_yearly: true, notes: "Wants a science party.", created_at: created, updated_at: updated },
+      { id: "milestone_noah_birthday", family_id: familyId, title: "Noah's birthday", kind: "birthday", date: "2014-02-11", emoji: "🎂", member_id: noahId, recurring_yearly: true, notes: null, created_at: created, updated_at: updated },
+      { id: "milestone_anniversary", family_id: familyId, title: "Our anniversary", kind: "anniversary", date: "2012-06-09", emoji: "💍", member_id: null, recurring_yearly: true, notes: "Fourteen years.", created_at: created, updated_at: updated },
+      { id: "milestone_beach_trip", family_id: familyId, title: "Beach week", kind: "trip", date: isoDate(38), emoji: "🏖️", member_id: null, recurring_yearly: false, notes: "Rental confirmed. Book the dog sitter.", created_at: created, updated_at: updated },
+      { id: "milestone_school_break", family_id: familyId, title: "Fall break starts", kind: "school", date: isoDate(24), emoji: "🎒", member_id: null, recurring_yearly: false, notes: null, created_at: created, updated_at: updated },
+      { id: "milestone_grandma_visit", family_id: familyId, title: "Grandma Rosa visits", kind: "custom", date: isoDate(11), emoji: "👵", member_id: null, recurring_yearly: false, notes: "Guest room sheets.", created_at: created, updated_at: updated }
+    ],
+    shared_lists: [
+      { id: "list_weekend", family_id: familyId, name: "Weekend to-dos", kind: "todo", emoji: "🏠", description: "Small wins for Saturday morning.", archived: false, created_by: avaId, created_at: created, updated_at: updated },
+      { id: "list_beach_packing", family_id: familyId, name: "Beach week packing", kind: "packing", emoji: "🧳", description: null, archived: false, created_by: milesId, created_at: created, updated_at: updated },
+      { id: "list_costco", family_id: familyId, name: "Costco run", kind: "shopping", emoji: "🛒", description: "Bulk items only.", archived: false, created_by: avaId, created_at: created, updated_at: updated },
+      { id: "list_lily_wishlist", family_id: familyId, name: "Lily's birthday wishlist", kind: "wishlist", emoji: "🎁", description: null, archived: false, created_by: avaId, created_at: created, updated_at: updated }
+    ],
+    list_items: [
+      { id: "li_weekend_1", family_id: familyId, list_id: "list_weekend", name: "Fix squeaky pantry door", checked: false, quantity: null, note: null, assigned_to: milesId, sort_order: 0, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_weekend_2", family_id: familyId, list_id: "list_weekend", name: "Return library books", checked: true, quantity: null, note: null, assigned_to: avaId, sort_order: 1, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_weekend_3", family_id: familyId, list_id: "list_weekend", name: "Sort kids' outgrown clothes", checked: false, quantity: null, note: "Donate bin in garage", assigned_to: avaId, sort_order: 2, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_weekend_4", family_id: familyId, list_id: "list_weekend", name: "Air up bike tires", checked: false, quantity: null, note: null, assigned_to: noahId, sort_order: 3, added_by: milesId, created_at: created, updated_at: updated },
+      { id: "li_pack_1", family_id: familyId, list_id: "list_beach_packing", name: "Sunscreen", checked: false, quantity: "2", note: "Reef safe", assigned_to: null, sort_order: 0, added_by: milesId, created_at: created, updated_at: updated },
+      { id: "li_pack_2", family_id: familyId, list_id: "list_beach_packing", name: "Beach towels", checked: false, quantity: "6", note: null, assigned_to: null, sort_order: 1, added_by: milesId, created_at: created, updated_at: updated },
+      { id: "li_pack_3", family_id: familyId, list_id: "list_beach_packing", name: "Boogie boards", checked: false, quantity: "2", note: null, assigned_to: noahId, sort_order: 2, added_by: milesId, created_at: created, updated_at: updated },
+      { id: "li_pack_4", family_id: familyId, list_id: "list_beach_packing", name: "Kids' meds and insurance cards", checked: false, quantity: null, note: null, assigned_to: avaId, sort_order: 3, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_pack_5", family_id: familyId, list_id: "list_beach_packing", name: "Card games", checked: true, quantity: null, note: null, assigned_to: lilyId, sort_order: 4, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_costco_1", family_id: familyId, list_id: "list_costco", name: "Paper towels", checked: false, quantity: "1 pack", note: null, assigned_to: null, sort_order: 0, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_costco_2", family_id: familyId, list_id: "list_costco", name: "Chicken thighs", checked: false, quantity: "family pack", note: "Freeze half", assigned_to: null, sort_order: 1, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_costco_3", family_id: familyId, list_id: "list_costco", name: "Dog food", checked: false, quantity: "1 bag", note: null, assigned_to: null, sort_order: 2, added_by: milesId, created_at: created, updated_at: updated },
+      { id: "li_wish_1", family_id: familyId, list_id: "list_lily_wishlist", name: "Crystal growing kit", checked: false, quantity: null, note: null, assigned_to: null, sort_order: 0, added_by: avaId, created_at: created, updated_at: updated },
+      { id: "li_wish_2", family_id: familyId, list_id: "list_lily_wishlist", name: "Roller skates (size 2)", checked: false, quantity: null, note: "Purple if possible", assigned_to: null, sort_order: 1, added_by: avaId, created_at: created, updated_at: updated }
+    ],
+    recipes: [
+      { id: "recipe_sheet_pan_chicken", family_id: familyId, title: "Sheet-pan lemon chicken", emoji: "🍋", cuisine: "Mediterranean", meal_type: "Dinner", prep_minutes: 10, cook_minutes: 35, servings: 4, ingredients: "Chicken thighs, baby potatoes, lemon, garlic, green beans, olive oil, oregano", instructions: "Toss everything with oil and seasoning. Roast at 425°F for 35 minutes, adding green beans for the last 12.", source_url: null, tags: ["weeknight", "one pan"], favorite: true, kid_approved: true, last_cooked_on: isoDate(-9), rating: 5, notes: "Double the potatoes.", created_at: created, updated_at: updated },
+      { id: "recipe_taco_tuesday", family_id: familyId, title: "Build-your-own tacos", emoji: "🌮", cuisine: "Mexican", meal_type: "Dinner", prep_minutes: 15, cook_minutes: 15, servings: 4, ingredients: "Ground turkey, taco seasoning, tortillas, shredded cheese, lettuce, tomatoes, black beans, sour cream, lime", instructions: "Brown turkey with seasoning. Warm tortillas. Set out toppings and let everyone build.", source_url: null, tags: ["kid favorite", "fast"], favorite: true, kid_approved: true, last_cooked_on: isoDate(-6), rating: 5, notes: null, created_at: created, updated_at: updated },
+      { id: "recipe_pasta_bake", family_id: familyId, title: "Veggie pasta bake", emoji: "🍝", cuisine: "Italian", meal_type: "Dinner", prep_minutes: 15, cook_minutes: 30, servings: 6, ingredients: "Penne, marinara, zucchini, spinach, ricotta, mozzarella, parmesan", instructions: "Boil pasta. Mix with sauce and veg. Layer with cheese and bake at 375°F for 30 minutes.", source_url: null, tags: ["vegetarian", "leftovers"], favorite: false, kid_approved: true, last_cooked_on: isoDate(-14), rating: 4, notes: "Great for lunchboxes.", created_at: created, updated_at: updated },
+      { id: "recipe_stir_fry", family_id: familyId, title: "Ginger beef stir-fry", emoji: "🥢", cuisine: "Asian", meal_type: "Dinner", prep_minutes: 15, cook_minutes: 12, servings: 4, ingredients: "Flank steak, broccoli, bell pepper, ginger, garlic, soy sauce, rice, sesame oil", instructions: "Sear beef in batches. Stir-fry veg. Combine with sauce and serve over rice.", source_url: null, tags: ["fast"], favorite: false, kid_approved: false, last_cooked_on: isoDate(-20), rating: 4, notes: "Noah picks out the peppers.", created_at: created, updated_at: updated },
+      { id: "recipe_chili", family_id: familyId, title: "Slow-cooker turkey chili", emoji: "🍲", cuisine: "Comfort", meal_type: "Dinner", prep_minutes: 15, cook_minutes: 360, servings: 8, ingredients: "Ground turkey, kidney beans, black beans, diced tomatoes, onion, chili powder, cumin, corn", instructions: "Brown turkey. Add everything to the slow cooker. Low for 6 hours.", source_url: null, tags: ["make ahead", "freezer"], favorite: true, kid_approved: true, last_cooked_on: isoDate(-25), rating: 5, notes: "Freeze half for a busy week.", created_at: created, updated_at: updated },
+      { id: "recipe_salmon", family_id: familyId, title: "Honey garlic salmon", emoji: "🐟", cuisine: "American", meal_type: "Dinner", prep_minutes: 5, cook_minutes: 15, servings: 4, ingredients: "Salmon fillets, honey, garlic, soy sauce, lemon, rice, asparagus", instructions: "Whisk glaze. Bake salmon at 400°F for 12 to 15 minutes, basting once. Roast asparagus alongside.", source_url: null, tags: ["healthy", "fast"], favorite: false, kid_approved: false, last_cooked_on: null, rating: null, notes: null, created_at: created, updated_at: updated },
+      { id: "recipe_pancakes", family_id: familyId, title: "Saturday pancakes", emoji: "🥞", cuisine: "American", meal_type: "Breakfast", prep_minutes: 10, cook_minutes: 15, servings: 4, ingredients: "Flour, milk, eggs, butter, baking powder, sugar, salt, blueberries", instructions: "Mix dry, mix wet, combine gently. Cook on a medium griddle until bubbles form, then flip.", source_url: null, tags: ["weekend", "kids cook"], favorite: true, kid_approved: true, last_cooked_on: isoDate(-6), rating: 5, notes: "Kids run the griddle with supervision.", created_at: created, updated_at: updated },
+      { id: "recipe_pizza", family_id: familyId, title: "Friday homemade pizza", emoji: "🍕", cuisine: "Italian", meal_type: "Dinner", prep_minutes: 20, cook_minutes: 15, servings: 4, ingredients: "Pizza dough, marinara, mozzarella, pepperoni, mushrooms, basil", instructions: "Stretch dough, top, bake at 500°F on a preheated stone for 12 minutes.", source_url: null, tags: ["tradition", "kid favorite"], favorite: true, kid_approved: true, last_cooked_on: isoDate(-7), rating: 5, notes: "Everyone gets a quarter to decorate.", created_at: created, updated_at: updated }
+    ],
+    weekly_reviews: [
+      { id: "review_last_week", family_id: familyId, week_start: isoDate(-7 - new Date().getDay()), completed_steps: ["wins", "calendar", "meals", "chores", "money", "connection"], wins: "Made every school pickup. Chili night was a hit.", focus: "Book the dog sitter. Protect Thursday evening.", worries: "Miles's deadline week.", date_night_plan: "Taco place, Friday 7pm.", completed_at: stamp(-7), reviewed_by: [avaId, milesId], created_at: stamp(-7), updated_at: stamp(-7) }
     ],
     notifications: [
       {
