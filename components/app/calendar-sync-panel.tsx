@@ -1,15 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CalendarClock, Download, HelpCircle, Plus, Upload } from "lucide-react";
+import { CalendarClock, Download, Eye, HelpCircle, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { useAppData } from "@/components/app/providers";
 import { DataTable } from "@/components/pages/data-table";
 import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { extractGoogleCalendarEmbedUrl, normalizeCalendarEmbedHeight } from "@/lib/calendar-embed";
 import { familyCalendarItems, generateIcsCalendar, parseIcsEvents } from "@/lib/calendar-sync";
 import { moduleConfigs } from "@/lib/modules";
 import type { CalendarProvider } from "@/lib/types";
@@ -23,7 +25,7 @@ const providerCards: Array<{
   {
     provider: "google",
     title: "Google Calendar",
-    description: "Download an ICS file to import, or save a Google connection record for OAuth/webcal setup."
+    description: "Embed a shared Google Calendar, download an ICS file, or save a connection record for OAuth/webcal setup."
   },
   {
     provider: "apple",
@@ -43,6 +45,16 @@ const providerCards: Array<{
 ];
 
 const syncGuides = [
+  {
+    title: "Google embedded view",
+    steps: [
+      "Open Google Calendar on a computer.",
+      "Open Settings, then select the calendar to display.",
+      "Choose Integrate calendar and copy the embed code.",
+      "Paste the iframe code or its src URL into Embedded Calendar View.",
+      "Confirm the calendar sharing settings allow the intended family members to view it."
+    ]
+  },
   {
     title: "Google Calendar",
     steps: [
@@ -82,6 +94,16 @@ const syncGuides = [
       "Paste the URL, name the calendar, and set refresh preferences.",
       "Keep account passwords in a password manager, not in this app."
     ]
+  },
+  {
+    title: "OAuth production sync",
+    steps: [
+      "Create Google OAuth web credentials in Google Cloud Console.",
+      "Use a server callback route such as /api/calendar/google/callback.",
+      "Request the smallest Calendar API scopes needed for the feature.",
+      "Store refresh tokens encrypted in Supabase, scoped to the family and member.",
+      "Run event create/update/delete through server actions or API routes only."
+    ]
   }
 ];
 
@@ -101,8 +123,12 @@ export function CalendarSyncPanel() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDefaults, setConnectionDefaults] = useState<Record<string, unknown> | undefined>();
+  const [embedCalendarName, setEmbedCalendarName] = useState("Google Family Calendar");
+  const [embedInput, setEmbedInput] = useState("");
+  const [embedError, setEmbedError] = useState<string | null>(null);
   const connectionConfig = moduleConfigs.calendarConnections;
   const connections = data.calendar_connections;
+  const embeddedConnections = connections.filter((connection) => connection.embed_enabled && connection.embed_url);
 
   if (currentMember?.role === "viewer") return null;
 
@@ -149,6 +175,45 @@ export function CalendarSyncPanel() {
     toast({ title: "Calendar imported", description: `${imported.length} events were added.`, variant: "success" });
   }
 
+  async function saveGoogleEmbed() {
+    const embedUrl = extractGoogleCalendarEmbedUrl(embedInput);
+    if (!embedUrl) {
+      setEmbedError("Paste the Google Calendar iframe code or a calendar.google.com/calendar/embed URL.");
+      return;
+    }
+
+    setEmbedError(null);
+    const calendarName = embedCalendarName.trim() || "Google Family Calendar";
+    const existingConnection = connections.find((connection) => connection.embed_url === embedUrl);
+    const payload = {
+      provider: "google" as const,
+      calendar_name: calendarName,
+      sync_direction: "import" as const,
+      sync_status: "active" as const,
+      feed_url: null,
+      external_calendar_id: null,
+      embed_url: embedUrl,
+      embed_enabled: true,
+      embed_height: 640,
+      include_events: false,
+      include_tasks: false,
+      include_bills: false,
+      include_appointments: false,
+      last_synced_at: null,
+      notes: "Display-only Google Calendar iframe. OAuth is still required for automatic two-way event sync."
+    };
+
+    if (existingConnection) {
+      await updateRecord("calendar_connections", existingConnection.id, payload);
+    } else {
+      await createRecord("calendar_connections", payload);
+    }
+
+    setEmbedCalendarName("Google Family Calendar");
+    setEmbedInput("");
+    toast({ title: "Embedded calendar saved", description: "The Google Calendar view is now available on this page.", variant: "success" });
+  }
+
   function openConnection(provider: CalendarProvider) {
     setConnectionDefaults({
       provider,
@@ -158,7 +223,10 @@ export function CalendarSyncPanel() {
       include_events: true,
       include_tasks: provider !== "apple",
       include_bills: provider !== "apple",
-      include_appointments: true
+      include_appointments: true,
+      embed_url: null,
+      embed_enabled: false,
+      embed_height: 640
     });
     setConnectionOpen(true);
   }
@@ -205,6 +273,89 @@ export function CalendarSyncPanel() {
           }
         }}
       />
+
+      <Card className="border-[#ACE1AF]/70">
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-4 w-4 text-[#235226]" />
+                Embedded Calendar View
+              </CardTitle>
+              <CardDescription>
+                Paste Google Calendar iframe code to show a shared calendar inside Family Control Center.
+              </CardDescription>
+            </div>
+            <Badge className="w-fit bg-[#ACE1AF]/40 text-[#235226] hover:bg-[#ACE1AF]/40">Display-only</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
+            <div>
+              <label htmlFor="embed-calendar-name" className="text-sm font-medium">
+                Calendar name
+              </label>
+              <Input
+                id="embed-calendar-name"
+                className="mt-2"
+                value={embedCalendarName}
+                onChange={(event) => setEmbedCalendarName(event.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="embed-calendar-code" className="text-sm font-medium">
+                Google iframe code or embed URL
+              </label>
+              <Textarea
+                id="embed-calendar-code"
+                className="mt-2 min-h-24"
+                value={embedInput}
+                onChange={(event) => setEmbedInput(event.target.value)}
+                placeholder="<iframe src=&quot;https://calendar.google.com/calendar/embed?...&quot;></iframe>"
+              />
+              {embedError ? <p className="mt-2 text-sm text-destructive">{embedError}</p> : null}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={saveGoogleEmbed}>
+              <Plus className="h-4 w-4" />
+              Save Embedded Calendar
+            </Button>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Google controls who can see the calendar. Keep private family calendars shared only with the intended accounts.
+            </p>
+          </div>
+
+          {embeddedConnections.length ? (
+            <div className="space-y-4">
+              {embeddedConnections.map((connection) => (
+                <div key={connection.id} className="overflow-hidden rounded-md border border-border/90 bg-white dark:bg-card">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 px-4 py-3">
+                    <div>
+                      <h3 className="font-semibold">{connection.calendar_name}</h3>
+                      <p className="text-sm text-muted-foreground">Google Calendar embedded display</p>
+                    </div>
+                    <Badge variant={connection.sync_status === "active" ? "success" : "outline"}>{titleCase(connection.sync_status)}</Badge>
+                  </div>
+                  <iframe
+                    title={`${connection.calendar_name} calendar`}
+                    src={connection.embed_url ?? ""}
+                    className="block w-full border-0"
+                    style={{ height: normalizeCalendarEmbedHeight(connection.embed_height) }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    sandbox="allow-forms allow-popups allow-same-origin allow-scripts"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="record-tile text-sm leading-6 text-muted-foreground">
+              No embedded calendars are active yet. Save a Google iframe code above, then adjust visibility from the connection table if needed.
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid-auto-fit-sm">
         {providerCards.map((card) => (

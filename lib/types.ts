@@ -329,6 +329,9 @@ export interface CalendarConnection extends FamilyScopedRecord {
   sync_status: CalendarConnectionStatus;
   feed_url?: string | null;
   external_calendar_id?: string | null;
+  embed_url?: string | null;
+  embed_enabled: boolean;
+  embed_height?: number | null;
   include_events: boolean;
   include_tasks: boolean;
   include_bills: boolean;

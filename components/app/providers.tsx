@@ -5,7 +5,16 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
 import { createSeedData, localUser } from "@/lib/seed-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { ActivityLog, CurrentUser, DataStore, FamilyMember, NotificationRecord, TableName, TableRecord } from "@/lib/types";
+import type {
+  ActivityLog,
+  CalendarConnection,
+  CurrentUser,
+  DataStore,
+  FamilyMember,
+  NotificationRecord,
+  TableName,
+  TableRecord
+} from "@/lib/types";
 import { makeId, nowIso, recordMap } from "@/lib/utils";
 
 type EditableTable = Exclude<TableName, "families" | "activity_log">;
@@ -66,6 +75,15 @@ function normalizeFamilyMember(member: FamilyMember): FamilyMember {
   };
 }
 
+function normalizeCalendarConnection(connection: CalendarConnection): CalendarConnection {
+  return {
+    ...connection,
+    embed_url: connection.embed_url ?? null,
+    embed_enabled: connection.embed_enabled ?? false,
+    embed_height: connection.embed_height ?? 640
+  };
+}
+
 function normalizeDataStore(store: Partial<DataStore>): DataStore {
   const seeded = createSeedData();
 
@@ -74,7 +92,8 @@ function normalizeDataStore(store: Partial<DataStore>): DataStore {
     ...store,
     families: store.families?.length ? store.families : seeded.families,
     family_members: (store.family_members?.length ? store.family_members : seeded.family_members).map(normalizeFamilyMember),
-    relationship_records: store.relationship_records ?? seeded.relationship_records
+    relationship_records: store.relationship_records ?? seeded.relationship_records,
+    calendar_connections: (store.calendar_connections ?? seeded.calendar_connections).map(normalizeCalendarConnection)
   };
 }
 
@@ -413,7 +432,8 @@ async function loadSupabaseData(supabase: SupabaseClient): Promise<DataStore | n
 
   tableResponses.forEach((response, index) => {
     const table = syncTables[index];
-    nextData[table] = (response.data ?? []) as never;
+    const records = response.data ?? [];
+    nextData[table] = (table === "calendar_connections" ? records.map(normalizeCalendarConnection) : records) as never;
   });
 
   const { data: activity } = await supabase.from("activity_log").select("*").eq("family_id", familyId).order("created_at");

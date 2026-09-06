@@ -47,6 +47,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 `SUPABASE_SERVICE_ROLE_KEY` is only for server-side scripts such as seeding. Never expose it in client code.
 
+Future calendar OAuth work should add provider credentials only as server-side environment variables, such as `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `MICROSOFT_CALENDAR_CLIENT_ID`, `MICROSOFT_CALENDAR_CLIENT_SECRET`, and a token encryption key.
+
 ## Supabase Setup
 
 1. Create a Supabase project.
@@ -67,9 +69,11 @@ supabase db push
 
 Or paste the SQL migration into the Supabase SQL editor.
 
-The migrations create all family tables, child profile fields, budget tracker tables, notifications, activity log, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
+The migrations create all family tables, child profile fields, budget tracker tables, notifications, activity log, calendar embed fields, RLS helper functions, RLS policies, indexes, and the `family-documents` Storage bucket.
 
 If your Supabase project already has the original schema, run `supabase/migrations/20260905053711_family_member_profiles_and_access.sql` next. It adds child age fields and viewer access restrictions for sensitive areas.
+
+Then run `supabase/migrations/20260906145331_calendar_embed_fields.sql`. It adds the Google Calendar embed URL, display toggle, and iframe height fields to `calendar_connections`.
 
 ## Calendar Sync
 
@@ -77,9 +81,23 @@ The Calendar page includes a Calendar Sync panel for Google Calendar, Apple Cale
 
 - Use `Export ICS` to download a family calendar feed containing events, dated open tasks, bills, and health appointments. That file can be imported into Google Calendar, Apple Calendar, Outlook, and other calendar apps that support `.ics` files.
 - Use `Import ICS` to import external `.ics` events into the Family Calendar.
-- Use provider connection records to track calendar name, provider, sync direction, feed URL, status, and notes.
+- Use `Embedded Calendar View` to paste a Google Calendar iframe snippet or `calendar.google.com/calendar/embed` URL and show that calendar inside the app. This is display-only; Google Calendar sharing settings still decide who can view it.
+- Use provider connection records to track calendar name, provider, sync direction, feed URL, embed URL, status, and notes.
 
 Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus a hosted feed/callback endpoint. This first version includes the database and UI structure, `.ics` import/export, and provider tracking without storing calendar account passwords.
+
+### Calendar OAuth Setup Plan
+
+1. Create a Google Cloud project, turn on the Google Calendar API, and create OAuth credentials for a Web application.
+2. Add authorized redirect URIs for local and production, for example `http://localhost:3000/api/calendar/google/callback` and `https://your-domain.com/api/calendar/google/callback`.
+3. Store the Google client ID and client secret as server-side environment variables. Do not expose the secret through `NEXT_PUBLIC_` variables.
+4. Add a server route that redirects the user to Google with the minimum required Calendar scopes, such as `calendar.events` for event create/update/delete or `calendar.events.readonly` for read-only sync.
+5. Add a callback route that exchanges the authorization code for access and refresh tokens on the server.
+6. Store refresh tokens encrypted in Supabase, scoped by `family_id`, member ID, provider, and external calendar ID.
+7. Build server actions or API routes for creating, updating, deleting, and importing events. Client components should call your server, not Google directly.
+8. Add token refresh, disconnect, retry/error status, and activity logging before calling it production-ready.
+
+For Outlook/Microsoft 365, use Microsoft Entra app registration, request Microsoft Graph calendar permissions, and follow the same server-side token storage pattern. For Apple Calendar, start with ICS/WebCal display/import/export unless you choose to build CalDAV support; do not ask users to store Apple passwords in this app.
 
 ## Budget and Credit Card Tracker
 
@@ -157,6 +175,7 @@ npm run build
 - Add and check off grocery items.
 - Add calendar events.
 - Export and import `.ics` calendar data for Google Calendar, Apple Calendar, Outlook, and other popular calendar apps.
+- Embed display-only Google Calendar views from Google Calendar iframe URLs.
 - Track calendar sync provider connections and status.
 - Use the Activities hub for son, daughter, all-kids, family, and date-night ideas, then add ideas directly to the Family Calendar.
 - Use the Budget & Cards hub for workbook-style budget settings, category plans, transactions, credit cards, utilization targets, debt payoff planning, sinking funds, and annual summaries.

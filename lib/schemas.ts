@@ -23,6 +23,7 @@ import {
   activityCategories,
   activitySeasons
 } from "@/lib/options";
+import { isGoogleCalendarEmbedUrl } from "@/lib/calendar-embed";
 import { containsUnsafeSecret } from "@/lib/utils";
 
 const optionalText = (max = 1000) =>
@@ -417,6 +418,13 @@ export const calendarConnectionSchema = z.object({
   sync_status: z.enum(calendarConnectionStatuses),
   feed_url: optionalUrl,
   external_calendar_id: optionalText(160),
+  embed_url: optionalUrl.refine((value) => isGoogleCalendarEmbedUrl(value), {
+    message: "Paste a Google Calendar embed URL from calendar.google.com/calendar/embed."
+  }),
+  embed_enabled: z.coerce.boolean().default(false),
+  embed_height: optionalInteger.refine((value) => value === null || value === undefined || (value >= 420 && value <= 1200), {
+    message: "Embed height must be between 420 and 1200 pixels."
+  }),
   include_events: z.coerce.boolean().default(true),
   include_tasks: z.coerce.boolean().default(false),
   include_bills: z.coerce.boolean().default(false),

@@ -143,6 +143,42 @@ describe("validation schemas", () => {
     expect(result.success).toBe(false);
   });
 
+  it("validates Google Calendar embed settings", () => {
+    const result = calendarConnectionSchema.safeParse({
+      provider: "google",
+      calendar_name: "Family Calendar",
+      sync_direction: "import",
+      sync_status: "active",
+      embed_url: "https://calendar.google.com/calendar/embed?src=family%40example.test&ctz=America%2FLos_Angeles",
+      embed_enabled: true,
+      embed_height: 640,
+      include_events: false,
+      include_tasks: false,
+      include_bills: false,
+      include_appointments: false
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("blocks arbitrary calendar iframe URLs", () => {
+    const result = calendarConnectionSchema.safeParse({
+      provider: "google",
+      calendar_name: "Family Calendar",
+      sync_direction: "import",
+      sync_status: "active",
+      embed_url: "https://example.com/calendar/embed",
+      embed_enabled: true,
+      embed_height: 640,
+      include_events: false,
+      include_tasks: false,
+      include_bills: false,
+      include_appointments: false
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("validates workbook-style budget settings", () => {
     const result = budgetSettingsSchema.safeParse({
       budget_year: "2026",
