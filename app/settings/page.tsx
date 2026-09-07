@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AuthStatusBadge } from "@/components/app/auth-status-badge";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
+import { MobileAppPreferences } from "@/components/app/mobile-app-preferences";
 import { PageHeader } from "@/components/app/page-header";
 import { PersonAvatar } from "@/components/app/person-avatar";
 import { useAppData } from "@/components/app/providers";
@@ -21,7 +22,7 @@ import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 import { useTheme } from "@/hooks/use-theme";
 import { useToast } from "@/hooks/use-toast";
 import { accessSections } from "@/lib/access-control";
-import { ONBOARDING_KEY } from "@/lib/constants";
+import { NOTIFICATION_PREFS_KEY, ONBOARDING_KEY } from "@/lib/constants";
 import { getMemberAgeLabel, isChildMember } from "@/lib/family-members";
 import { moduleList } from "@/lib/modules";
 import { notificationKinds, roleOptions } from "@/lib/options";
@@ -96,6 +97,22 @@ export default function SettingsPage() {
   useEffect(() => {
     familyForm.reset({ name: family?.name ?? "" });
   }, [family?.name, familyForm]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(NOTIFICATION_PREFS_KEY);
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved) as Record<string, boolean>;
+      setNotificationPrefs((current) => ({ ...current, ...parsed }));
+    } catch {
+      localStorage.removeItem(NOTIFICATION_PREFS_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(notificationPrefs));
+  }, [notificationPrefs]);
 
   function exportData() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -511,6 +528,16 @@ export default function SettingsPage() {
                     </label>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Mobile App</CardTitle>
+                <CardDescription>Installed app state, offline queue, and device alert permissions.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MobileAppPreferences />
               </CardContent>
             </Card>
 

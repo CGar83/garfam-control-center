@@ -28,6 +28,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      data-radix-dialog-content=""
       className={cn(
         "fixed left-1/2 top-1/2 z-50 grid max-h-[92vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-[var(--app-card-radius)] border bg-white/90 p-[var(--app-card-padding)] shadow-[var(--shadow-elevated)] backdrop-blur-2xl data-[state=open]:animate-in dark:bg-card/90",
         className

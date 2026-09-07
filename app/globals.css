@@ -37,7 +37,7 @@
     --card-foreground: 24 14% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 24 14% 12%;
-    --primary: 14 78% 58%;
+    --primary: 25 100% 40%;
     --primary-foreground: 0 0% 100%;
     --secondary: 30 30% 93%;
     --secondary-foreground: 24 14% 16%;
@@ -49,9 +49,9 @@
     --destructive-foreground: 0 0% 100%;
     --border: 28 18% 87%;
     --input: 28 18% 85%;
-    --ring: 14 78% 58%;
+    --ring: 25 100% 40%;
     --radius: 1rem;
-    --brand-glow: 0 14px 34px -18px rgba(226, 100, 63, 0.75);
+    --brand-glow: 0 14px 34px -18px rgba(204, 85, 0, 0.58);
   }
 
   .dark {
@@ -61,7 +61,7 @@
     --card-foreground: 30 20% 95%;
     --popover: 24 9% 13%;
     --popover-foreground: 30 20% 95%;
-    --primary: 14 80% 62%;
+    --primary: 25 92% 54%;
     --primary-foreground: 20 30% 8%;
     --secondary: 24 7% 19%;
     --secondary-foreground: 30 20% 95%;
@@ -73,8 +73,8 @@
     --destructive-foreground: 0 0% 100%;
     --border: 24 6% 24%;
     --input: 24 6% 26%;
-    --ring: 14 80% 62%;
-    --brand-glow: 0 14px 34px -18px rgba(240, 120, 85, 0.6);
+    --ring: 25 92% 54%;
+    --brand-glow: 0 14px 34px -18px rgba(204, 85, 0, 0.55);
   }
 
   * {
@@ -84,6 +84,7 @@
   html {
     max-width: 100%;
     overflow-x: hidden;
+    overscroll-behavior-x: none;
     scroll-behavior: smooth;
   }
 
@@ -98,16 +99,24 @@
     text-rendering: geometricPrecision;
     max-width: 100%;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  html.is-standalone,
+  html.is-standalone body {
+    min-height: 100%;
+    overscroll-behavior-y: none;
   }
 
   .dark body {
     background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(240, 112, 90, 0.10) 0%, rgba(240, 112, 90, 0) 60%),
+      radial-gradient(1200px 600px at 10% -10%, rgba(204, 85, 0, 0.10) 0%, rgba(204, 85, 0, 0) 60%),
       linear-gradient(180deg, #1b1715 0%, #161311 55%, #110f0d 100%);
   }
 
   ::selection {
-    background: rgba(240, 112, 90, 0.25);
+    background: rgba(204, 85, 0, 0.22);
   }
 
   button,
@@ -115,6 +124,14 @@
   select,
   textarea {
     font: inherit;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
   }
 }
 
@@ -184,7 +201,7 @@
   }
 
   .hero-card {
-    @apply relative overflow-hidden rounded-[1.5rem] border border-white/60 bg-gradient-to-br from-[#F0705A] via-[#E8654F] to-[#C94A36] text-white shadow-[var(--brand-glow)] dark:border-white/10;
+    @apply relative overflow-hidden rounded-[1.5rem] border border-white/60 bg-gradient-to-br from-[#CC5500] via-[#D76212] to-[#A84500] text-white shadow-[var(--brand-glow)] dark:border-white/10;
   }
 
   .hero-card::after {
@@ -259,6 +276,41 @@
 
   .apple-elevated {
     @apply border bg-white/90 shadow-[var(--shadow-elevated)] backdrop-blur-xl dark:bg-card/90;
+  }
+
+  @media (max-width: 1023px) {
+    .app-header {
+      padding-top: max(env(safe-area-inset-top), 0.5rem);
+    }
+  }
+
+  @media (display-mode: standalone) {
+    .app-header {
+      padding-top: max(env(safe-area-inset-top), 0.75rem);
+    }
+
+    .mobile-nav {
+      padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+    }
+
+    .app-page {
+      gap: clamp(1.125rem, 2vw, 1.75rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    [data-radix-dialog-content] {
+      top: auto !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      max-height: calc(100dvh - env(safe-area-inset-top) - 0.75rem) !important;
+      max-width: none !important;
+      transform: none !important;
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      padding-bottom: calc(var(--app-card-padding) + env(safe-area-inset-bottom)) !important;
+    }
   }
 
   .scrollbar-thin {

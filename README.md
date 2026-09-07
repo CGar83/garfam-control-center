@@ -4,6 +4,8 @@ Gather is a shared family hub built for daily use by two parents and their kids.
 
 It works out of the box with no backend (local-first in the browser) and syncs across devices when connected to Supabase.
 
+Installed on a phone, Gather runs as a Progressive Web App: it opens from the Home Screen without browser chrome, uses mobile safe areas, supports an offline shell, queues cloud edits made while disconnected, updates the app badge for unread/pending work, and can request device notification permission.
+
 ## What's inside
 
 **Daily rhythm**
@@ -28,6 +30,12 @@ It works out of the box with no backend (local-first in the browser) and syncs a
 **Money and Records**: Budget & Cards, Bills, Accounts, Health, School, Home, Vehicles, Documents, Contacts, Emergency, and an **Overview** dashboard of every open loop.
 
 **Profiles**: each member has a color that follows them everywhere. A "Who is using this?" switcher makes a shared kitchen tablet work: switching to a kid personalizes Today and hides money, health, and adult areas.
+
+**Installed mobile app**
+- **Home Screen install prompt**: mobile users get guided iPhone/Android install steps. Android/Chrome uses the native install prompt when available.
+- **Standalone app mode**: manifest metadata, iOS app metadata, maskable icons, status bar settings, and mobile safe-area spacing make the installed app open like a dedicated app.
+- **Offline cloud queue**: signed-in users can keep adding/editing records while disconnected. Changes are stored on that device, shown immediately, and retried when the connection returns.
+- **Device alerts and badges**: Settings includes device alert permission controls. The app badge reflects unread notifications and queued sync work where the browser/OS supports it.
 
 ## Tech stack
 
@@ -81,6 +89,23 @@ The Calendar page supports three calendar integration levels:
 
 Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus hosted callback/feed endpoints. Do not store calendar account passwords in Gather.
 
+## Mobile install
+
+For iPhone:
+
+1. Open the live site in Safari.
+2. Tap Share.
+3. Choose Add to Home Screen.
+4. Tap Add.
+
+For Android:
+
+1. Open the live site in Chrome.
+2. Tap the install prompt, or open the browser menu and choose Install app.
+3. Confirm the prompt.
+
+After install, open Gather from the Home Screen or app launcher. Use Settings → Mobile App to check install state, device alerts, and queued sync.
+
 ## Calendar OAuth setup plan
 
 1. Create a Google Cloud project, turn on the Google Calendar API, and create OAuth credentials for a Web application.
@@ -110,11 +135,14 @@ Tests cover schemas, filtering, access control, calendar sync and embeds, PWA co
 
 - Not a password manager. Forms block obvious secrets (full card or account numbers, SSNs, passwords). Store last four digits and a `password_location` reference only.
 - Privacy mode hides money, health, account, vehicle, and emergency details on shared screens.
+- Offline cloud edits and the latest signed-in workspace snapshot are cached in browser storage on the device so the installed app can keep working through connection drops. Treat installed devices as trusted family devices and use the device passcode/biometric lock.
 - Supabase RLS scopes every table by family membership. Check-ins are visible to the author and, when shared, to the other parents. Kid profiles (role `viewer`) are blocked from finance, accounts, health, documents, contacts, communication, relationship and emergency areas by default.
 
 ## Deployment
 
-Deploy to Vercel, Netlify or any Node host, add the three Supabase variables, apply migrations, and add the production URL to Supabase Auth redirect URLs. The build ships a web manifest, iOS metadata, maskable icons and a service worker with an offline fallback so it installs as a standalone app.
+Deploy to Vercel, Netlify or any Node host, add the three Supabase variables, apply migrations, and add the production URL to Supabase Auth redirect URLs. The build ships a web manifest, iOS metadata, maskable icons and a service worker with offline fallback, push-notification handlers, and app-badge support so it installs as a standalone app.
+
+Native App Store packaging is intentionally deferred. If you later want store distribution, wrap the tuned web app with Capacitor and add native push/calendar bridges after the web experience is stable.
 
 ## Product name
 

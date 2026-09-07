@@ -1,4 +1,4 @@
-const CACHE_NAME = "gather-family-hub-v7";
+const CACHE_NAME = "gather-family-hub-v8";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,
@@ -44,6 +44,52 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
+});
+
+self.addEventListener("push", (event) => {
+  let payload = {
+    title: "Gather",
+    body: "Open Gather to review the latest family update.",
+    url: "/today"
+  };
+
+  if (event.data) {
+    try {
+      payload = { ...payload, ...event.data.json() };
+    } catch {
+      payload.body = event.data.text();
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || "Gather", {
+      body: payload.body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/maskable-192.png",
+      tag: payload.tag || payload.url || "gather-update",
+      data: { url: payload.url || "/today" }
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url || "/today", self.location.origin).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        for (const client of clients) {
+          if ("focus" in client && client.url.startsWith(self.location.origin)) {
+            if ("navigate" in client) return client.navigate(targetUrl).then(() => client.focus());
+            return client.focus();
+          }
+        }
+
+        return self.clients.openWindow(targetUrl);
+      })
+  );
 });
 
 async function networkFirst(request) {

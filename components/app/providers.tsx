@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
-import { LOCAL_STORE_KEY } from "@/lib/constants";
+import { CLOUD_STORE_KEY, LOCAL_STORE_KEY, OFFLINE_MUTATION_QUEUE_KEY } from "@/lib/constants";
+import { createOfflineMutation, mergeOfflineMutation, parseOfflineQueue, serializeOfflineQueue, type OfflineMutation } from "@/lib/offline-queue";
 import { createSeedData, localUser } from "@/lib/seed-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type {
@@ -236,6 +237,10 @@ interface AppDataContextValue {
     newRecord?: Partial<TableRecord<TTable>> | null,
     oldRecord?: Partial<TableRecord<TTable>> | null
   ) => void;
+  pendingSyncCount: number;
+  syncingQueuedChanges: boolean;
+  lastSyncError: string | null;
+  syncQueuedChanges: () => Promise<void>;
   clearCheckedGroceries: () => Promise<void>;
   addIngredientsToGrocery: (ingredients: string, store?: string | null) => Promise<void>;
   restoreStarterData: () => void;
@@ -347,6 +352,21 @@ function browserIsOnline() {
 function assertCanSync(usingLocalData: boolean) {
   if (!usingLocalData && !browserIsOnline()) {
     throw new Error("You are offline. Reconnect before saving production family data.");
+  }
+}
+
+function persistOfflineQueue(queue: OfflineMutation[]) {
+  localStorage.setItem(OFFLINE_MUTATION_QUEUE_KEY, serializeOfflineQueue(queue));
+}
+
+function loadCachedCloudStore() {
+  const cached = localStorage.getItem(CLOUD_STORE_KEY);
+  if (!cached) return null;
+
+  try {
+    return normalizeDataStore(JSON.parse(cached) as Partial<DataStore>);
+  } catch {
+    return null;
   }
 }
 
@@ -539,6 +559,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [usingLocalData, setUsingLocalData] = useState(true);
   const [hydrated, setHydrated] = useState(false);
+  const [offlineQueue, setOfflineQueue] = useState<OfflineMutation[]>([]);
+  const [syncingQueuedChanges, setSyncingQueuedChanges] = useState(false);
+  const [lastSyncError, setLastSyncError] = useState<string | null>(null);
+  const initialQueueFlushAttempted = useRef(false);
 
   const familyId = data.families[0]?.id ?? "family_local";
   const currentMember = useMemo(() => memberForUser(data, currentUser.id, currentUser.member_id), [currentUser.id, currentUser.member_id, data]);
@@ -548,6 +572,9 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function hydrate() {
+      const queuedMutations = parseOfflineQueue(localStorage.getItem(OFFLINE_MUTATION_QUEUE_KEY));
+      if (!cancelled) setOfflineQueue(queuedMutations);
+
       if (supabase) {
         const { data: sessionData } = await supabase.auth.getSession();
         if (sessionData.session?.user) {
@@ -558,6 +585,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
               const member = memberForUser(remoteData, user.id);
               setCurrentUser(userFromAuth(user, member));
               setData(remoteData);
+              localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(remoteData));
               setUsingLocalData(false);
               setHydrated(true);
               setLoading(false);
@@ -568,6 +596,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
             if (!cancelled) {
               setCurrentUser(bootstrapped.user);
               setData(bootstrapped.store);
+              localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(bootstrapped.store));
               setUsingLocalData(false);
               setHydrated(true);
               setLoading(false);
@@ -575,6 +604,17 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
             }
           } catch (error) {
             console.warn("Supabase workspace load failed; falling back to local workspace data.", error);
+            const cachedCloudStore = !browserIsOnline() ? loadCachedCloudStore() : null;
+            if (!cancelled && cachedCloudStore) {
+              const savedMember = localStorage.getItem(activeMemberKey);
+              const member = memberForUser(cachedCloudStore, user.id, savedMember);
+              setCurrentUser(userFromAuth(user, member));
+              setData(cachedCloudStore);
+              setUsingLocalData(false);
+              setHydrated(true);
+              setLoading(false);
+              return;
+            }
           }
         }
       }
@@ -606,6 +646,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (hydrated && usingLocalData) {
       localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+  }, [data, hydrated, usingLocalData]);
+
+  useEffect(() => {
+    if (hydrated && !usingLocalData) {
+      localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(data));
     }
   }, [data, hydrated, usingLocalData]);
 
@@ -677,6 +723,93 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     [createWorkspace, data.families, supabase, usingLocalData]
   );
 
+  const queueRemoteMutation = useCallback(
+    (input: {
+      table: EditableTable;
+      action: "create" | "update" | "delete";
+      recordId: string;
+      record?: Record<string, unknown>;
+      values?: Record<string, unknown>;
+    }) => {
+      setOfflineQueue((current) => {
+        const nextQueue = mergeOfflineMutation(
+          current,
+          createOfflineMutation({
+            familyId,
+            table: input.table,
+            action: input.action,
+            recordId: input.recordId,
+            record: input.record,
+            values: input.values
+          })
+        );
+        persistOfflineQueue(nextQueue);
+        return nextQueue;
+      });
+      setLastSyncError(null);
+    },
+    [familyId]
+  );
+
+  const syncQueuedChanges = useCallback(async () => {
+    if (!supabase || usingLocalData || offlineQueue.length === 0) return;
+    if (!browserIsOnline()) {
+      setLastSyncError("Device is offline.");
+      return;
+    }
+
+    setSyncingQueuedChanges(true);
+    setLastSyncError(null);
+
+    const remaining: OfflineMutation[] = [];
+
+    for (const mutation of offlineQueue) {
+      const table = mutation.table as EditableTable;
+
+      try {
+        if (mutation.action === "create") {
+          if (!mutation.record) throw new Error("Missing queued record data.");
+          const { error } = await supabase.from(table).upsert(mutation.record, { onConflict: "id" });
+          if (error) throw error;
+        } else if (mutation.action === "update") {
+          if (!mutation.values) throw new Error("Missing queued update data.");
+          const { error } = await supabase.from(table).update(mutation.values).eq("id", mutation.record_id).eq("family_id", mutation.family_id);
+          if (error) throw error;
+        } else if (mutation.action === "delete") {
+          const { error } = await supabase.from(table).delete().eq("id", mutation.record_id).eq("family_id", mutation.family_id);
+          if (error) throw error;
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Queued sync failed.";
+        remaining.push({ ...mutation, attempts: mutation.attempts + 1, last_error: message });
+        setLastSyncError(message);
+      }
+    }
+
+    setOfflineQueue(remaining);
+    persistOfflineQueue(remaining);
+    setSyncingQueuedChanges(false);
+  }, [offlineQueue, supabase, usingLocalData]);
+
+  useEffect(() => {
+    if (!supabase || usingLocalData) return;
+
+    function handleOnline() {
+      void syncQueuedChanges();
+    }
+
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [supabase, syncQueuedChanges, usingLocalData]);
+
+  useEffect(() => {
+    if (initialQueueFlushAttempted.current) return;
+    if (!hydrated || !supabase || usingLocalData || offlineQueue.length === 0 || !browserIsOnline()) return;
+
+    initialQueueFlushAttempted.current = true;
+    void syncQueuedChanges();
+  }, [hydrated, offlineQueue.length, supabase, syncQueuedChanges, usingLocalData]);
+
   const signIn = useCallback(
     async (email: string, password: string) => {
       if (!supabase) {
@@ -698,6 +831,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         const member = memberForUser(remoteData, authData.user.id);
         setCurrentUser(userFromAuth(authData.user, member));
         setData(remoteData);
+        localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(remoteData));
         setUsingLocalData(false);
         return {
           status: "signed_in",
@@ -708,6 +842,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       const bootstrapped = await createRemoteWorkspace(supabase, authData.user);
       setCurrentUser(bootstrapped.user);
       setData(bootstrapped.store);
+      localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(bootstrapped.store));
       setUsingLocalData(false);
       return {
         status: "signed_in",
@@ -738,6 +873,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         const bootstrapped = await createRemoteWorkspace(supabase, authData.user, `${displayName} Family`);
         setCurrentUser(bootstrapped.user);
         setData(bootstrapped.store);
+        localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(bootstrapped.store));
         setUsingLocalData(false);
         return {
           status: "signed_in",
@@ -757,6 +893,9 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     if (supabase) await supabase.auth.signOut();
     setCurrentUser(localUser);
     setData(createSeedData());
+    setOfflineQueue([]);
+    localStorage.removeItem(CLOUD_STORE_KEY);
+    localStorage.removeItem(OFFLINE_MUTATION_QUEUE_KEY);
     setUsingLocalData(true);
   }, [supabase]);
 
@@ -778,7 +917,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         activity_log: [entry, ...current.activity_log].slice(0, 100)
       }));
 
-      if (supabase && !usingLocalData) {
+      if (supabase && !usingLocalData && browserIsOnline()) {
         const { error } = await supabase.from("activity_log").insert(entry);
         if (error) console.warn("Activity log insert failed", error);
       }
@@ -804,7 +943,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         notifications: [notification, ...current.notifications].slice(0, 100)
       }));
 
-      if (supabase && !usingLocalData) {
+      if (supabase && !usingLocalData && browserIsOnline()) {
         const { error } = await supabase.from("notifications").insert(notification);
         if (error) console.warn("Notification insert failed", error);
       }
@@ -814,7 +953,8 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
   const createRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, values: Partial<TableRecord<TTable>>) => {
-      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
+      const queueForLater = Boolean(supabase && !usingLocalData && !browserIsOnline());
+      if (supabase && !usingLocalData && !queueForLater) assertCanSync(usingLocalData);
 
       const timestamp = nowIso();
       const previous = data;
@@ -830,6 +970,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         ...current,
         [table]: [...current[table], record]
       }));
+
+      if (queueForLater) {
+        queueRemoteMutation({ table, action: "create", recordId: record.id, record: recordMap(record) });
+        await appendActivity("created", table, record);
+        await appendNotification(notificationSeed(table, recordMap(record)));
+        return record;
+      }
 
       if (supabase && !usingLocalData) {
         const { data: inserted, error } = await supabase.from(table).insert(record).select().single();
@@ -851,12 +998,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       await appendNotification(notificationSeed(table, recordMap(record)));
       return record;
     },
-    [appendActivity, appendNotification, data, familyId, supabase, usingLocalData]
+    [appendActivity, appendNotification, data, familyId, queueRemoteMutation, supabase, usingLocalData]
   );
 
   const updateRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, id: string, values: Partial<TableRecord<TTable>>) => {
-      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
+      const queueForLater = Boolean(supabase && !usingLocalData && !browserIsOnline());
+      if (supabase && !usingLocalData && !queueForLater) assertCanSync(usingLocalData);
 
       const timestamp = nowIso();
       const previous = data;
@@ -870,6 +1018,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         ...current,
         [table]: current[table].map((record) => (record.id === id ? ({ ...record, ...values, updated_at: timestamp } as TableRecord<TTable>) : record))
       }));
+
+      if (queueForLater) {
+        queueRemoteMutation({ table, action: "update", recordId: id, values: { ...recordMap(values), updated_at: timestamp } });
+        await appendActivity("updated", table, updatedRecord);
+        return updatedRecord;
+      }
 
       if (supabase && !usingLocalData) {
         const { data: updated, error } = await supabase
@@ -891,12 +1045,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       await appendActivity("updated", table, updatedRecord);
       return updatedRecord;
     },
-    [appendActivity, data, familyId, supabase, usingLocalData]
+    [appendActivity, data, familyId, queueRemoteMutation, supabase, usingLocalData]
   );
 
   const deleteRecord = useCallback(
     async <TTable extends EditableTable>(table: TTable, id: string) => {
-      if (supabase && !usingLocalData) assertCanSync(usingLocalData);
+      const queueForLater = Boolean(supabase && !usingLocalData && !browserIsOnline());
+      if (supabase && !usingLocalData && !queueForLater) assertCanSync(usingLocalData);
 
       const previous = data;
       const deleted = data[table].find((record) => record.id === id);
@@ -904,6 +1059,12 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         ...current,
         [table]: current[table].filter((record) => record.id !== id)
       }));
+
+      if (queueForLater) {
+        queueRemoteMutation({ table, action: "delete", recordId: id });
+        if (deleted) await appendActivity("deleted", table, deleted);
+        return;
+      }
 
       if (supabase && !usingLocalData) {
         const { error } = await supabase.from(table).delete().eq("id", id).eq("family_id", familyId);
@@ -915,7 +1076,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
       if (deleted) await appendActivity("deleted", table, deleted);
     },
-    [appendActivity, data, familyId, supabase, usingLocalData]
+    [appendActivity, data, familyId, queueRemoteMutation, supabase, usingLocalData]
   );
 
   const applyRealtimeChange = useCallback(
@@ -952,7 +1113,8 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const clearCheckedGroceries = useCallback(async () => {
-    if (supabase && !usingLocalData) assertCanSync(usingLocalData);
+    const queueForLater = Boolean(supabase && !usingLocalData && !browserIsOnline());
+    if (supabase && !usingLocalData && !queueForLater) assertCanSync(usingLocalData);
 
     const checkedIds = data.grocery_items.filter((item) => item.checked).map((item) => item.id);
     setData((current) => ({
@@ -960,11 +1122,17 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       grocery_items: current.grocery_items.filter((item) => !item.checked)
     }));
 
+    if (queueForLater) {
+      checkedIds.forEach((id) => queueRemoteMutation({ table: "grocery_items", action: "delete", recordId: id }));
+      if (checkedIds.length > 0) await appendActivity("cleared", "grocery_items", { id: "checked_groceries" });
+      return;
+    }
+
     if (supabase && !usingLocalData && checkedIds.length > 0) {
       await supabase.from("grocery_items").delete().eq("family_id", familyId).in("id", checkedIds);
     }
     if (checkedIds.length > 0) await appendActivity("cleared", "grocery_items", { id: "checked_groceries" });
-  }, [appendActivity, data.grocery_items, familyId, supabase, usingLocalData]);
+  }, [appendActivity, data.grocery_items, familyId, queueRemoteMutation, supabase, usingLocalData]);
 
   const addIngredientsToGrocery = useCallback(
     async (ingredients: string, store?: string | null) => {
@@ -1001,12 +1169,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         role: member?.role ?? user.role,
         blocked_sections: member?.blocked_sections ?? []
       }));
-      if (usingLocalData) {
-        if (memberId) localStorage.setItem(activeMemberKey, memberId);
-        else localStorage.removeItem(activeMemberKey);
-      }
+      if (memberId) localStorage.setItem(activeMemberKey, memberId);
+      else localStorage.removeItem(activeMemberKey);
     },
-    [data.family_members, usingLocalData]
+    [data.family_members]
   );
 
   const setupFamily = useCallback(
@@ -1096,6 +1262,8 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       if (usingLocalData) {
         localStorage.setItem(storageKey, JSON.stringify(store));
         if (members[0]) localStorage.setItem(activeMemberKey, members[0].id);
+      } else {
+        localStorage.setItem(CLOUD_STORE_KEY, JSON.stringify(store));
       }
     },
     [currentUser.email, currentUser.id, supabase, usingLocalData]
@@ -1105,8 +1273,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     const seeded = createSeedData();
     setData(seeded);
     setCurrentUser(localUser);
+    setOfflineQueue([]);
     setUsingLocalData(true);
     localStorage.setItem(storageKey, JSON.stringify(seeded));
+    localStorage.removeItem(CLOUD_STORE_KEY);
+    localStorage.removeItem(OFFLINE_MUTATION_QUEUE_KEY);
     localStorage.removeItem(activeMemberKey);
   }, []);
 
@@ -1130,6 +1301,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       updateRecord,
       deleteRecord,
       applyRealtimeChange,
+      pendingSyncCount: offlineQueue.length,
+      syncingQueuedChanges,
+      lastSyncError,
+      syncQueuedChanges,
       clearCheckedGroceries,
       addIngredientsToGrocery,
       restoreStarterData,
@@ -1150,12 +1325,16 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       deleteRecord,
       familyId,
       loading,
+      offlineQueue.length,
       applyRealtimeChange,
       restoreStarterData,
       signIn,
       signOut,
       signUp,
       supabase,
+      syncQueuedChanges,
+      syncingQueuedChanges,
+      lastSyncError,
       updateRecord,
       updateFamilyName,
       usingLocalData

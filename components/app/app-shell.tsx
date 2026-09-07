@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AppProviders, useAppData } from "@/components/app/providers";
 import { AuthStatusBadge } from "@/components/app/auth-status-badge";
 import { GlobalSearch } from "@/components/app/global-search";
+import { InstallAppPrompt } from "@/components/app/install-app-prompt";
 import { MemberSwitcher } from "@/components/app/member-switcher";
 import { MobileNav } from "@/components/app/mobile-nav";
 import { NetworkStatusBanner } from "@/components/app/network-status-banner";
@@ -15,6 +16,7 @@ import { NotificationCenter } from "@/components/app/notification-center";
 import { PwaBoot } from "@/components/app/pwa-boot";
 import { QuickAddMenu } from "@/components/app/quick-add-menu";
 import { SidebarNav } from "@/components/app/sidebar-nav";
+import { SyncStatusPill } from "@/components/app/sync-status-pill";
 import { ToastViewport } from "@/components/app/toast-viewport";
 import { useFamily } from "@/hooks/use-family";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
@@ -78,7 +80,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-transparent">
       <SidebarNav />
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-border/70 bg-background/80 backdrop-blur-2xl">
+        <header className="app-header sticky top-0 z-20 border-b border-border/70 bg-background/80 backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 w-full max-w-[var(--app-page-max)] items-center justify-between gap-3 px-[var(--app-gutter)] py-2.5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <MemberSwitcher />
@@ -86,6 +88,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
             </div>
             <div className="app-toolbar shrink-0 justify-end">
               <AuthStatusBadge className="hidden xl:inline-flex" />
+              <SyncStatusPill className="hidden sm:inline-flex" />
               <NotificationCenter />
               <Button variant="outline" size="icon" className="rounded-full" onClick={() => setPrivacyMode(!privacyMode)} title="Toggle privacy mode">
                 {privacyMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -100,6 +103,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <NetworkStatusBanner />
+        <InstallAppPrompt />
         <main className="min-h-[calc(100vh-4rem)] px-[var(--app-gutter)] py-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:py-7 lg:pb-10">
           {showAccessGate ? (
             <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center">

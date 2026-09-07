@@ -51,6 +51,12 @@ export function MobileNav() {
 
   const left = visibleMobileItems.slice(0, 2);
   const right = visibleMobileItems.slice(2, 4);
+  const mainTabActive = visibleMobileItems.some((item) => isMobileItemActive(item.href, pathname));
+  const moreActive =
+    !mainTabActive &&
+    visibleMoreSections.some(
+      (section) => pathname === section.href || pathname.startsWith(`${section.href}/`) || section.items.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    );
 
   function renderTab(item: (typeof mobileNavItems)[number]) {
     const active = isMobileItemActive(item.href, pathname);
@@ -73,13 +79,36 @@ export function MobileNav() {
     );
   }
 
+  function renderMoreTab() {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label="More sections"
+            className={cn(
+              "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition-all focus-ring",
+              moreActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-all", moreActive && "bg-primary/12")}>
+              <MoreIcon className="h-5 w-5" strokeWidth={moreActive ? 2.4 : 2} />
+            </span>
+            <span className="max-w-full truncate">{mobileMoreItem.title}</span>
+          </button>
+        </DropdownMenuTrigger>
+        <MoreMenu sections={visibleMoreSections} pathname={pathname} />
+      </DropdownMenu>
+    );
+  }
+
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-white/88 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_-24px_rgba(0,0,0,0.35)] backdrop-blur-2xl dark:bg-card/88 lg:hidden"
+        className="mobile-nav fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-white/88 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_-24px_rgba(0,0,0,0.35)] backdrop-blur-2xl dark:bg-card/88 lg:hidden"
         aria-label="Mobile primary"
       >
-        <div className="grid grid-cols-5 items-end gap-1 px-2 pt-1.5 pb-1.5">
+        <div className="grid grid-cols-6 items-end gap-1 px-2 pt-1.5 pb-1.5">
           {left.map(renderTab)}
           <div className="relative flex items-end justify-center">
             <button
@@ -93,34 +122,8 @@ export function MobileNav() {
             <span className="pb-1 text-[11px] font-semibold text-muted-foreground">Add</span>
           </div>
           {right.map(renderTab)}
-          {right.length < 2 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground focus-ring">
-                  <span className="flex h-8 w-12 items-center justify-center rounded-full">
-                    <MoreIcon className="h-5 w-5" />
-                  </span>
-                  <span>{mobileMoreItem.title}</span>
-                </button>
-              </DropdownMenuTrigger>
-              <MoreMenu sections={visibleMoreSections} pathname={pathname} />
-            </DropdownMenu>
-          ) : null}
+          {renderMoreTab()}
         </div>
-        {right.length === 2 ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="More sections"
-                className="absolute right-2 top-1.5 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted focus-ring"
-              >
-                <MoreIcon className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <MoreMenu sections={visibleMoreSections} pathname={pathname} />
-          </DropdownMenu>
-        ) : null}
       </nav>
       <QuickAddSheet open={quickOpen} onOpenChange={setQuickOpen} />
     </>
