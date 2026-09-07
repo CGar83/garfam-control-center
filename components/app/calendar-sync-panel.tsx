@@ -274,19 +274,19 @@ export function CalendarSyncPanel() {
         }}
       />
 
-      <Card className="border-[#ACE1AF]/70">
+      <Card className="border-primary/20">
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Eye className="h-4 w-4 text-[#235226]" />
+                <Eye className="h-4 w-4 text-accent-foreground" />
                 Embedded Calendar View
               </CardTitle>
               <CardDescription>
                 Paste Google Calendar iframe code to show a shared calendar inside Family Control Center.
               </CardDescription>
             </div>
-            <Badge className="w-fit bg-[#ACE1AF]/40 text-[#235226] hover:bg-[#ACE1AF]/40">Display-only</Badge>
+            <Badge className="w-fit bg-accent/40 text-accent-foreground hover:bg-accent/40">Display-only</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -394,7 +394,7 @@ export function CalendarSyncPanel() {
               <ol className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
                 {guide.steps.map((step, index) => (
                   <li key={step} className="flex gap-2">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#ACE1AF]/40 text-xs font-semibold text-[#235226]">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent/40 text-xs font-semibold text-accent-foreground">
                       {index + 1}
                     </span>
                     <span>{step}</span>

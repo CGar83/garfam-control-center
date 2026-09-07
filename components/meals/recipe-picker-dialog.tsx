@@ -118,7 +118,7 @@ export function RecipePickerDialog({ open, onOpenChange, recipes, date, mealType
                 aria-pressed={on}
                 onClick={() => toggleChip(chip.id)}
                 className={cn(
-                  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-all focus-ring",
+                  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                   on ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
                 )}
               >
@@ -137,7 +137,7 @@ export function RecipePickerDialog({ open, onOpenChange, recipes, date, mealType
                 type="button"
                 disabled={busy}
                 onClick={() => void choose({ title: recipe.title, recipe })}
-                className="record-tile flex min-h-14 w-full items-center gap-3 text-left transition-all hover:border-primary/50 hover:bg-white active:scale-[0.99] focus-ring disabled:opacity-60 dark:hover:bg-white/10"
+                className="record-tile flex min-h-14 w-full items-center gap-3 text-left transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/50 hover:bg-white active:scale-[0.99] focus-ring disabled:opacity-60 dark:hover:bg-white/10"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-muted text-xl" aria-hidden>
                   {recipe.emoji || "🍲"}

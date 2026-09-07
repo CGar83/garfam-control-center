@@ -171,7 +171,7 @@ export default function RelationshipPage() {
           <div className="orderful-card flex min-h-96 flex-col justify-between p-6 lg:p-8">
             <div>
               <p className="orderful-eyebrow">Marriage health hub</p>
-              <h1 className="orderful-display mt-5 max-w-3xl text-4xl sm:text-5xl lg:text-6xl">Relationship Command Center</h1>
+              <h1 className="orderful-display mt-5 max-w-3xl text-[26px] sm:text-[32px]">Relationship Command Center</h1>
               <p className="orderful-muted mt-6 max-w-2xl text-base leading-7 sm:text-lg">
                 A practical operating layer for stress release, connection rituals, conflict repair, attachment cycles, fairness, intimacy, and weekly check-ins.
               </p>
@@ -272,7 +272,7 @@ export default function RelationshipPage() {
         <section className="grid gap-8 border-t orderful-rule pt-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
           <div>
             <p className="orderful-eyebrow">Operating loop</p>
-            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">Two practices this week. Then repeat.</h2>
+            <h2 className="orderful-display mt-4 text-[22px] sm:text-[26px]">Two practices this week. Then repeat.</h2>
             <p className="orderful-muted mt-5 text-base leading-7">
               The guide is evidence-weighted, but the page is practice-weighted: stress conversations, affection rituals, repairs, and weekly check-ins.
             </p>
@@ -303,7 +303,7 @@ export default function RelationshipPage() {
         <section className="space-y-6">
           <div className="max-w-3xl">
             <p className="orderful-eyebrow">Framework map</p>
-            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">One system, five layers.</h2>
+            <h2 className="orderful-display mt-4 text-[22px] sm:text-[26px]">One system, five layers.</h2>
           </div>
           <div className="grid-auto-fit-sm">
             {frameworkCards.map((card) => {
@@ -374,7 +374,7 @@ export default function RelationshipPage() {
         <section id="relationship-records" className="space-y-5">
           <div className="max-w-3xl">
             <p className="orderful-eyebrow">Private log</p>
-            <h2 className="orderful-display mt-4 text-3xl sm:text-4xl lg:text-5xl">Relationship Records</h2>
+            <h2 className="orderful-display mt-4 text-[22px] sm:text-[26px]">Relationship Records</h2>
             <p className="orderful-muted mt-4 text-base leading-7">Check-ins, rituals, repairs, state-of-the-union notes, cycle maps, and intimacy/context notes.</p>
           </div>
           <DataTable config={config} records={records} />

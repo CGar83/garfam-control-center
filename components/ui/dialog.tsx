@@ -30,13 +30,13 @@ const DialogContent = React.forwardRef<
       ref={ref}
       data-radix-dialog-content=""
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid max-h-[92vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-[var(--app-card-radius)] border bg-white/90 p-[var(--app-card-padding)] shadow-[var(--shadow-elevated)] backdrop-blur-2xl data-[state=open]:animate-in dark:bg-card/90",
+        "fixed left-1/2 top-1/2 z-50 grid max-h-[92vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-[var(--app-card-radius)] bg-card p-[var(--app-card-padding)] shadow-[var(--shadow-elevated)] backdrop-blur-2xl data-[state=open]:animate-in",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full bg-muted/60 p-1.5 opacity-70 transition-opacity hover:opacity-100 focus-ring">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full control-surface h-11 w-11 flex items-center justify-center opacity-70 transition-opacity hover:opacity-100 focus-ring">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -57,7 +57,7 @@ const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-semibold leading-none tracking-normal", className)} {...props} />
+  <DialogPrimitive.Title ref={ref} className={cn("text-[22px] font-semibold leading-7 tracking-[-0.7px]", className)} {...props} />
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 

@@ -25,11 +25,11 @@ export function MoodPicker({ value, onChange, onHero }: PickerProps) {
             aria-label={`${moodLabels[index]} (${level} of 5)`}
             onClick={() => onChange(level)}
             className={cn(
-              "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border text-3xl transition-all active:scale-[0.94] focus-ring sm:min-h-20 sm:text-4xl",
+              "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border text-3xl transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.94] focus-ring sm:min-h-20 sm:text-4xl",
               onHero
                 ? active
-                  ? "border-white bg-white text-neutral-900 shadow-lg scale-105"
-                  : "border-white/30 bg-white/10 hover:bg-white/20"
+                  ? "border-transparent bg-accent text-accent-foreground shadow-[var(--shadow-subtle)]"
+                  : "border-transparent bg-muted hover:bg-accent"
                 : active
                   ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30 scale-105"
                   : "border-border bg-white/70 hover:border-primary/40 dark:bg-white/5"
@@ -38,7 +38,7 @@ export function MoodPicker({ value, onChange, onHero }: PickerProps) {
             <span aria-hidden className={cn("transition-transform", active ? "" : "grayscale-[35%] opacity-90")}>
               {face}
             </span>
-            <span className={cn("text-[10px] font-semibold sm:text-xs", onHero ? (active ? "text-neutral-900" : "text-white/85") : active ? "text-primary" : "text-muted-foreground")}>{moodLabels[index]}</span>
+            <span className={cn("text-[10px] font-semibold sm:text-xs", onHero ? (active ? "text-foreground" : "text-muted-foreground") : active ? "text-primary" : "text-muted-foreground")}>{moodLabels[index]}</span>
           </button>
         );
       })}
@@ -62,11 +62,11 @@ export function EnergyPicker({ value, onChange, onHero }: PickerProps) {
             aria-label={`${label} energy (${level} of 5)`}
             onClick={() => onChange(level)}
             className={cn(
-              "flex min-h-16 flex-col items-center justify-end gap-1.5 rounded-2xl border px-2 pb-2 pt-3 transition-all active:scale-[0.94] focus-ring sm:min-h-20",
+              "flex min-h-16 flex-col items-center justify-end gap-1.5 rounded-2xl border px-2 pb-2 pt-3 transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.94] focus-ring sm:min-h-20",
               onHero
                 ? active
-                  ? "border-white bg-white/95 shadow-lg"
-                  : "border-white/30 bg-white/10 hover:bg-white/20"
+                  ? "border-transparent bg-accent shadow-[var(--shadow-subtle)]"
+                  : "border-transparent bg-muted hover:bg-accent"
                 : active
                   ? "border-primary bg-primary/10 ring-2 ring-primary/30"
                   : "border-border bg-white/70 hover:border-primary/40 dark:bg-white/5"
@@ -76,12 +76,12 @@ export function EnergyPicker({ value, onChange, onHero }: PickerProps) {
               {Array.from({ length: level }, (_, bar) => (
                 <span
                   key={bar}
-                  className={cn("w-1.5 rounded-sm transition-colors sm:w-2", filled ? (onHero && !active ? "bg-white" : "bg-emerald-500") : onHero ? "bg-white/40" : "bg-muted-foreground/25")}
+                  className={cn("w-1.5 rounded-sm transition-colors sm:w-2", filled ? (onHero && !active ? "bg-primary" : "bg-primary") : onHero ? "bg-muted-foreground/25" : "bg-muted-foreground/25")}
                   style={{ height: `${40 + bar * 15}%` }}
                 />
               ))}
             </span>
-            <span className={cn("text-[10px] font-semibold sm:text-xs", onHero ? (active ? "text-neutral-900" : "text-white/85") : active ? "text-primary" : "text-muted-foreground")}>{label}</span>
+            <span className={cn("text-[10px] font-semibold sm:text-xs", onHero ? (active ? "text-foreground" : "text-muted-foreground") : active ? "text-primary" : "text-muted-foreground")}>{label}</span>
           </button>
         );
       })}
@@ -96,7 +96,7 @@ export function EnergyBars({ value, className, onHero }: { value: number; classN
       {Array.from({ length: 5 }, (_, index) => (
         <span
           key={index}
-          className={cn("w-1.5 rounded-sm", index < value ? (onHero ? "bg-white" : "bg-emerald-500") : onHero ? "bg-white/35" : "bg-muted-foreground/25")}
+          className={cn("w-1.5 rounded-sm", index < value ? (onHero ? "bg-primary" : "bg-primary") : onHero ? "bg-muted-foreground/25" : "bg-muted-foreground/25")}
           style={{ height: `${40 + index * 15}%` }}
         />
       ))}

@@ -198,15 +198,15 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             {isSignedIn ? (
-              <div className="rounded-md border border-[#ACE1AF] bg-[#ACE1AF]/25 p-4 dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15">
+              <div className="rounded-md border border-primary/20 bg-accent/25 p-4 dark:border-primary/20 dark:bg-accent/15">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#ACE1AF] text-[#22552d]">
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent text-accent-foreground">
                       <CheckCircle2 className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-[#22552d] dark:text-[#D7F2D9]">{authStatusTitle}</p>
-                      <p className="text-wrap-safe mt-1 text-sm text-[#22552d]/80 dark:text-[#D7F2D9]/80">{authStatusDescription}</p>
+                      <p className="font-semibold text-accent-foreground dark:text-accent-foreground">{authStatusTitle}</p>
+                      <p className="text-wrap-safe mt-1 text-sm text-accent-foreground/80 dark:text-accent-foreground/80">{authStatusDescription}</p>
                     </div>
                   </div>
                   <Button type="button" variant="outline" className="shrink-0" onClick={signOut}>
@@ -374,7 +374,7 @@ export default function SettingsPage() {
                                 aria-label={palette.label}
                                 title={palette.label}
                                 onClick={() => field.onChange(active ? null : color)}
-                                className={`h-9 w-9 rounded-full border-2 transition-all focus-ring ${active ? "scale-110 border-foreground" : "border-transparent"}`}
+                                className={`h-9 w-9 rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity] focus-ring ${active ? "scale-110 border-foreground" : "border-transparent"}`}
                                 style={{ backgroundColor: palette.solid }}
                               />
                             );
@@ -432,7 +432,7 @@ export default function SettingsPage() {
                                     aria-label={palette.label}
                                     title={palette.label}
                                     onClick={() => updateRecord("family_members", member.id, { color })}
-                                    className={`h-6 w-6 rounded-full border-2 transition-all focus-ring ${active ? "scale-110 border-foreground" : "border-transparent opacity-80 hover:opacity-100"}`}
+                                    className={`h-6 w-6 rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity] focus-ring ${active ? "scale-110 border-foreground" : "border-transparent opacity-80 hover:opacity-100"}`}
                                     style={{ backgroundColor: palette.solid }}
                                   />
                                 );
@@ -485,7 +485,7 @@ export default function SettingsPage() {
                           </div>
                         </div>
                       ) : (
-                        <div className="mt-4 rounded-md border border-[#ACE1AF]/70 bg-[#ACE1AF]/20 p-3 text-sm text-[#22552d] dark:border-[#ACE1AF]/45 dark:text-[#D7F2D9]">
+                        <div className="mt-4 rounded-md border border-primary/20 bg-accent/20 p-3 text-sm text-accent-foreground dark:border-primary/20 dark:text-accent-foreground">
                           Admin and Parent roles have full workspace access.
                         </div>
                       )}

@@ -1,7 +1,12 @@
-const CACHE_NAME = "gather-family-hub-v8";
+const CACHE_NAME = "gather-family-hub-v9";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,
+  "/fonts/inter-tight-400.ttf",
+  "/fonts/inter-tight-500.ttf",
+  "/fonts/inter-tight-600.ttf",
+  "/fonts/inter-tight-700.ttf",
+
   "/today",
   "/dashboard",
   "/calendar",

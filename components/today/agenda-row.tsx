@@ -72,7 +72,7 @@ export function AgendaRow({ item, onToggle, now, compact }: AgendaRowProps) {
       </div>
       <div
         className={cn(
-          "min-w-0 flex-1 rounded-2xl border border-border/70 bg-white/70 px-3 py-2.5 transition-all dark:bg-white/5",
+          "min-w-0 flex-1 rounded-2xl border border-border/70 bg-white/70 px-3 py-2.5 transition-[color,background-color,box-shadow,transform,opacity] dark:bg-white/5",
           item.done && "opacity-60",
           isNow && "border-primary/50 shadow-[0_0_0_3px_rgba(240,112,90,0.12)]"
         )}
@@ -99,7 +99,7 @@ export function AgendaRow({ item, onToggle, now, compact }: AgendaRowProps) {
                   onToggle?.(item);
                 }}
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all active:scale-90 focus-ring",
+                  "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity] active:scale-90 focus-ring",
                   item.done ? "border-transparent bg-emerald-500 text-white" : "border-border bg-white/80 text-transparent hover:border-emerald-400 dark:bg-white/10"
                 )}
               >

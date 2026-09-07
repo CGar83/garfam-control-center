@@ -20,7 +20,7 @@ export function RecipeCard({ recipe, canManage, onOpen, onToggleFavorite, onRate
   const meta = recipeMeta(recipe);
 
   return (
-    <article className={cn("surface-panel group relative flex min-w-0 flex-col p-4 transition-all hover:-translate-y-0.5 hover:shadow-md", className)}>
+    <article className={cn("surface-panel group relative flex min-w-0 flex-col p-4 transition-[color,background-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:shadow-md", className)}>
       <button
         type="button"
         onClick={onOpen}
@@ -42,9 +42,9 @@ export function RecipeCard({ recipe, canManage, onOpen, onToggleFavorite, onRate
           onClick={onToggleFavorite}
           aria-pressed={recipe.favorite}
           aria-label={recipe.favorite ? `Remove ${recipe.title} from favorites` : `Favorite ${recipe.title}`}
-          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-muted-foreground transition-all hover:text-primary active:scale-90 focus-ring dark:bg-white/10"
+          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-muted-foreground transition-[color,background-color,box-shadow,transform,opacity] hover:text-primary active:scale-90 focus-ring dark:bg-white/10"
         >
-          <Heart className={cn("h-5 w-5 transition-all", recipe.favorite && "fill-primary text-primary pop-in")} />
+          <Heart className={cn("h-5 w-5 transition-[color,background-color,box-shadow,transform,opacity]", recipe.favorite && "fill-primary text-primary pop-in")} />
         </button>
       ) : recipe.favorite ? (
         <span className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 dark:bg-white/10" aria-label="Favorite">

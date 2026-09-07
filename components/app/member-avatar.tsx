@@ -80,7 +80,7 @@ export function MemberChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex shrink-0 items-center gap-2 rounded-full border font-semibold transition-all focus-ring",
+        "inline-flex shrink-0 items-center gap-2 rounded-full border font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
         size === "sm" ? "h-8 px-2.5 text-xs" : "h-10 px-3 text-sm",
         active ? "shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-foreground/20 dark:bg-white/5"
       )}

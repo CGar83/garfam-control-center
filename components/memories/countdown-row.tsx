@@ -85,7 +85,7 @@ export function CountdownRow({ items, isParent, onAdd, onEdit, onDelete }: Count
         <button
           type="button"
           onClick={onAdd}
-          className="record-tile flex w-[140px] shrink-0 flex-col items-center justify-center gap-2 border-dashed p-4 text-center text-sm font-medium text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground active:scale-[0.97] focus-ring"
+          className="record-tile flex w-[140px] shrink-0 flex-col items-center justify-center gap-2 border-dashed p-4 text-center text-sm font-medium text-muted-foreground transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/40 hover:text-foreground active:scale-[0.97] focus-ring"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Plus className="h-5 w-5" />

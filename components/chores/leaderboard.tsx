@@ -48,7 +48,7 @@ export function Leaderboard({ members, kids, completions, today }: LeaderboardPr
             {history.map((points, index) => (
               <span
                 key={index}
-                className="flex-1 rounded-t-md transition-all"
+                className="flex-1 rounded-t-md transition-[color,background-color,box-shadow,transform,opacity]"
                 style={{ height: `${Math.max(6, (points / max) * 100)}%`, backgroundColor: index === history.length - 1 ? palette.solid : palette.border }}
               />
             ))}
@@ -88,7 +88,7 @@ export function Leaderboard({ members, kids, completions, today }: LeaderboardPr
                   </span>
                 </div>
                 <div className="mt-1 h-2 rounded-full bg-muted">
-                  <div className="h-2 rounded-full transition-all" style={{ width: `${top > 0 ? Math.max(4, (points / top) * 100) : 4}%`, backgroundColor: palette.solid }} />
+                  <div className="h-2 rounded-full transition-[color,background-color,box-shadow,transform,opacity]" style={{ width: `${top > 0 ? Math.max(4, (points / top) * 100) : 4}%`, backgroundColor: palette.solid }} />
                 </div>
               </div>
             </div>

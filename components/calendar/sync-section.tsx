@@ -30,7 +30,7 @@ export const SyncSection = forwardRef<HTMLDivElement, SyncSectionProps>(function
           aria-controls={contentId}
           className="flex w-full items-center gap-4 p-[var(--app-card-padding)] text-left transition-colors hover:bg-muted/40 focus-ring"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ACE1AF]/40 text-[#235226] dark:bg-[#ACE1AF]/20 dark:text-[#D7F2D9]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/40 text-accent-foreground dark:bg-accent/20 dark:text-accent-foreground">
             <RefreshCw className="h-4 w-4" aria-hidden />
           </span>
           <span className="min-w-0 flex-1">

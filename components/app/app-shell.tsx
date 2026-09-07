@@ -80,7 +80,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-transparent">
       <SidebarNav />
       <div className="lg:pl-72">
-        <header className="app-header sticky top-0 z-20 border-b border-border/70 bg-background/80 backdrop-blur-2xl">
+        <header className="app-header sticky top-0 z-20 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.6)] backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 w-full max-w-[var(--app-page-max)] items-center justify-between gap-3 px-[var(--app-gutter)] py-2.5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <MemberSwitcher />
@@ -108,7 +108,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
           {showAccessGate ? (
             <section className="flex min-h-[calc(100vh-9rem)] items-center justify-center">
               <div className="apple-elevated w-full max-w-md rounded-[1.5rem] p-7 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ACE1AF]/45 text-[#22552d]">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/45 text-accent-foreground">
                   <LockKeyhole className="h-6 w-6" />
                 </div>
                 <h1 className="mt-5 text-2xl font-semibold tracking-normal">{accessGateTitle}</h1>

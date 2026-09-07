@@ -430,7 +430,7 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      <Card className="border-[#ACE1AF]/80">
+      <Card className="border-primary/20">
         <CardHeader className="flex flex-col gap-3 space-y-0 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
@@ -447,7 +447,7 @@ export default function ActivitiesPage() {
             className={cn(
               "flex min-h-14 w-full items-center gap-3 rounded-md border border-dashed px-4 py-3 text-sm transition-colors lg:w-80",
               draggingSuggestion
-                ? "border-primary bg-[#ACE1AF]/30 text-foreground"
+                ? "border-primary bg-accent/30 text-foreground"
                 : "border-border bg-muted/40 text-muted-foreground"
             )}
             onDragOver={(event) => event.preventDefault()}
@@ -490,7 +490,7 @@ export default function ActivitiesPage() {
                     <GripVertical className="h-5 w-5 shrink-0 text-muted-foreground" />
                   </div>
                   <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{suggestion.description}</p>
-                  <p className="rounded-md bg-[#ACE1AF]/25 p-3 text-xs leading-5 text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+                  <p className="rounded-md bg-accent/25 p-3 text-xs leading-5 text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground">
                     {suggestion.reason}
                   </p>
                   <div className="grid gap-2 text-sm text-muted-foreground">

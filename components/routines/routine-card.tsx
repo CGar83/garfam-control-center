@@ -89,14 +89,14 @@ export function RoutineCard({ routine, completion, members, canToggle, isParent,
                   disabled={!canToggle}
                   onClick={() => onToggleStep(index)}
                   className={cn(
-                    "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-all focus-ring",
+                    "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                     canToggle ? "hover:bg-muted/70 active:scale-[0.98]" : "cursor-default",
                     done && "text-muted-foreground"
                   )}
                 >
                   <span
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity]",
                       done ? "border-transparent text-white" : "border-border bg-white/70 text-transparent dark:bg-white/5"
                     )}
                     style={done ? { backgroundColor: palette.solid, color: palette.onSolid } : undefined}

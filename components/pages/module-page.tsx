@@ -369,7 +369,7 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
                 <div className={isSameMonth(day, new Date()) ? "text-xs font-semibold" : "text-xs text-muted-foreground"}>{format(day, "d")}</div>
                 <div className="mt-2 space-y-1.5">
                   {events.slice(0, 3).map((record) => (
-                    <div key={record.id} className="truncate rounded bg-[#ACE1AF]/35 px-2 py-1 text-xs text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+                    <div key={record.id} className="truncate rounded bg-accent/35 px-2 py-1 text-xs text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground">
                       {getRecordTitle(record)}
                     </div>
                   ))}
@@ -498,7 +498,7 @@ export function ModulePage({ config }: ModulePageProps) {
         }
       />
       {config.sensitive ? (
-        <div className="surface-panel border-[#ACE1AF] bg-[#ACE1AF]/30 p-4 text-sm text-[#235226] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+        <div className="surface-panel border-primary/20 bg-accent/30 p-4 text-sm text-accent-foreground dark:border-primary/20 dark:bg-accent/15 dark:text-accent-foreground">
           Privacy mode hides sensitive details on this page. Store only partial identifiers and safe notes.
         </div>
       ) : null}

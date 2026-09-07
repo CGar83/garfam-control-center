@@ -26,7 +26,7 @@ export function ChoreTile({ chore, completed, disabled, accent, onToggle }: Chor
       disabled={disabled}
       onClick={onToggle}
       className={cn(
-        "record-tile relative flex min-h-[5.5rem] w-full items-center gap-3 text-left transition-all focus-ring",
+        "record-tile relative flex min-h-[5.5rem] w-full items-center gap-3 text-left transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
         !disabled && "hover:border-foreground/20 active:scale-[0.97]",
         completed && "bg-emerald-50/70 dark:bg-emerald-950/30",
         disabled && "cursor-default opacity-70"
@@ -50,7 +50,7 @@ export function ChoreTile({ chore, completed, disabled, accent, onToggle }: Chor
       ) : null}
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity]",
           completed ? "border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500" : "border-border bg-white/70 text-transparent dark:bg-white/5"
         )}
         aria-hidden

@@ -124,7 +124,7 @@ export default function RoutinesPage() {
                   : `${completeToday} of ${allDueToday.length} routine${allDueToday.length === 1 ? "" : "s"} complete today`}
             </p>
             <div className="mt-2 h-2 w-full rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Routines completed today">
-              <div className="h-2 rounded-full bg-primary transition-all duration-500" style={{ width: `${Math.max(percent > 0 ? 3 : 0, percent)}%` }} />
+              <div className="h-2 rounded-full bg-primary transition-[color,background-color,box-shadow,transform,opacity] duration-500" style={{ width: `${Math.max(percent > 0 ? 3 : 0, percent)}%` }} />
             </div>
           </div>
           <div

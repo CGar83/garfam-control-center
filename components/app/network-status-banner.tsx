@@ -37,10 +37,10 @@ export function NetworkStatusBanner() {
 
   if (online) {
     return (
-      <div className="border-b border-[#ACE1AF]/60 bg-[#ACE1AF]/20 px-4 py-2 text-sm text-[#235226] backdrop-blur-xl dark:border-[#ACE1AF]/30 dark:bg-[#ACE1AF]/10 dark:text-[#D7F2D9] lg:px-6">
+      <div className="border-b border-primary/20 bg-accent/20 px-4 py-2 text-sm text-accent-foreground backdrop-blur-xl dark:border-primary/20 dark:bg-accent/10 dark:text-accent-foreground lg:px-6">
         <div className="mx-auto flex max-w-[var(--app-page-max)] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p>{pendingSyncCount} queued cloud change{pendingSyncCount === 1 ? "" : "s"} ready to sync.</p>
-          <Button size="sm" variant="outline" className="border-[#ACE1AF]/80 bg-white/55 text-[#235226] hover:bg-white dark:bg-white/10 dark:text-[#D7F2D9]" onClick={() => void syncQueuedChanges()} disabled={syncingQueuedChanges}>
+          <Button size="sm" variant="outline" className="border-primary/20 bg-white/55 text-accent-foreground hover:bg-white dark:bg-white/10 dark:text-accent-foreground" onClick={() => void syncQueuedChanges()} disabled={syncingQueuedChanges}>
             <RefreshCcw className={`h-3.5 w-3.5 ${syncingQueuedChanges ? "animate-spin" : ""}`} />
             {syncingQueuedChanges ? "Syncing" : "Sync Now"}
           </Button>
@@ -50,7 +50,7 @@ export function NetworkStatusBanner() {
   }
 
   return (
-    <div className="border-b border-[#ACE1AF]/60 bg-[#ACE1AF]/25 px-4 py-2 text-sm text-[#235226] backdrop-blur-xl dark:border-[#ACE1AF]/30 dark:bg-[#ACE1AF]/10 dark:text-[#D7F2D9] lg:px-6">
+    <div className="border-b border-primary/20 bg-accent/25 px-4 py-2 text-sm text-accent-foreground backdrop-blur-xl dark:border-primary/20 dark:bg-accent/10 dark:text-accent-foreground lg:px-6">
       <div className="mx-auto flex max-w-[var(--app-page-max)] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-2">
           <WifiOff className="mt-0.5 h-4 w-4 shrink-0" />
@@ -63,7 +63,7 @@ export function NetworkStatusBanner() {
                 : "Cloud saves will queue on this device until your connection returns."}
           </p>
         </div>
-        <Button size="sm" variant="outline" className="border-[#ACE1AF]/80 bg-white/55 text-[#235226] hover:bg-white dark:bg-white/10 dark:text-[#D7F2D9]" onClick={() => window.location.reload()}>
+        <Button size="sm" variant="outline" className="border-primary/20 bg-white/55 text-accent-foreground hover:bg-white dark:bg-white/10 dark:text-accent-foreground" onClick={() => window.location.reload()}>
           <RefreshCcw className="h-3.5 w-3.5" />
           Retry
         </Button>

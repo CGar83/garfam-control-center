@@ -11,7 +11,7 @@ const badgeVariants = cva("inline-flex items-center whitespace-nowrap rounded-fu
       outline: "border-border bg-white/55 text-foreground dark:bg-white/5",
       success: "border-emerald-200/70 bg-emerald-50/80 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300",
       warning: "border-amber-200/70 bg-amber-50/80 text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-300",
-      info: "border-[#ACE1AF] bg-[#ACE1AF]/35 text-[#235226] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]"
+      info: "border-primary/20 bg-accent/35 text-accent-foreground dark:border-primary/20 dark:bg-accent/15 dark:text-accent-foreground"
     }
   },
   defaultVariants: {
