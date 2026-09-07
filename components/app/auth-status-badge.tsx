@@ -20,7 +20,7 @@ export function AuthStatusBadge({ className }: { className?: string }) {
         label: "Logged in",
         detail: currentUser.email,
         icon: CheckCircle2,
-        className: "border-[#ACE1AF] bg-[#ACE1AF]/35 text-[#22552d] dark:border-[#ACE1AF]/45 dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]"
+        className: "border-primary/20 bg-accent/35 text-accent-foreground dark:border-primary/20 dark:bg-accent/15 dark:text-accent-foreground"
       }
     : {
         label: "Sign in required",

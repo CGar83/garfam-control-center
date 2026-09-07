@@ -28,7 +28,7 @@ export function ListCard({ list, items, active, compact, onSelect }: ListCardPro
       onClick={onSelect}
       aria-pressed={active}
       className={cn(
-        "surface-panel group flex w-full min-w-0 flex-col gap-3 p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] focus-ring",
+        "surface-panel group flex w-full min-w-0 flex-col gap-3 p-4 text-left transition-[color,background-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] focus-ring",
         active && "border-primary/60 ring-2 ring-primary/30",
         compact && "gap-2 p-3"
       )}
@@ -61,7 +61,7 @@ export function ListCard({ list, items, active, compact, onSelect }: ListCardPro
         </div>
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
           <div
-            className={cn("h-full rounded-full transition-all duration-500", allDone ? "bg-[#ACE1AF]" : "bg-primary")}
+            className={cn("h-full rounded-full transition-[color,background-color,box-shadow,transform,opacity] duration-500", allDone ? "bg-accent" : "bg-primary")}
             style={{ width: `${progress.percent}%` }}
           />
         </div>

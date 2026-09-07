@@ -15,7 +15,7 @@ const toneClasses = {
   red: "bg-red-50/80 text-red-700 dark:bg-red-950/60 dark:text-red-300",
   yellow: "bg-amber-50/80 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
   green: "bg-emerald-50/80 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
-  sage: "bg-[#ACE1AF]/35 text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]"
+  sage: "bg-accent/35 text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground"
 };
 
 export function StatCard({ label, value, helper, icon, tone = "default" }: StatCardProps) {

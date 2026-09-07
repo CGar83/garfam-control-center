@@ -63,7 +63,7 @@ export function MobileAppPreferences() {
     <div className="grid gap-3">
       <div className="record-tile flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ACE1AF]/45 text-[#22552d] dark:text-[#D7F2D9]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent/45 text-accent-foreground dark:text-accent-foreground">
             <Smartphone className="h-5 w-5" />
           </div>
           <div>
@@ -112,7 +112,7 @@ export function MobileAppPreferences() {
           </div>
         </div>
         {permission === "granted" ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-[#ACE1AF]/70 bg-[#ACE1AF]/25 px-2.5 py-1 text-xs font-medium text-[#22552d] dark:text-[#D7F2D9]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-accent/25 px-2.5 py-1 text-xs font-medium text-accent-foreground dark:text-accent-foreground">
             <CheckCircle2 className="h-3.5 w-3.5" />
             On
           </span>

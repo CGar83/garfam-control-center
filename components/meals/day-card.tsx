@@ -29,7 +29,7 @@ export function DayCard({ date, meals, recipesById, isParent, onPlan, onSwap, on
 
   return (
     <section
-      className={cn("surface-panel flex min-w-0 flex-col gap-2.5 p-3 transition-all", today && "border-primary/50 ring-2 ring-primary/20")}
+      className={cn("surface-panel flex min-w-0 flex-col gap-2.5 p-3 transition-[color,background-color,box-shadow,transform,opacity]", today && "border-primary/50 ring-2 ring-primary/20")}
       aria-label={format(date, "EEEE, MMMM d")}
     >
       <header className="flex items-baseline justify-between gap-2">
@@ -63,7 +63,7 @@ export function DayCard({ date, meals, recipesById, isParent, onPlan, onSwap, on
           <button
             type="button"
             onClick={() => onPlan(date, "Dinner")}
-            className="flex min-h-16 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-border/80 text-sm font-medium text-muted-foreground transition-all hover:border-primary/60 hover:bg-primary/5 hover:text-primary active:scale-[0.98] focus-ring"
+            className="flex min-h-16 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-border/80 text-sm font-medium text-muted-foreground transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/60 hover:bg-primary/5 hover:text-primary active:scale-[0.98] focus-ring"
           >
             <Plus className="h-4 w-4" />
             Plan dinner

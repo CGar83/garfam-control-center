@@ -69,7 +69,7 @@ function MiniList({ records, empty, render }: { records: AnyRecord[]; empty: str
 
 function CalendarFocusCard({ todayEvents, upcomingEvents }: { todayEvents: EventRecord[]; upcomingEvents: EventRecord[] }) {
   return (
-    <Card className="border-[#ACE1AF]/80 bg-white/85 shadow-[var(--shadow-elevated)] dark:border-[#ACE1AF]/35 dark:bg-card/85">
+    <Card className="border-primary/20 bg-white/85 shadow-[var(--shadow-elevated)] dark:border-primary/20 dark:bg-card/85">
       <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <CardTitle className="flex items-center gap-2 text-xl">
@@ -89,7 +89,7 @@ function CalendarFocusCard({ todayEvents, upcomingEvents }: { todayEvents: Event
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold">Today</h3>
-            <span className="rounded-md bg-[#ACE1AF]/35 px-2 py-1 text-xs font-medium text-[#235226]">{todayEvents.length} scheduled</span>
+            <span className="rounded-md bg-accent/35 px-2 py-1 text-xs font-medium text-accent-foreground">{todayEvents.length} scheduled</span>
           </div>
           <MiniList
             records={todayEvents}

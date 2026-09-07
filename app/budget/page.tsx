@@ -460,7 +460,7 @@ function SinkingFundPanel({ funds }: { funds: SinkingFund[] }) {
                 <Badge variant={onTrack ? "success" : "warning"}>{onTrack ? "On Track" : "Needs More"}</Badge>
               </div>
               <div className="mt-4 h-2 rounded-full bg-muted">
-                <div className="h-2 rounded-full bg-[#ACE1AF]" style={{ width: `${progress}%` }} />
+                <div className="h-2 rounded-full bg-accent" style={{ width: `${progress}%` }} />
               </div>
               <div className="mt-4 grid gap-2 text-sm">
                 <span>

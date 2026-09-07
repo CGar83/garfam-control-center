@@ -48,7 +48,7 @@ import type { FamilyMember } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const nudgeTones: Record<Nudge["tone"], string> = {
-  warm: "border-[#ACE1AF]/70 bg-[#ACE1AF]/25 text-[#235226] dark:border-[#ACE1AF]/30 dark:bg-[#ACE1AF]/10 dark:text-[#D7F2D9]",
+  warm: "border-primary/20 bg-accent/25 text-accent-foreground dark:border-primary/20 dark:bg-accent/10 dark:text-accent-foreground",
   attention: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-100",
   celebrate: "border-primary/30 bg-primary/10 text-foreground"
 };
@@ -94,8 +94,8 @@ function MemberDayCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "flex min-w-[9.5rem] flex-1 items-center gap-3 rounded-[1.25rem] border p-3 text-left transition-all active:scale-[0.98] focus-ring",
-        selected ? "shadow-[var(--shadow-elevated)]" : "border-border/70 bg-white/70 hover:border-foreground/20 dark:bg-white/5"
+        "flex min-w-[9.5rem] flex-1 items-center gap-3 rounded-[1.25rem] p-3 shadow-[var(--shadow-subtle)] text-left transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.98] focus-ring",
+        selected ? "shadow-[var(--shadow-elevated)]" : "bg-card hover:bg-accent"
       )}
       style={selected ? { backgroundColor: palette.soft, borderColor: palette.border } : undefined}
     >
@@ -231,29 +231,29 @@ export default function TodayPage() {
 
   return (
     <div className="app-page">
-      <section className="hero-card fade-up p-5 sm:p-7">
+      <section className="hero-card today-greeting py-1">
         <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-white/80">{format(now, "EEEE, MMMM d")}</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">{greeting}</h1>
-            <p className="mt-2 max-w-xl text-sm text-white/85 sm:text-base">
+            <p className="text-sm font-medium text-muted-foreground">{format(now, "EEEE, MMMM d")}</p>
+            <h1 className="mt-1 text-[26px] font-semibold leading-8 tracking-[-0.9px]">{greeting}</h1>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
               {remainingCount === 0 && agenda.length > 0
                 ? "Everything for today is handled. Enjoy it."
                 : summaryBits.join(" · ")}
             </p>
             {nextUp?.at ? (
-              <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/18 px-3 py-1 text-sm font-medium backdrop-blur">
+              <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-sm font-medium backdrop-blur">
                 <CalendarDays className="h-4 w-4" />
                 Next: {nextUp.title} at {format(nextUp.at, "h:mm a")}
               </p>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Button variant="secondary" className="bg-white text-neutral-900 hover:bg-white/90" onClick={() => setQuickOpen(true)}>
+            <Button variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/80" onClick={() => setQuickOpen(true)}>
               <Plus className="h-4 w-4" />
               Quick add
             </Button>
-            <Button asChild variant="ghost" className="text-white hover:bg-white/15 hover:text-white">
+            <Button asChild variant="ghost" className="text-foreground hover:bg-accent hover:text-foreground">
               <Link href="/calendar">
                 Open calendar
                 <ArrowRight className="h-4 w-4" />
@@ -270,12 +270,12 @@ export default function TodayPage() {
             onClick={() => setSelectedMemberId(null)}
             aria-pressed={selectedMemberId === null}
             className={cn(
-              "flex min-w-[7.5rem] flex-col items-start justify-center rounded-[1.25rem] border p-3 text-left transition-all active:scale-[0.98] focus-ring",
-              selectedMemberId === null ? "border-foreground bg-foreground text-background shadow-[var(--shadow-elevated)]" : "border-border/70 bg-white/70 hover:border-foreground/20 dark:bg-white/5"
+              "flex min-w-[7.5rem] flex-col items-start justify-center rounded-[1.25rem] p-3 shadow-[var(--shadow-subtle)] text-left transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.98] focus-ring",
+              selectedMemberId === null ? "bg-primary text-primary-foreground shadow-[var(--shadow-elevated)]" : "bg-card hover:bg-accent"
             )}
           >
             <span className="text-sm font-semibold">Everyone</span>
-            <span className={cn("text-xs", selectedMemberId === null ? "text-background/70" : "text-muted-foreground")}>{fullAgenda.length} today</span>
+            <span className={cn("text-xs", selectedMemberId === null ? "text-primary-foreground/80" : "text-muted-foreground")}>{fullAgenda.length} today</span>
           </button>
           {members.map((member) => (
             <MemberDayCard
@@ -296,7 +296,7 @@ export default function TodayPage() {
             <Link
               key={nudge.id}
               href={nudge.route}
-              className={cn("flex min-w-[15rem] max-w-xs flex-1 items-start gap-3 rounded-2xl border p-3.5 transition-all hover:-translate-y-0.5 focus-ring", nudgeTones[nudge.tone])}
+              className={cn("flex min-w-[15rem] max-w-xs flex-1 items-start gap-3 rounded-2xl border p-3.5 transition-[color,background-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-ring", nudgeTones[nudge.tone])}
             >
               <span className="text-2xl leading-none">{nudge.emoji}</span>
               <span className="min-w-0">

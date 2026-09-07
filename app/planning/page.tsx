@@ -183,12 +183,12 @@ export default function PlanningPage() {
         <section className="hero-card fade-up p-5 sm:p-6">
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <span className="pop-in flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+              <span className="pop-in flex h-12 w-12 items-center justify-center rounded-2xl bg-accent backdrop-blur">
                 <PartyPopper className="h-6 w-6" />
               </span>
               <div>
                 <h2 className="text-xl font-semibold leading-tight sm:text-2xl">Week of {format(weekStart, "MMM d")} is planned</h2>
-                <p className="mt-1 text-sm text-white/85">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Reviewed {review?.completed_at ? format(parseISO(review.completed_at), "EEE, MMM d 'at' h:mm a") : ""}
                   {review?.reviewed_by?.length ? " together" : ""}. You can still tweak anything below.
                 </p>
@@ -197,7 +197,7 @@ export default function PlanningPage() {
             <div className="flex items-center gap-3">
               {review?.reviewed_by?.length ? <MemberAvatarStack memberIds={review.reviewed_by} size="md" /> : null}
               {!alreadyReviewed ? (
-                <Button variant="secondary" size="sm" className="bg-white/90 text-neutral-900 hover:bg-white" onClick={() => void completeReview()}>
+                <Button variant="secondary" size="sm" className="text-foreground" onClick={() => void completeReview()}>
                   I reviewed it too
                 </Button>
               ) : null}
@@ -225,7 +225,7 @@ export default function PlanningPage() {
               </Button>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={doneCount} aria-valuemin={0} aria-valuemax={steps.length} aria-label="Review progress">
-              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progressPercent}%` }} />
+              <div className="h-full rounded-full bg-primary transition-[color,background-color,box-shadow,transform,opacity] duration-500" style={{ width: `${progressPercent}%` }} />
             </div>
             {!isWeekend ? (
               <p className="text-xs text-muted-foreground">
@@ -301,7 +301,7 @@ export default function PlanningPage() {
                   key={item.id}
                   type="button"
                   onClick={() => setWeekStart(start)}
-                  className={cn("record-tile flex flex-col gap-2 p-4 text-left transition-all hover:border-primary/40 active:scale-[0.98] focus-ring", !item.completed_at && "border-dashed")}
+                  className={cn("record-tile flex flex-col gap-2 p-4 text-left transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/40 active:scale-[0.98] focus-ring", !item.completed_at && "border-dashed")}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold">{weekLabel(start)}</p>

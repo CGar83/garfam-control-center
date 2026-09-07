@@ -106,7 +106,7 @@ export function QuickCapture() {
                 aria-pressed={active}
                 onClick={() => setMood(active ? null : option)}
                 className={cn(
-                  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-all active:scale-[0.97] focus-ring",
+                  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.97] focus-ring",
                   active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
                 )}
               >

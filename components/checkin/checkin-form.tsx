@@ -72,53 +72,53 @@ export function CheckinForm({ member, existing, streak, hasPartner }: CheckinFor
         <div className="relative z-10 flex flex-col gap-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-white/80">Today&apos;s check-in</p>
-              <h1 className="mt-1 text-2xl font-semibold leading-tight sm:text-3xl">You checked in, {name}. Nice.</h1>
+              <p className="text-sm font-medium text-muted-foreground">Today&apos;s check-in</p>
+              <h1 className="mt-1 text-[26px] font-semibold leading-8 tracking-[-0.9px]">You checked in, {name}. Nice.</h1>
             </div>
             <div className="flex items-center gap-2">
               {streak > 0 ? (
-                <span className="pop-in inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur">
+                <span className="pop-in inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-sm font-semibold backdrop-blur">
                   <Flame className="h-4 w-4" />
                   {streak} day{streak === 1 ? "" : "s"}
                 </span>
               ) : null}
-              <Button variant="secondary" size="sm" className="bg-white/90 text-neutral-900 hover:bg-white" onClick={() => setEditing(true)}>
+              <Button variant="secondary" size="sm" className="text-foreground" onClick={() => setEditing(true)}>
                 <Pencil className="h-3.5 w-3.5" />
                 Edit
               </Button>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-[auto_1fr]">
-            <div className="flex items-center gap-4 rounded-2xl bg-white/15 p-4 backdrop-blur sm:flex-col sm:items-start sm:justify-center">
+            <div className="flex items-center gap-4 rounded-2xl bg-accent p-4 backdrop-blur sm:flex-col sm:items-start sm:justify-center">
               <span className="text-5xl leading-none" aria-hidden>
                 {moodFace(existing.mood)}
               </span>
               <div>
                 <p className="text-base font-semibold">{moodLabel(existing.mood)}</p>
-                <p className="mt-1 flex items-center gap-2 text-sm text-white/85">
+                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                   <EnergyBars value={existing.energy} onHero />
                   {energyLabel(existing.energy)} energy
                 </p>
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
-              <div className="rounded-2xl bg-white/15 p-4 backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Grateful for</p>
+              <div className="rounded-2xl bg-accent p-4 backdrop-blur">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Grateful for</p>
                 <p className="text-wrap-safe mt-1 text-sm leading-6">{existing.gratitude || "—"}</p>
               </div>
-              <div className="rounded-2xl bg-white/15 p-4 backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-wide text-white/70">I need</p>
+              <div className="rounded-2xl bg-accent p-4 backdrop-blur">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">I need</p>
                 <p className="text-wrap-safe mt-1 text-sm leading-6">{existing.needs || "—"}</p>
               </div>
               {existing.note ? (
-                <div className="rounded-2xl bg-white/15 p-4 backdrop-blur sm:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Note</p>
+                <div className="rounded-2xl bg-accent p-4 backdrop-blur sm:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Note</p>
                   <p className="text-wrap-safe mt-1 text-sm leading-6">{existing.note}</p>
                 </div>
               ) : null}
             </div>
           </div>
-          <p className="text-xs text-white/75">{existing.shared_with_partner ? "Shared with your partner." : "Kept private to you."}</p>
+          <p className="text-xs text-muted-foreground">{existing.shared_with_partner ? "Shared with your partner." : "Kept private to you."}</p>
         </div>
       </section>
     );
@@ -129,11 +129,11 @@ export function CheckinForm({ member, existing, streak, hasPartner }: CheckinFor
       <div className="relative z-10 flex flex-col gap-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-white/80">Thirty seconds, honestly</p>
-            <h1 className="mt-1 text-2xl font-semibold leading-tight sm:text-3xl">How is today going, {name}?</h1>
+            <p className="text-sm font-medium text-muted-foreground">Thirty seconds, honestly</p>
+            <h1 className="mt-1 text-[26px] font-semibold leading-8 tracking-[-0.9px]">How is today going, {name}?</h1>
           </div>
           {streak > 0 ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-sm font-semibold backdrop-blur">
               <Flame className="h-4 w-4" />
               {streak} day streak
             </span>
@@ -141,51 +141,51 @@ export function CheckinForm({ member, existing, streak, hasPartner }: CheckinFor
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold text-white/90">Mood</p>
+          <p className="text-sm font-semibold text-muted-foreground">Mood</p>
           <MoodPicker value={mood} onChange={setMood} onHero />
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold text-white/90">Energy</p>
+          <p className="text-sm font-semibold text-muted-foreground">Energy</p>
           <EnergyPicker value={energy} onChange={setEnergy} onHero />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-white/90">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-muted-foreground">
             One thing I&apos;m grateful for
             <Input
               value={gratitude}
               onChange={(event) => setGratitude(event.target.value)}
               placeholder="Coffee was hot and nobody spilled it"
               maxLength={200}
-              className="h-12 border-white/30 bg-white/90 text-neutral-900 placeholder:text-neutral-500 focus:bg-white dark:bg-white/90 dark:focus:bg-white"
+              className="h-12 border-input bg-muted text-foreground placeholder:text-muted-foreground focus:bg-card"
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-white/90">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-muted-foreground">
             One thing I need
             <Input
               value={needs}
               onChange={(event) => setNeeds(event.target.value)}
               placeholder="A quiet hour on Saturday"
               maxLength={200}
-              className="h-12 border-white/30 bg-white/90 text-neutral-900 placeholder:text-neutral-500 focus:bg-white dark:bg-white/90 dark:focus:bg-white"
+              className="h-12 border-input bg-muted text-foreground placeholder:text-muted-foreground focus:bg-card"
             />
           </label>
         </div>
 
         {showNote ? (
-          <label className="flex flex-col gap-1.5 text-sm font-semibold text-white/90">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-muted-foreground">
             Anything else
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="Context your partner should know"
               rows={2}
-              className="min-h-20 border-white/30 bg-white/90 text-neutral-900 placeholder:text-neutral-500 focus:bg-white dark:bg-white/90 dark:focus:bg-white"
+              className="min-h-20 border-input bg-muted text-foreground placeholder:text-muted-foreground focus:bg-card"
             />
           </label>
         ) : (
-          <button type="button" onClick={() => setShowNote(true)} className="self-start text-sm font-medium text-white/85 underline-offset-4 hover:underline focus-ring">
+          <button type="button" onClick={() => setShowNote(true)} className="self-start text-sm font-medium text-muted-foreground underline-offset-4 hover:underline focus-ring">
             + Add a note
           </button>
         )}
@@ -196,26 +196,26 @@ export function CheckinForm({ member, existing, streak, hasPartner }: CheckinFor
             role="switch"
             aria-checked={shared}
             onClick={() => setShared((current) => !current)}
-            className="inline-flex min-h-11 items-center gap-3 self-start rounded-full py-1 pr-2 text-sm font-medium text-white/90 focus-ring"
+            className="inline-flex min-h-11 items-center gap-3 self-start rounded-full py-1 pr-2 text-sm font-medium text-muted-foreground focus-ring"
           >
-            <span className={cn("relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors", shared ? "border-white bg-white" : "border-white/50 bg-white/20")}>
-              <span className={cn("absolute h-5 w-5 rounded-full shadow transition-transform", shared ? "translate-x-6 bg-primary" : "translate-x-1 bg-white")} />
+            <span className={cn("relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors", shared ? "border-primary bg-primary" : "border-input bg-muted")}>
+              <span className={cn("absolute h-5 w-5 rounded-full shadow transition-transform", shared ? "translate-x-6 bg-primary-foreground" : "translate-x-1 bg-muted-foreground")} />
             </span>
             Share with partner
           </button>
           <div className="flex gap-2">
             {existing ? (
-              <Button variant="ghost" className="text-white hover:bg-white/15 hover:text-white" onClick={() => setEditing(false)}>
+              <Button variant="ghost" className="text-foreground hover:bg-accent hover:text-foreground" onClick={() => setEditing(false)}>
                 Cancel
               </Button>
             ) : null}
-            <Button size="lg" disabled={!canSave} onClick={() => void save()} className="bg-white text-neutral-900 shadow-lg hover:bg-white/95 disabled:bg-white/60">
+            <Button size="lg" disabled={!canSave} onClick={() => void save()} >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               {existing ? "Save changes" : "Check in"}
             </Button>
           </div>
         </div>
-        {mood === null || energy === null ? <p className="text-xs text-white/75">Pick a mood and an energy level to save.</p> : null}
+        {mood === null || energy === null ? <p className="text-xs text-muted-foreground">Pick a mood and an energy level to save.</p> : null}
       </div>
     </section>
   );

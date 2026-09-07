@@ -32,7 +32,7 @@ export function MemberSwitcher({ className }: { className?: string }) {
         <button
           type="button"
           className={cn(
-            "inline-flex h-10 items-center gap-2 rounded-full border border-border/80 bg-white/70 pl-1 pr-2.5 text-sm font-medium shadow-[0_1px_1px_rgba(0,0,0,0.03)] transition-all hover:border-primary/30 focus-ring dark:bg-white/5",
+            "inline-flex h-10 items-center gap-2 rounded-full border border-border/80 bg-white/70 pl-1 pr-2.5 text-sm font-medium shadow-[0_1px_1px_rgba(0,0,0,0.03)] transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/30 focus-ring dark:bg-white/5",
             className
           )}
           aria-label="Switch family member"

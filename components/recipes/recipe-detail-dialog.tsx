@@ -159,7 +159,7 @@ export function RecipeDetailDialog({ recipe, open, onOpenChange }: RecipeDetailD
                       type="button"
                       onClick={() => (existing && existing.recipe_id !== recipe.id ? setReplaceTarget({ date, existing }) : void planFor(date, existing))}
                       className={cn(
-                        "flex min-w-[4.5rem] flex-col items-center gap-0.5 rounded-2xl border px-3 py-2 text-center transition-all active:scale-[0.97] focus-ring",
+                        "flex min-w-[4.5rem] flex-col items-center gap-0.5 rounded-2xl border px-3 py-2 text-center transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.97] focus-ring",
                         existing ? "border-border bg-muted/50" : "border-primary/40 bg-primary/5 hover:bg-primary/10"
                       )}
                     >
@@ -198,7 +198,7 @@ export function RecipeDetailDialog({ recipe, open, onOpenChange }: RecipeDetailD
                           <span
                             className={cn(
                               "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                              done ? "border-[#ACE1AF] bg-[#ACE1AF] text-[#235226]" : "border-border"
+                              done ? "border-primary/20 bg-accent text-accent-foreground" : "border-border"
                             )}
                           >
                             {done ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
@@ -221,7 +221,7 @@ export function RecipeDetailDialog({ recipe, open, onOpenChange }: RecipeDetailD
                 <p className="mt-2 text-sm text-muted-foreground">No instructions yet. You know the drill.</p>
               )}
               {recipe.notes ? (
-                <div className="mt-3 rounded-2xl bg-[#ACE1AF]/25 p-3 text-sm text-[#235226] dark:bg-[#ACE1AF]/10 dark:text-[#D7F2D9]">
+                <div className="mt-3 rounded-2xl bg-accent/25 p-3 text-sm text-accent-foreground dark:bg-accent/10 dark:text-accent-foreground">
                   <span className="font-semibold">Family note: </span>
                   {recipe.notes}
                 </div>

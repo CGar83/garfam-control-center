@@ -95,9 +95,9 @@ export function InstallAppPrompt() {
 
   return (
     <section className="px-[var(--app-gutter)] pt-3 lg:hidden" aria-label="Install Gather">
-      <div className="mx-auto max-w-[var(--app-page-max)] rounded-[1.25rem] border border-[#ACE1AF]/80 bg-white/90 p-3 shadow-[var(--shadow-subtle)] backdrop-blur-2xl dark:border-[#ACE1AF]/30 dark:bg-card/92">
+      <div className="mx-auto max-w-[var(--app-page-max)] rounded-[1.25rem] border border-primary/20 bg-white/90 p-3 shadow-[var(--shadow-subtle)] backdrop-blur-2xl dark:border-primary/20 dark:bg-card/92">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ACE1AF]/45 text-[#22552d] dark:text-[#D7F2D9]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent/45 text-accent-foreground dark:text-accent-foreground">
             <Smartphone className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">

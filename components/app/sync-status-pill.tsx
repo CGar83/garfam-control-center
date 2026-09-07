@@ -40,7 +40,7 @@ export function SyncStatusPill({ className }: { className?: string }) {
     ? {
         label: pendingSyncCount ? `${pendingSyncCount} queued` : "Offline",
         icon: CloudOff,
-        className: "border-[#ACE1AF]/70 bg-[#ACE1AF]/20 text-[#22552d] dark:text-[#D7F2D9]"
+        className: "border-primary/20 bg-accent/20 text-accent-foreground dark:text-accent-foreground"
       }
     : lastSyncError
       ? {
@@ -57,7 +57,7 @@ export function SyncStatusPill({ className }: { className?: string }) {
         : {
             label: `${pendingSyncCount} pending`,
             icon: Cloud,
-            className: "border-[#ACE1AF]/70 bg-[#ACE1AF]/20 text-[#22552d] dark:text-[#D7F2D9]"
+            className: "border-primary/20 bg-accent/20 text-accent-foreground dark:text-accent-foreground"
           };
   const Icon = state.icon;
 

@@ -170,7 +170,7 @@ export default function RecipesPage() {
                     aria-pressed={active}
                     onClick={() => setFilter(option.id)}
                     className={cn(
-                      "h-9 shrink-0 rounded-full border px-3.5 text-sm font-semibold transition-all focus-ring",
+                      "h-9 shrink-0 rounded-full border px-3.5 text-sm font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                       active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
                     )}
                   >

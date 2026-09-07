@@ -35,7 +35,7 @@ export function StepCard({ meta, index, done, onToggle, children, action }: Step
             aria-label={done ? `Mark ${meta.title} as not done` : `Mark ${meta.title} as done`}
             onClick={onToggle}
             className={cn(
-              "flex h-11 shrink-0 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition-all active:scale-[0.96] focus-ring",
+              "flex h-11 shrink-0 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition-[color,background-color,box-shadow,transform,opacity] active:scale-[0.96] focus-ring",
               done ? "border-emerald-500 bg-emerald-500 text-white shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-emerald-400 hover:text-foreground dark:bg-white/5"
             )}
           >

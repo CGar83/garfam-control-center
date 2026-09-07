@@ -56,7 +56,7 @@ export function ListItemRow({ item, canManage }: ListItemRowProps) {
     <>
       <div
         className={cn(
-          "record-tile flex min-h-14 items-center gap-3 border-l-4 py-2 pl-3 pr-2 transition-all",
+          "record-tile flex min-h-14 items-center gap-3 border-l-4 py-2 pl-3 pr-2 transition-[color,background-color,box-shadow,transform,opacity]",
           item.checked && "bg-muted/40 dark:bg-white/[0.03]"
         )}
         style={{ borderLeftColor: palette?.solid ?? "transparent" }}
@@ -67,8 +67,8 @@ export function ListItemRow({ item, canManage }: ListItemRowProps) {
           aria-label={item.checked ? `Uncheck ${item.name}` : `Check off ${item.name}`}
           onClick={() => updateRecord("list_items", item.id, { checked: !item.checked })}
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all active:scale-90 focus-ring",
-            item.checked ? "border-[#ACE1AF] bg-[#ACE1AF] text-[#235226]" : "border-border bg-white/80 text-transparent hover:border-primary/60 dark:bg-white/5"
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity] active:scale-90 focus-ring",
+            item.checked ? "border-primary/20 bg-accent text-accent-foreground" : "border-border bg-white/80 text-transparent hover:border-primary/60 dark:bg-white/5"
           )}
         >
           <Check className={cn("h-5 w-5 transition-transform", item.checked ? "scale-100 pop-in" : "scale-50")} strokeWidth={3} />

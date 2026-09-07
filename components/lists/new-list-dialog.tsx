@@ -73,7 +73,7 @@ export function NewListDialog({ open, onOpenChange, onCreated }: NewListDialogPr
                 onOpenChange(false);
                 setBlankOpen(true);
               }}
-              className="record-tile flex min-h-24 items-center gap-3 border-dashed p-4 text-left transition-all hover:border-primary/50 hover:bg-white active:scale-[0.98] focus-ring dark:hover:bg-white/10"
+              className="record-tile flex min-h-24 items-center gap-3 border-dashed p-4 text-left transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/50 hover:bg-white active:scale-[0.98] focus-ring dark:hover:bg-white/10"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <FilePlus2 className="h-5 w-5" />
@@ -92,7 +92,7 @@ export function NewListDialog({ open, onOpenChange, onCreated }: NewListDialogPr
                   disabled={Boolean(busyId)}
                   onClick={() => void createFromTemplate(template)}
                   className={cn(
-                    "record-tile flex min-h-24 items-center gap-3 p-4 text-left transition-all hover:border-primary/50 hover:bg-white active:scale-[0.98] focus-ring disabled:opacity-60 dark:hover:bg-white/10",
+                    "record-tile flex min-h-24 items-center gap-3 p-4 text-left transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/50 hover:bg-white active:scale-[0.98] focus-ring disabled:opacity-60 dark:hover:bg-white/10",
                     busy && "border-primary/50"
                   )}
                 >

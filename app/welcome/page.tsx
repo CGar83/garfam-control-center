@@ -213,7 +213,7 @@ export default function WelcomePage() {
                     aria-checked={member.color === color}
                     aria-label={memberPalettes[color].label}
                     onClick={() => updateMember(list, member.key, { color })}
-                    className={cn("h-7 w-7 rounded-full border-2 transition-all focus-ring", member.color === color ? "scale-110 border-foreground" : "border-transparent opacity-80")}
+                    className={cn("h-7 w-7 rounded-full border-2 transition-[color,background-color,box-shadow,transform,opacity] focus-ring", member.color === color ? "scale-110 border-foreground" : "border-transparent opacity-80")}
                     style={{ backgroundColor: memberPalettes[color].solid }}
                   />
                 ))}
@@ -241,7 +241,7 @@ export default function WelcomePage() {
         {step !== "intro" && step !== "done" ? (
           <div className="flex items-center gap-1.5" aria-label={`Step ${stepIndex} of ${steps.length - 2}`}>
             {steps.slice(1, -1).map((item, index) => (
-              <span key={item} className={cn("h-1.5 rounded-full transition-all", index + 1 <= stepIndex ? "w-6 bg-primary" : "w-3 bg-border")} />
+              <span key={item} className={cn("h-1.5 rounded-full transition-[color,background-color,box-shadow,transform,opacity]", index + 1 <= stepIndex ? "w-6 bg-primary" : "w-3 bg-border")} />
             ))}
           </div>
         ) : null}
@@ -342,7 +342,7 @@ export default function WelcomePage() {
                     aria-pressed={active}
                     onClick={() => setFocus((current) => (active ? current.filter((key) => key !== area.key) : [...current, area.key]))}
                     className={cn(
-                      "flex items-start gap-3 rounded-2xl border p-4 text-left transition-all focus-ring",
+                      "flex items-start gap-3 rounded-2xl border p-4 text-left transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                       active ? "border-primary bg-primary/10 shadow-sm" : "border-border/70 bg-white/70 hover:border-primary/40 dark:bg-white/5"
                     )}
                   >

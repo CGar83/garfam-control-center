@@ -260,7 +260,7 @@ export function QuickAddSheet({ open, onOpenChange }: QuickAddSheetProps) {
                       onOpenChange(false);
                     }}
                     className={cn(
-                      "flex items-center gap-2 rounded-xl border border-border/80 bg-white/70 px-3 py-2.5 text-left text-sm font-medium transition-all hover:border-primary/40 hover:bg-white focus-ring dark:bg-white/5 dark:hover:bg-white/10"
+                      "flex items-center gap-2 rounded-xl border border-border/80 bg-white/70 px-3 py-2.5 text-left text-sm font-medium transition-[color,background-color,box-shadow,transform,opacity] hover:border-primary/40 hover:bg-white focus-ring dark:bg-white/5 dark:hover:bg-white/10"
                     )}
                   >
                     <Icon className="h-4 w-4 text-primary" />

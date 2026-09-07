@@ -11,7 +11,7 @@ interface LayerTogglesProps {
   includeSensitive?: boolean;
 }
 
-const pillBase = "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-all focus-ring";
+const pillBase = "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring";
 const pillOn = "border-transparent bg-foreground text-background shadow-sm";
 const pillOff = "border-border bg-white/70 text-muted-foreground hover:border-foreground/20 hover:text-foreground dark:bg-white/5";
 

@@ -46,7 +46,7 @@ export function MemoryCard({ entry, canManage, onToggleHighlight, onEdit, onDele
               disabled={!canManage}
               onClick={() => onToggleHighlight(entry)}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-90 focus-ring disabled:cursor-default",
+                "flex h-10 w-10 items-center justify-center rounded-full transition-[color,background-color,box-shadow,transform,opacity] active:scale-90 focus-ring disabled:cursor-default",
                 entry.highlight ? "text-amber-500" : "text-muted-foreground/60 hover:text-amber-500 disabled:hover:text-muted-foreground/60"
               )}
             >

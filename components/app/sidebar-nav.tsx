@@ -49,7 +49,7 @@ export function SidebarNav() {
   }, [pathname, visibleSections]);
 
   return (
-    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r bg-white/70 shadow-[1px_0_0_rgba(255,255,255,0.55)_inset] backdrop-blur-2xl dark:bg-card/70 lg:block">
+    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 bg-card/80 shadow-[1px_0_0_hsl(var(--border)/0.6)] backdrop-blur-2xl lg:block">
       <div className="flex h-full flex-col">
         <div className="border-b p-5">
           <div className="flex items-center gap-3">
@@ -72,11 +72,11 @@ export function SidebarNav() {
               <div key={section.href} className="space-y-1">
                 <div
                   className={cn(
-                    "flex items-center rounded-xl transition-all",
+                    "flex items-center rounded-xl transition-[color,background-color,box-shadow,transform,opacity]",
                     exactActive
                       ? "bg-primary text-primary-foreground shadow-[var(--brand-glow)]"
                       : active
-                        ? "bg-[#ACE1AF]/35 text-foreground dark:bg-[#ACE1AF]/15"
+                        ? "bg-accent text-accent-foreground"
                         : "text-muted-foreground hover:bg-white/70 hover:text-foreground dark:hover:bg-white/10"
                   )}
                 >
@@ -107,7 +107,7 @@ export function SidebarNav() {
                           key={item.href}
                           href={item.href}
                           className={cn(
-                            "flex min-w-0 items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-all focus-ring",
+                            "flex min-w-0 items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                             itemActive
                               ? "bg-primary/10 font-medium text-primary"
                               : "text-muted-foreground hover:bg-white/70 hover:text-foreground dark:hover:bg-white/10"

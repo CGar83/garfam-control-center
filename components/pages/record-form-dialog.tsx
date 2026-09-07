@@ -171,7 +171,7 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
                           controllerField.onChange(active ? selected.filter((day) => day !== index) : [...selected, index].sort((a, b) => a - b))
                         }
                         className={cn(
-                          "h-9 min-w-11 rounded-full border px-3 text-xs font-semibold transition-all focus-ring",
+                          "h-9 min-w-11 rounded-full border px-3 text-xs font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                           active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
                         )}
                       >
@@ -204,7 +204,7 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
                         aria-pressed={active}
                         onClick={() => controllerField.onChange(active ? selected.filter((id) => id !== member.id) : [...selected, member.id])}
                         className={cn(
-                          "inline-flex h-9 items-center gap-2 rounded-full border pl-1 pr-3 text-xs font-semibold transition-all focus-ring",
+                          "inline-flex h-9 items-center gap-2 rounded-full border pl-1 pr-3 text-xs font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                           active ? "border-primary bg-primary/10 text-foreground shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-primary/40 dark:bg-white/5"
                         )}
                       >
@@ -238,7 +238,7 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
                       aria-label={emoji}
                       onClick={() => controllerField.onChange(emoji)}
                       className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-xl border text-xl transition-all focus-ring",
+                        "flex h-10 w-10 items-center justify-center rounded-xl border text-xl transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                         active ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30" : "border-border bg-white/70 hover:border-primary/40 dark:bg-white/5"
                       )}
                     >

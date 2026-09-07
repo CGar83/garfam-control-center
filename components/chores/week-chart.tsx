@@ -128,7 +128,7 @@ export function WeekChart({ members, orderedMembers, chores, completions, anchor
                               disabled={!allowed}
                               onClick={() => onToggle(chore, day)}
                               className={cn(
-                                "mx-auto flex h-10 w-10 items-center justify-center rounded-xl border-2 transition-all focus-ring",
+                                "mx-auto flex h-10 w-10 items-center justify-center rounded-xl border-2 transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                                 allowed && "active:scale-[0.92]",
                                 !allowed && "cursor-default opacity-50",
                                 done ? "border-transparent text-white" : "border-dashed border-border bg-white/60 text-transparent dark:bg-white/5"

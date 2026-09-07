@@ -170,7 +170,7 @@ export default function MemoriesPage() {
                 aria-pressed={filter === value}
                 onClick={() => setFilter(value)}
                 className={cn(
-                  "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition-all focus-ring",
+                  "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
                   filter === value ? "border-transparent bg-foreground text-background shadow-sm" : "border-border bg-white/70 text-muted-foreground hover:border-foreground/20 dark:bg-white/5"
                 )}
               >

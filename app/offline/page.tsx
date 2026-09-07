@@ -10,7 +10,7 @@ export default function OfflinePage() {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#ACE1AF]/35 text-[#235226]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-accent/35 text-accent-foreground">
               <WifiOff className="h-5 w-5" />
             </span>
             Offline

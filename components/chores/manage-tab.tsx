@@ -101,7 +101,7 @@ export function ManageTab({ members, kids, chores, onToggleActive, onDelete, onA
                   onClick={() => onToggleActive(chore)}
                   className={cn("relative h-7 w-12 shrink-0 rounded-full transition-colors focus-ring", chore.active ? "bg-emerald-500" : "bg-muted-foreground/30")}
                 >
-                  <span className={cn("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all", chore.active ? "left-6" : "left-1")} />
+                  <span className={cn("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-[color,background-color,box-shadow,transform,opacity]", chore.active ? "left-6" : "left-1")} />
                 </button>
                 <div className="flex shrink-0 items-center">
                   <Button variant="ghost" size="icon" aria-label={`Edit ${chore.title}`} onClick={() => setEditing(chore)}>
@@ -118,7 +118,7 @@ export function ManageTab({ members, kids, chores, onToggleActive, onDelete, onA
       )}
 
       {kids.length > 0 ? (
-        <Card className="border-[#ACE1AF]/80">
+        <Card className="border-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <Sparkles className="h-4 w-4 text-primary" />

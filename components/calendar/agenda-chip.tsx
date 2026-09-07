@@ -76,7 +76,7 @@ export function AgendaChip({ item, members, onClick, layout = "chip", showTime =
       }}
       title={`${item.title} · ${time}`}
       className={cn(
-        "flex w-full min-w-0 border-l-[3px] text-left text-xs font-medium leading-tight transition-all hover:brightness-[0.97] active:scale-[0.98] focus-ring",
+        "flex w-full min-w-0 border-l-[3px] text-left text-xs font-medium leading-tight transition-[color,background-color,box-shadow,transform,opacity] hover:brightness-[0.97] active:scale-[0.98] focus-ring",
         layout === "chip" ? "items-center gap-1 rounded-md px-1.5 py-[3px]" : "flex-col gap-0.5 rounded-lg px-2 py-1.5",
         item.done && "opacity-60",
         className
@@ -126,7 +126,7 @@ export function AgendaRow({ item, members, onClick, conflict = false, hideTime =
       type={interactive ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "flex w-full min-w-0 items-center gap-3 rounded-2xl border border-border/70 border-l-[3px] bg-white/70 p-2.5 text-left transition-all dark:bg-white/5",
+        "flex w-full min-w-0 items-center gap-3 rounded-2xl border border-border/70 border-l-[3px] bg-white/70 p-2.5 text-left transition-[color,background-color,box-shadow,transform,opacity] dark:bg-white/5",
         interactive && "hover:border-primary/30 hover:bg-white active:scale-[0.99] focus-ring dark:hover:bg-white/10"
       )}
       style={{ borderLeftColor: palette.solid }}

@@ -123,7 +123,7 @@ export function ListDetail({ list, isParent, onBack, onDeleted }: ListDetailProp
       </div>
 
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
-        <div className={cn("h-full rounded-full transition-all duration-500", progress.percent === 100 ? "bg-[#ACE1AF]" : "bg-primary")} style={{ width: `${progress.percent}%` }} />
+        <div className={cn("h-full rounded-full transition-[color,background-color,box-shadow,transform,opacity] duration-500", progress.percent === 100 ? "bg-accent" : "bg-primary")} style={{ width: `${progress.percent}%` }} />
       </div>
 
       <form

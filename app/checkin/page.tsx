@@ -119,7 +119,7 @@ export default function CheckinPage() {
                   </div>
                 );
               })}
-              <div className="flex items-center gap-3 rounded-2xl bg-[#ACE1AF]/35 p-3 text-[#235226] dark:bg-[#ACE1AF]/15 dark:text-[#D7F2D9]">
+              <div className="flex items-center gap-3 rounded-2xl bg-accent/35 p-3 text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground">
                 <span className="text-2xl" aria-hidden>
                   🌱
                 </span>

@@ -28,7 +28,7 @@ export function MoodPicker({ value, onChange, size = "lg", disabled }: MoodPicke
             disabled={disabled}
             onClick={() => onChange(mood)}
             className={cn(
-              "flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border transition-all active:scale-95 focus-ring disabled:opacity-60",
+              "flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border transition-[color,background-color,box-shadow,transform,opacity] active:scale-95 focus-ring disabled:opacity-60",
               size === "lg" ? "min-h-16 text-3xl" : "min-h-12 text-2xl",
               active ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30" : "border-border/70 bg-white/70 hover:border-primary/40 dark:bg-white/5"
             )}

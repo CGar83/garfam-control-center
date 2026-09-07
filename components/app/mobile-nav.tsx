@@ -67,11 +67,11 @@ export function MobileNav() {
         href={item.href}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition-all focus-ring",
+          "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
           active ? "text-primary" : "text-muted-foreground hover:text-foreground"
         )}
       >
-        <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-all", active && "bg-primary/12")}>
+        <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-[color,background-color,box-shadow,transform,opacity]", active && "bg-primary/12")}>
           <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
         </span>
         <span className="max-w-full truncate">{item.title}</span>
@@ -87,11 +87,11 @@ export function MobileNav() {
             type="button"
             aria-label="More sections"
             className={cn(
-              "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition-all focus-ring",
+              "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition-[color,background-color,box-shadow,transform,opacity] focus-ring",
               moreActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-all", moreActive && "bg-primary/12")}>
+            <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-[color,background-color,box-shadow,transform,opacity]", moreActive && "bg-primary/12")}>
               <MoreIcon className="h-5 w-5" strokeWidth={moreActive ? 2.4 : 2} />
             </span>
             <span className="max-w-full truncate">{mobileMoreItem.title}</span>
@@ -105,7 +105,7 @@ export function MobileNav() {
   return (
     <>
       <nav
-        className="mobile-nav fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-white/88 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_-24px_rgba(0,0,0,0.35)] backdrop-blur-2xl dark:bg-card/88 lg:hidden"
+        className="mobile-nav fixed inset-x-0 bottom-0 z-40 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_-24px_rgba(0,0,0,0.35)] backdrop-blur-2xl lg:hidden"
         aria-label="Mobile primary"
       >
         <div className="grid grid-cols-6 items-end gap-1 px-2 pt-1.5 pb-1.5">
@@ -115,7 +115,7 @@ export function MobileNav() {
               type="button"
               onClick={() => setQuickOpen(true)}
               aria-label="Quick add"
-              className="absolute -top-7 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--brand-glow)] ring-4 ring-background transition-transform active:scale-95 focus-ring"
+              className="absolute -top-5 flex h-11 w-11 items-center justify-center rounded-full primary-surface text-primary-foreground ring-4 ring-background transition-transform active:scale-95 focus-ring"
             >
               <Plus className="h-7 w-7" strokeWidth={2.6} />
             </button>

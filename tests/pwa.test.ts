@@ -10,8 +10,8 @@ describe("pwa configuration", () => {
     const data = manifest();
     const iconSources = new Set(data.icons?.map((icon) => icon.src));
 
-    expect(data.theme_color).toBe("#CC5500");
-    expect(data.background_color).toBe("#fbf7f2");
+    expect(data.theme_color).toBe("#3866D6");
+    expect(data.background_color).toBe("#f2f4f8");
     expect(data.display).toBe("standalone");
     expect(data.start_url).toBe("/today");
     expect(data.shortcuts?.some((shortcut) => shortcut.url === "/today")).toBe(true);
