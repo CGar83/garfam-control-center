@@ -147,6 +147,39 @@ describe("workspace context boundaries", () => {
       "Cancel duplicate subscription",
     );
   });
+  it("searches text notes rather than applying text operators to date-only titles", async () => {
+    const db = database();
+    await retrieveContext(db.access, "family-a", {
+      ...base,
+      sections: ["finances", "relationship"],
+      search: "review",
+    });
+    for (const [table, column] of [
+      ["budget_settings", "notes"],
+      ["checkins", "note"],
+      ["weekly_reviews", "focus"],
+    ]) {
+      expect(db.calls).toContainEqual({
+        table,
+        method: "ilike",
+        args: [column, "%review%"],
+      });
+    }
+  });
+  it("includes appointments through the entire UTC end date", async () => {
+    const db = database();
+    await retrieveContext(db.access, "family-a", {
+      ...base,
+      sections: ["health"],
+      from: "2026-09-01",
+      to: "2026-09-15",
+    });
+    expect(db.calls).toContainEqual({
+      table: "health_records",
+      method: "lte",
+      args: ["appointment_date", "2026-09-15T23:59:59.999Z"],
+    });
+  });
   it("scopes every database read and includes imported transaction fields with date and keyword filters", async () => {
     const db = database({
       financial_transactions: [

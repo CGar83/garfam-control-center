@@ -71,7 +71,7 @@ export async function retrieveContext(
       if (context.mode === "record") query = query.eq("id", context.record!.id);
       if (context.search)
         query = query.ilike(
-          config.title,
+          config.keyword,
           `%${context.search.replace(/[\\%_]/g, "\\$&")}%`,
         );
       if (config.date && context.from)
@@ -79,7 +79,7 @@ export async function retrieveContext(
       if (config.date && context.to)
         query = query.lte(
           config.date,
-          config.date.endsWith("_at")
+          config.date.endsWith("_at") || config.date === "appointment_date"
             ? `${context.to}T23:59:59.999Z`
             : context.to,
         );

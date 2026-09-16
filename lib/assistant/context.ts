@@ -27,6 +27,7 @@ type SourceConfig = {
   label: string;
   columns: string;
   title: string;
+  keyword: string;
   date?: string;
 };
 function source(
@@ -42,6 +43,14 @@ function source(
     path,
     label,
     title,
+    keyword:
+      title === "budget_month"
+        ? "notes"
+        : title === "checkin_date"
+          ? "note"
+          : title === "week_start"
+            ? "focus"
+            : title,
     columns: `id,updated_at,${columns}`,
     date,
   };

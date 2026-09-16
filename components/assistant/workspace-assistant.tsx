@@ -260,7 +260,7 @@ export function WorkspaceAssistant({
           </label>
         ) : (
           <label className="space-y-2 text-sm font-medium">
-            Title contains
+            Title or primary note contains
             <span className="flex gap-2">
               <Input
                 value={search}
@@ -337,8 +337,8 @@ export function WorkspaceAssistant({
           embedded calendars, credentials, and full account identifiers are
           excluded. Notes receive best-effort secret filtering, not a guarantee;
           do not store secrets in notes. Dates filter each record type&apos;s
-          relevant date where available. Changing scope or filters opens a
-          separate saved conversation.
+          relevant date where available (UTC for timestamps). Changing scope or
+          filters opens a separate saved conversation.
         </p>
         {context.search && (
           <p className="col-span-full text-xs">
