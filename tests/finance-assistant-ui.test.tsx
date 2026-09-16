@@ -121,7 +121,9 @@ describe("assistant persistence UI", () => {
     render(<FinanceAssistantPanel />);
     await ready();
     expect(screen.getByLabelText("Model")).toHaveValue("test/a");
-    expect(screen.getByRole("checkbox")).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: /^Share this workspace/ }),
+    ).not.toBeChecked();
   });
   it("keeps conversations separate and saves a newly selected default model", async () => {
     render(<FinanceAssistantPanel />);
@@ -166,7 +168,9 @@ describe("assistant persistence UI", () => {
       target: { value: "Follow-up question" },
     });
     expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: /^Share this workspace/ }),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
     await screen.findByText("A persistent new reply");
     const body = JSON.parse(
@@ -175,9 +179,29 @@ describe("assistant persistence UI", () => {
     );
     expect(body.conversation_revision).toBe(1);
     expect(body.messages).toHaveLength(1);
+    expect(body.reference_prior_sessions).toBe(true);
     view.unmount();
     render(<FinanceAssistantPanel />);
     await screen.findByText("A persistent new reply");
+  });
+  it("starts a new session without requesting permanent deletion", async () => {
+    render(<FinanceAssistantPanel />);
+    await ready();
+    fireEvent.click(screen.getByRole("button", { name: "New session" }));
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "New session",
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByText("Our saved answer")).not.toBeInTheDocument(),
+    );
+    const call = fetchMock.mock.calls.find(
+      (c) => String(c[0]).endsWith("/conversation") && c[1]?.body,
+    );
+    const body = JSON.parse(String(call![1].body));
+    expect(body.new_session).toBe(true);
+    expect(body.clear).toBeUndefined();
   });
   it("requires confirmation to clear history and leaves the key intact", async () => {
     render(<FinanceAssistantPanel />);

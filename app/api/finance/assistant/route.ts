@@ -1,4 +1,8 @@
 import { randomUUID } from "node:crypto";
+import {
+  priorSessionReferences,
+  logMemoryInstructions,
+} from "@/lib/assistant/log-server";
 import { assistantContextSchema } from "@/lib/assistant/context";
 import {
   contextKey,
@@ -43,6 +47,7 @@ const bodySchema = z
     share_financial_context: z.literal(true),
     conversation_revision: z.number().int().nonnegative().optional(),
     context: assistantContextSchema.optional(),
+    reference_prior_sessions: z.boolean().default(false),
     messages: z
       .array(
         z
@@ -86,6 +91,14 @@ const callSchema = z
   })
   .strict();
 const responseSchema = z.object({
+  usage: z
+    .object({
+      prompt_tokens: z.number().int().nonnegative().optional(),
+      completion_tokens: z.number().int().nonnegative().optional(),
+      cost: z.number().finite().nonnegative().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
   choices: z
     .array(
       z.object({
@@ -112,7 +125,7 @@ export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
     const access = await authorizeFinance(request, body.family_id);
-    if (body.context && body.conversation_revision === undefined)
+    if (body.conversation_revision === undefined)
       throw new FinanceApiError(
         "Reload the saved conversation before sending.",
         409,
@@ -120,10 +133,12 @@ export async function POST(request: Request) {
     const scope = contextKey(body.context);
     const { client } = access;
     const key = await resolveOpenRouterKey(request, body.family_id, access);
-    const saved =
-      body.conversation_revision === undefined
-        ? null
-        : await loadConversation(access, body.family_id, body.model, scope);
+    const saved = await loadConversation(
+      access,
+      body.family_id,
+      body.model,
+      scope,
+    );
     if (saved && saved.revision !== body.conversation_revision)
       throw new FinanceApiError(
         "This conversation changed in another tab. Reload its history before sending again.",
@@ -131,11 +146,17 @@ export async function POST(request: Request) {
       );
     if (saved && saved.messages.length > 98)
       throw new FinanceApiError(
-        "This conversation has reached 100 messages. Clear it to start a new conversation.",
+        "This session has reached 100 messages. Choose New session to keep its log and continue.",
         409,
       );
     const history: SavedFinanceMessage[] = saved
-      ? [...saved.messages, body.messages[body.messages.length - 1]]
+      ? [
+          ...saved.messages,
+          {
+            ...body.messages[body.messages.length - 1],
+            created_at: new Date().toISOString(),
+          },
+        ]
       : body.messages;
     const { data: allowed, error: limitError } = await client.rpc(
       "claim_finance_assistant_request",
@@ -182,11 +203,34 @@ export async function POST(request: Request) {
         "Too many records for one request. Narrow the financial records before retrying.",
         413,
       );
+    if (body.reference_prior_sessions && !saved)
+      throw new FinanceApiError(
+        "Reload the saved conversation before referencing prior sessions.",
+        409,
+      );
+    const logReferences = body.reference_prior_sessions
+      ? await priorSessionReferences(
+          access,
+          body.family_id,
+          body.model,
+          scope,
+          body.messages.at(-1)!.content,
+        )
+      : [];
+    const started = Date.now();
     const response = responseSchema.parse(
       await openRouterFetch("chat/completions", key, {
         model: body.model,
         messages: [
           { role: "system", content: financeSystemPrompt },
+          ...(logReferences.length
+            ? [
+                {
+                  role: "system",
+                  content: `${logMemoryInstructions}\n${JSON.stringify(logReferences)}`,
+                },
+              ]
+            : []),
           ...(snapshot
             ? [
                 { role: "system", content: workspaceSystemPrompt },
@@ -216,6 +260,20 @@ export async function POST(request: Request) {
       }),
     );
     const message = response.choices[0].message;
+    const trace = {
+      request_id: randomUUID(),
+      prompt_version: "workspace-log-v1" as const,
+      latency_ms: Date.now() - started,
+      ...(response.usage?.prompt_tokens !== undefined
+        ? { prompt_tokens: response.usage.prompt_tokens }
+        : {}),
+      ...(response.usage?.completion_tokens !== undefined
+        ? { completion_tokens: response.usage.completion_tokens }
+        : {}),
+      ...(typeof response.usage?.cost === "number"
+        ? { cost: response.usage.cost }
+        : {}),
+    };
     const proposals: FinanceProposal[] = [];
     for (const call of message.tool_calls ?? []) {
       if (call.function.name !== "propose_finance_change")
@@ -287,6 +345,15 @@ export async function POST(request: Request) {
           fetched_at: snapshot.fetched_at,
         }
       : {};
+    if (
+      [...answer.matchAll(/\[(L\d+)\]/g)].some(
+        (match) => !logReferences.some((ref) => ref.ref === match[1]),
+      )
+    )
+      throw new FinanceApiError(
+        "The model cited an unavailable prior session. No changes were made.",
+        502,
+      );
     const revision = saved
       ? await saveConversation(
           access,
@@ -295,12 +362,27 @@ export async function POST(request: Request) {
           saved.revision,
           [
             ...history,
-            { role: "assistant", content: answer, proposals, ...evidence },
+            {
+              role: "assistant",
+              content: answer,
+              proposals,
+              ...evidence,
+              created_at: new Date().toISOString(),
+              trace,
+              log_references: logReferences,
+              ...(body.context ? { review_context: body.context } : {}),
+            },
           ],
           scope,
         )
       : undefined;
-    return jsonResponse({ message: answer, proposals, revision, ...evidence });
+    return jsonResponse({
+      message: answer,
+      proposals,
+      revision,
+      ...evidence,
+      log_references: logReferences,
+    });
   } catch (e) {
     return apiError(e);
   }

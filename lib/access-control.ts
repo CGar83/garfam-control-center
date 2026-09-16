@@ -48,5 +48,6 @@ export function memberCanAccessSection(member: FamilyMember | null | undefined, 
 }
 
 export function memberCanAccessPath(member: FamilyMember | null | undefined, pathname: string) {
+  if (cleanPath(pathname) === "/llm-log") return !!member && ["admin", "parent"].includes(member.role);
   return memberCanAccessSection(member, blockedSectionForPath(pathname));
 }

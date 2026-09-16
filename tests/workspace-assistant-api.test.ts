@@ -194,4 +194,63 @@ describe("page-aware assistant API", () => {
     expect(response.status).toBe(503);
     expect(mocks.provider).not.toHaveBeenCalled();
   });
+  it("retrieves references only when opted in and saves evidence plus reported usage", async () => {
+    const id = "00000000-0000-4000-8000-000000000010";
+    mocks.rpc.mockImplementation(async (name: string) => ({
+      data:
+        name === "find_llm_references"
+          ? [
+              {
+                id,
+                title: "Prior strategy",
+                excerpt: "Keep the reserve",
+                updated_at: "2026-09-16T00:00:00Z",
+                matched: true,
+              },
+            ]
+          : name.startsWith("save_")
+            ? 1
+            : true,
+      error: null,
+    }));
+    mocks.provider.mockResolvedValue({
+      choices: [
+        {
+          message: { content: "Prior discussion [L1], current expense [S1]." },
+        },
+      ],
+      usage: { prompt_tokens: 123, completion_tokens: 42, cost: 0.002 },
+    });
+    const response = await POST(req({ reference_prior_sessions: true }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.log_references[0].id).toBe(id);
+    const request = mocks.provider.mock.calls[0][2];
+    expect(JSON.stringify(request.messages)).toContain(
+      "untrusted historical context",
+    );
+    const saved = mocks.rpc.mock.calls
+      .find((c) => c[0] === "save_workspace_conversation")![1]
+      .new_messages.at(-1);
+    expect(saved.trace.prompt_tokens).toBe(123);
+    expect(saved.trace.cost).toBe(0.002);
+    expect(saved.log_references[0].id).toBe(id);
+  });
+  it("rejects invented log citations and missing revisions without a model call", async () => {
+    expect(
+      (
+        await POST(
+          req({ conversation_revision: undefined, context: undefined }),
+        )
+      ).status,
+    ).toBe(409);
+    expect(mocks.provider).not.toHaveBeenCalled();
+    mocks.provider.mockResolvedValue({
+      choices: [{ message: { content: "Prior discussion [L1]." } }],
+    });
+    expect((await POST(req())).status).toBe(502);
+    expect(
+      mocks.rpc.mock.calls.some((c) => c[0] === "find_llm_references"),
+    ).toBe(false);
+  });
 });

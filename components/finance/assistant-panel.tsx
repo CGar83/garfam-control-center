@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   Check,
   KeyRound,
@@ -10,6 +11,8 @@ import {
   Trash2,
   Save,
   RotateCcw,
+  Plus,
+  NotebookText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,7 @@ import {
   type AssistantCoverage,
 } from "@/lib/assistant/context";
 import { SourceEvidence } from "@/components/assistant/source-evidence";
+import type { LogReference } from "@/lib/assistant/logs";
 
 interface Message {
   role: "user" | "assistant";
@@ -34,6 +38,7 @@ interface Message {
   sources?: AssistantSource[];
   coverage?: AssistantCoverage[];
   fetched_at?: string;
+  log_references?: LogReference[];
 }
 interface Model {
   id: string;
@@ -61,6 +66,7 @@ export function FinanceAssistantPanel({
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [consent, setConsent] = useState(false);
+  const [referenceLogs, setReferenceLogs] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [applied, setApplied] = useState<Set<string>>(new Set());
@@ -70,7 +76,9 @@ export function FinanceAssistantPanel({
   const [canSaveKey, setCanSaveKey] = useState(false);
   const [savedModel, setSavedModel] = useState("");
   const [revision, setRevision] = useState<number | null>(null);
-  const [confirm, setConfirm] = useState<"key" | "history" | null>(null);
+  const [confirm, setConfirm] = useState<"key" | "history" | "new" | null>(
+    null,
+  );
   const activeRequest = useRef(false);
   const allowed =
     !usingLocalData &&
@@ -178,7 +186,7 @@ export function FinanceAssistantPanel({
 
   async function send() {
     const text = prompt.trim();
-    if (!text || !consent || !model || !allowed) return;
+    if (!text || !consent || !model || !allowed || revision === null) return;
     await run(async () => {
       const history =
         revision !== null
@@ -193,6 +201,7 @@ export function FinanceAssistantPanel({
           family_id: familyId,
           model,
           share_financial_context: true,
+          reference_prior_sessions: referenceLogs && revision !== null,
           ...(context ? { context } : {}),
           messages: history,
           ...(revision !== null ? { conversation_revision: revision } : {}),
@@ -209,6 +218,7 @@ export function FinanceAssistantPanel({
           sources: result.sources,
           coverage: result.coverage,
           fetched_at: result.fetched_at,
+          log_references: result.log_references,
         },
       ]);
       setPrompt("");
@@ -391,13 +401,36 @@ export function FinanceAssistantPanel({
         </a>
       </aside>
       <div className="min-w-0 space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Sparkles className="h-5 w-5 shrink-0 text-primary" />
           <h2 className="min-w-0 flex-1 text-base font-semibold sm:text-lg">
             {context
               ? "Your workspace assistant"
               : "Your financial strategy assistant"}
           </h2>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            title="Open LLM Log"
+            aria-label="Open LLM Log"
+          >
+            <Link href="/llm-log">
+              <NotebookText className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="New session"
+            aria-label="New session"
+            disabled={
+              busy || restoring || revision === null || !messages.length
+            }
+            onClick={() => setConfirm("new")}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -421,7 +454,7 @@ export function FinanceAssistantPanel({
         </div>
         <p className="text-xs text-muted-foreground">
           {revision !== null
-            ? "Private saved history for this model. Each reply uses up to 10 recent messages plus your question, within an 18,000-character context limit. Maximum 100 saved messages."
+            ? "Saved privately in LLM Log. Up to 100 messages per session; New session keeps the prior transcript. Replies use bounded recent context, not your entire archive."
             : "Session-only conversation."}
         </p>
         {!messages.length && (
@@ -474,6 +507,28 @@ export function FinanceAssistantPanel({
               <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
                 {m.content}
               </p>
+              {!!m.log_references?.length && (
+                <details className="mt-3 text-xs text-muted-foreground">
+                  <summary className="cursor-pointer">
+                    Prior sessions referenced ({m.log_references.length})
+                  </summary>
+                  <ul className="mt-2 space-y-2">
+                    {m.log_references.map((ref) => (
+                      <li key={ref.id}>
+                        <Link
+                          className="underline"
+                          href={`/llm-log?session=${ref.id}`}
+                        >
+                          [{ref.ref}] {ref.title}
+                        </Link>
+                        <span className="ml-2">
+                          {ref.matched ? "Keyword match" : "Recent context"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
               {m.sources && (
                 <SourceEvidence
                   sources={m.sources}
@@ -557,14 +612,30 @@ export function FinanceAssistantPanel({
             <input
               type="checkbox"
               className="mt-1 h-5 w-5 shrink-0 accent-primary"
+              checked={referenceLogs}
+              disabled={busy || restoring || !allowed}
+              onChange={(e) => {
+                setReferenceLogs(e.target.checked);
+                setConsent(false);
+              }}
+            />
+            <span>
+              Reference up to three prior sessions with this model and review
+              scope. Excluded logs stay out.
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 h-5 w-5 shrink-0 accent-primary"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
               disabled={busy || restoring || !allowed}
             />
             <span>
               {context
-                ? "Share the checked sections, saved conversation, and my question with OpenRouter and the selected model provider."
-                : "Share this workspace's financial records and my messages with OpenRouter and the selected model provider."}
+                ? "Share the checked sections, saved conversation, selected prior-session excerpts, and my question with OpenRouter and the selected model provider."
+                : "Share this workspace's financial records, my messages, and selected prior-session excerpts with OpenRouter and the selected model provider."}
             </span>
           </label>
           <label htmlFor="finance-prompt" className="sr-only">
@@ -597,7 +668,7 @@ export function FinanceAssistantPanel({
                 !consent ||
                 !model ||
                 !prompt.trim() ||
-                (storageReady && revision === null)
+                revision === null
               }
             >
               {busy ? (
@@ -616,14 +687,24 @@ export function FinanceAssistantPanel({
         title={
           confirm === "key"
             ? "Forget your saved API key?"
-            : "Clear this model's conversation?"
+            : confirm === "new"
+              ? "Start a new session?"
+              : "Clear this model's conversation?"
         }
         description={
           confirm === "key"
             ? "Removes your personal saved key and any key entered here. Conversations and model selection remain. This does not revoke the key at OpenRouter or disable an administrator's shared server connection."
-            : "Permanently removes saved messages and pending proposals for this model and review scope. Other conversations and changes already applied to your workspace remain."
+            : confirm === "new"
+              ? "Keeps this complete transcript in your private LLM Log and starts an empty conversation with the same model and scope."
+              : "Permanently removes this session's saved messages, Markdown log, and pending proposals. Archived sessions and applied changes remain. Download the log first if you need a copy."
         }
-        confirmLabel={confirm === "key" ? "Forget key" : "Clear conversation"}
+        confirmLabel={
+          confirm === "key"
+            ? "Forget key"
+            : confirm === "new"
+              ? "New session"
+              : "Clear conversation"
+        }
         onConfirm={() =>
           run(async () => {
             if (confirm === "key") {
@@ -642,17 +723,24 @@ export function FinanceAssistantPanel({
                   family_id: familyId,
                   model,
                   revision,
-                  clear: true,
+                  ...(confirm === "new"
+                    ? { new_session: true }
+                    : { clear: true }),
                   ...(context ? { context } : {}),
                 });
                 setRevision(result.revision);
               }
               setMessages([]);
               setApplied(new Set());
+              setConsent(false);
             }
             toast({
               title:
-                confirm === "key" ? "Key forgotten" : "Conversation cleared",
+                confirm === "key"
+                  ? "Key forgotten"
+                  : confirm === "new"
+                    ? "Session archived; new session ready"
+                    : "Conversation cleared",
               variant: "success",
             });
           })

@@ -112,7 +112,10 @@ const navigationSectionInputs: NavSectionInput[] = [
     ]
   },
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Settings", href: "/settings", icon: Settings }
+  { title: "Settings", href: "/settings", icon: Settings, items: [
+    { title: "Preferences", href: "/settings", icon: Settings },
+    { title: "LLM Log", href: "/llm-log", icon: FileText }
+  ] }
 ];
 
 export const navigationSections: NavSection[] = navigationSectionInputs.map((section) => ({ ...section, items: section.items ?? [] }));

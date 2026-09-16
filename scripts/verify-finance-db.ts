@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
+import { verifyLlmLogs } from "./verify-llm-logs";
 
 async function main() {
   const db = new PGlite();
@@ -392,6 +393,7 @@ async function main() {
     );
     await assert.rejects(saveChat("test/model", 2), /permission denied/);
     await db.exec("reset role");
+    await verifyLlmLogs(db);
     assert.equal(
       (await db.query("select * from finance_assistant_conversations")).rows
         .length,
@@ -399,6 +401,10 @@ async function main() {
     );
     await db.exec(
       "delete from auth.users where id='00000000-0000-4000-8000-000000000001'",
+    );
+    assert.equal(
+      (await db.query("select * from llm_session_logs")).rows.length,
+      0,
     );
     assert.equal(
       (await db.query("select * from finance_assistant_connections")).rows

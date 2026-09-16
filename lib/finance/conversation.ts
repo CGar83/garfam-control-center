@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { proposalSchema } from "./assistant";
 import { assistantSourceSchema, coverageSchema } from "@/lib/assistant/context";
+import { logReferenceSchema } from "@/lib/assistant/logs";
+import { assistantContextSchema } from "@/lib/assistant/context";
 
 export const modelIdSchema = z
   .string()
@@ -15,6 +17,20 @@ export const savedMessageSchema = z
     sources: z.array(assistantSourceSchema).max(100).optional(),
     coverage: z.array(coverageSchema).max(50).optional(),
     fetched_at: z.string().datetime().optional(),
+    created_at: z.string().datetime().optional(),
+    log_references: z.array(logReferenceSchema).max(3).optional(),
+    review_context: assistantContextSchema.optional(),
+    trace: z
+      .object({
+        request_id: z.string().uuid(),
+        prompt_version: z.literal("workspace-log-v1"),
+        latency_ms: z.number().int().nonnegative(),
+        prompt_tokens: z.number().int().nonnegative().optional(),
+        completion_tokens: z.number().int().nonnegative().optional(),
+        cost: z.number().finite().nonnegative().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type SavedFinanceMessage = z.infer<typeof savedMessageSchema>;

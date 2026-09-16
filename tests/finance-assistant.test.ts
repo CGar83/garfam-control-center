@@ -25,6 +25,7 @@ const body = {
   family_id: "family-a",
   model: "example/tool-model",
   share_financial_context: true,
+  conversation_revision: 2,
   messages: [
     { role: "user", content: "Add a statement review action for this week." },
   ],
@@ -128,7 +129,7 @@ describe("assistant proposal boundary", () => {
     expect(payload.tools).toHaveLength(1);
     expect(payload.tool_choice).toBe("auto");
     expect((await result.json()).proposals).toHaveLength(1);
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc).toHaveBeenCalledTimes(2);
     expect(mocks.rpc).not.toHaveBeenCalledWith(
       "apply_finance_change",
       expect.anything(),
@@ -240,12 +241,15 @@ describe("assistant proposal boundary", () => {
     expect(json.proposals[0].request_id).toMatch(/^[\da-f-]{36}$/);
     expect(json.proposals[0].record_id).not.toBe("");
     expect(json.proposals[0].values.title).toBe("Review statements");
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc).toHaveBeenCalledTimes(2);
     expect(mocks.rpc).toHaveBeenCalledWith("claim_finance_assistant_request", {
       target_family: "family-a",
     });
-    expect(mocks.queries).toHaveLength(8);
-    for (const query of mocks.queries) {
+    const recordQueries = mocks.queries.filter(
+      (q) => q.table !== "finance_assistant_conversations",
+    );
+    expect(recordQueries).toHaveLength(8);
+    for (const query of recordQueries) {
       expect(query.family).toBe("family-a");
       expect(query.columns).not.toMatch(
         /password_location|last_four|notes|payment_account/,

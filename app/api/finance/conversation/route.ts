@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   apiError,
   authorizeFinance,
+  FinanceApiError,
   jsonResponse,
   readJson,
 } from "@/lib/finance/server";
@@ -61,19 +62,40 @@ export async function POST(request: Request) {
     const body = querySchema
       .extend({
         revision: z.number().int().nonnegative(),
-        clear: z.literal(true),
+        clear: z.literal(true).optional(),
+        new_session: z.literal(true).optional(),
       })
       .strict()
+      .refine(
+        (body) => Boolean(body.clear) !== Boolean(body.new_session),
+        "Choose clear or new session.",
+      )
       .parse(await readJson(request));
     const access = await authorizeFinance(request, body.family_id);
-    const revision = await saveConversation(
-      access,
-      body.family_id,
-      body.model,
-      body.revision,
-      [],
-      contextKey(body.context),
-    );
+    let revision: number;
+    if (body.new_session) {
+      const { data, error } = await access.client.rpc("start_llm_session", {
+        target_family: body.family_id,
+        target_model: body.model,
+        target_context: contextKey(body.context),
+        expected_revision: body.revision,
+      });
+      if (error?.code === "40001")
+        throw new FinanceApiError(
+          "This conversation changed. Reload it before starting a new session.",
+          409,
+        );
+      if (error) throw storageError();
+      revision = Number(data);
+    } else
+      revision = await saveConversation(
+        access,
+        body.family_id,
+        body.model,
+        body.revision,
+        [],
+        contextKey(body.context),
+      );
     return jsonResponse({ revision, messages: [], applied: [] });
   } catch (error) {
     return apiError(error);
