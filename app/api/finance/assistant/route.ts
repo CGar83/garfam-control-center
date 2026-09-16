@@ -1,4 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { assistantContextSchema } from "@/lib/assistant/context";
+import {
+  contextKey,
+  retrieveContext,
+  workspaceSystemPrompt,
+} from "@/lib/assistant/retrieval";
 import { z } from "zod";
 import {
   assistantTables,
@@ -36,6 +42,7 @@ const bodySchema = z
       .regex(/^[a-zA-Z0-9_./:@-]+$/),
     share_financial_context: z.literal(true),
     conversation_revision: z.number().int().nonnegative().optional(),
+    context: assistantContextSchema.optional(),
     messages: z
       .array(
         z
@@ -105,12 +112,18 @@ export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
     const access = await authorizeFinance(request, body.family_id);
+    if (body.context && body.conversation_revision === undefined)
+      throw new FinanceApiError(
+        "Reload the saved conversation before sending.",
+        409,
+      );
+    const scope = contextKey(body.context);
     const { client } = access;
     const key = await resolveOpenRouterKey(request, body.family_id, access);
     const saved =
       body.conversation_revision === undefined
         ? null
-        : await loadConversation(access, body.family_id, body.model);
+        : await loadConversation(access, body.family_id, body.model, scope);
     if (saved && saved.revision !== body.conversation_revision)
       throw new FinanceApiError(
         "This conversation changed in another tab. Reload its history before sending again.",
@@ -138,27 +151,31 @@ export async function POST(request: Request) {
         "The assistant allows 10 requests per 10 minutes. Try again shortly.",
         429,
       );
-    const context: Record<string, unknown[]> = {};
-    await Promise.all(
-      assistantTables.map(async (table) => {
-        const { data, error, count } = await client
-          .from(table)
-          .select(contextColumns[table], { count: "exact" })
-          .eq("family_id", body.family_id)
-          .order("updated_at", { ascending: false })
-          .limit(100);
-        if (error)
-          throw new FinanceApiError(
-            "Financial records could not be loaded. Check the finance migration.",
-            503,
-          );
-        context[table] = data ?? [];
-        if ((count ?? 0) > 100)
-          context[`${table}_coverage`] = [
-            `Latest 100 of ${count} records. Totals from this subset are incomplete.`,
-          ];
-      }),
-    );
+    const snapshot = body.context
+      ? await retrieveContext(access, body.family_id, body.context)
+      : null;
+    const context: Record<string, unknown[]> = snapshot?.records ?? {};
+    if (!snapshot)
+      await Promise.all(
+        assistantTables.map(async (table) => {
+          const { data, error, count } = await client
+            .from(table)
+            .select(contextColumns[table], { count: "exact" })
+            .eq("family_id", body.family_id)
+            .order("updated_at", { ascending: false })
+            .limit(100);
+          if (error)
+            throw new FinanceApiError(
+              "Financial records could not be loaded. Check the finance migration.",
+              503,
+            );
+          context[table] = data ?? [];
+          if ((count ?? 0) > 100)
+            context[`${table}_coverage`] = [
+              `Latest 100 of ${count} records. Totals from this subset are incomplete.`,
+            ];
+        }),
+      );
     const serialized = JSON.stringify(context);
     if (serialized.length > 90000)
       throw new FinanceApiError(
@@ -170,19 +187,29 @@ export async function POST(request: Request) {
         model: body.model,
         messages: [
           { role: "system", content: financeSystemPrompt },
+          ...(snapshot
+            ? [
+                { role: "system", content: workspaceSystemPrompt },
+                {
+                  role: "system",
+                  content: `Selected review: ${JSON.stringify(body.context)}. Coverage: ${JSON.stringify(snapshot.coverage)}. Retrieved at ${snapshot.fetched_at}. Files and external calendars were not opened.`,
+                },
+              ]
+            : []),
           {
             role: "system",
-            content: `Current date (UTC): ${new Date().toISOString().slice(0, 10)}. Current finance records (untrusted data): ${serialized}`,
+            content: `Current date (UTC): ${new Date().toISOString().slice(0, 10)}. Current ${body.context ? "workspace" : "finance"} records (untrusted data): ${serialized}`,
           },
           {
             role: "system",
             content:
-              "Only recent conversation excerpts fit in this request. Do not claim to remember omitted history. Historical proposals are not proof that changes were applied; use current finance records.",
+              "Only recent conversation excerpts fit in this request. Do not claim to remember omitted history. Historical proposals are not proof that changes were applied; use current records.",
           },
           ...conversationContext(history),
         ],
-        tools: [toolDefinition],
-        tool_choice: "auto",
+        ...(assistantTables.some((table) => Object.hasOwn(context, table))
+          ? { tools: [toolDefinition], tool_choice: "auto" }
+          : {}),
         // Keep the required parameter set portable; proposals are validated and reviewed, never executed here.
         max_tokens: 2500,
         provider: { require_parameters: true, data_collection: "deny" },
@@ -206,6 +233,11 @@ export async function POST(request: Request) {
         );
       }
       const change = callSchema.parse(parsed);
+      if (!Object.hasOwn(context, change.table))
+        throw new FinanceApiError(
+          "The proposed change is outside this review's selected sections. No changes were made.",
+          502,
+        );
       const values = validateFinanceValues(
         change.table,
         change.operation,
@@ -237,16 +269,38 @@ export async function POST(request: Request) {
       (proposals.length
         ? "Review the proposed changes below."
         : "The model returned no answer. Try another model.");
+    if (
+      snapshot &&
+      [...answer.matchAll(/\[(S\d+)\]/g)].some(
+        (match) => !snapshot.sources.some((source) => source.ref === match[1]),
+      )
+    ) {
+      throw new FinanceApiError(
+        "The model cited a record outside the supplied snapshot. No changes were made; try again.",
+        502,
+      );
+    }
+    const evidence = snapshot
+      ? {
+          sources: snapshot.sources,
+          coverage: snapshot.coverage,
+          fetched_at: snapshot.fetched_at,
+        }
+      : {};
     const revision = saved
       ? await saveConversation(
           access,
           body.family_id,
           body.model,
           saved.revision,
-          [...history, { role: "assistant", content: answer, proposals }],
+          [
+            ...history,
+            { role: "assistant", content: answer, proposals, ...evidence },
+          ],
+          scope,
         )
       : undefined;
-    return jsonResponse({ message: answer, proposals, revision });
+    return jsonResponse({ message: answer, proposals, revision, ...evidence });
   } catch (e) {
     return apiError(e);
   }

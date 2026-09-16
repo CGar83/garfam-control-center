@@ -24,6 +24,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { blockedSectionForPath, memberCanAccessSection } from "@/lib/access-control";
 import { ONBOARDING_KEY, LOCAL_STORE_KEY } from "@/lib/constants";
 import { titleCase } from "@/lib/utils";
+import { AssistantTrigger, WorkspaceAssistantProvider } from "@/components/assistant/workspace-assistant";
 
 const bareRoutes = new Set(["/welcome", "/offline"]);
 
@@ -77,6 +78,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
     : "Sign in to continue to your family hub.";
 
   return (
+    <WorkspaceAssistantProvider>
     <div className="min-h-screen bg-transparent">
       <SidebarNav />
       <div className="lg:pl-72">
@@ -90,6 +92,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               <AuthStatusBadge className="hidden xl:inline-flex" />
               <SyncStatusPill className="hidden sm:inline-flex" />
               <NotificationCenter />
+              <AssistantTrigger />
               <Button variant="outline" size="icon" className="rounded-full" onClick={() => setPrivacyMode(!privacyMode)} title="Toggle privacy mode">
                 {privacyMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 <span className="sr-only">Toggle privacy mode</span>
@@ -132,6 +135,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
       <ToastViewport />
       <PwaBoot />
     </div>
+    </WorkspaceAssistantProvider>
   );
 }
 

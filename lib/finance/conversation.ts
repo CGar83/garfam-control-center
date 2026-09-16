@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { proposalSchema } from "./assistant";
+import { assistantSourceSchema, coverageSchema } from "@/lib/assistant/context";
 
 export const modelIdSchema = z
   .string()
@@ -11,6 +12,9 @@ export const savedMessageSchema = z
     role: z.enum(["user", "assistant"]),
     content: z.string().min(1).max(20000),
     proposals: z.array(proposalSchema).max(5).optional(),
+    sources: z.array(assistantSourceSchema).max(100).optional(),
+    coverage: z.array(coverageSchema).max(50).optional(),
+    fetched_at: z.string().datetime().optional(),
   })
   .strict();
 export type SavedFinanceMessage = z.infer<typeof savedMessageSchema>;

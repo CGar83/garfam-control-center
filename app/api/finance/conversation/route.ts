@@ -11,21 +11,30 @@ import {
   storageError,
 } from "@/lib/finance/persistence";
 import { modelIdSchema } from "@/lib/finance/conversation";
+import { assistantContextSchema } from "@/lib/assistant/context";
+import { contextKey } from "@/lib/assistant/retrieval";
 
 const querySchema = z.object({
   family_id: z.string().min(1).max(160),
   model: modelIdSchema,
+  context: assistantContextSchema.optional(),
 });
 export async function GET(request: Request) {
   try {
-    const query = querySchema.parse(
-      Object.fromEntries(new URL(request.url).searchParams),
-    );
+    const params = Object.fromEntries(new URL(request.url).searchParams);
+    let context: unknown;
+    try {
+      context = params.context ? JSON.parse(params.context) : undefined;
+    } catch {
+      return jsonResponse({ error: "Invalid review context." }, 400);
+    }
+    const query = querySchema.parse({ ...params, context });
     const access = await authorizeFinance(request, query.family_id);
     const conversation = await loadConversation(
       access,
       query.family_id,
       query.model,
+      contextKey(query.context),
     );
     const ids = conversation.messages.flatMap(
       (m) => m.proposals?.map((p) => p.request_id) ?? [],
@@ -63,6 +72,7 @@ export async function POST(request: Request) {
       body.model,
       body.revision,
       [],
+      contextKey(body.context),
     );
     return jsonResponse({ revision, messages: [], applied: [] });
   } catch (error) {

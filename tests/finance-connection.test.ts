@@ -25,6 +25,8 @@ import {
 } from "@/lib/finance/credential-crypto";
 import { FinanceApiError } from "@/lib/finance/server";
 import { resolveOpenRouterKey } from "@/lib/finance/persistence";
+import { contextKey } from "@/lib/assistant/retrieval";
+import type { AssistantContext } from "@/lib/assistant/context";
 
 const req = (body?: unknown) =>
   new Request(
@@ -179,6 +181,7 @@ describe("private saved assistant API", () => {
     const response = await history(req());
     expect((await response.json()).messages[0].content).toBe("Prior question");
     expect(mocks.filters).toContainEqual(["model", "test/model"]);
+    expect(mocks.filters).toContainEqual(["context_key", "finance"]);
     mocks.rpc.mockResolvedValue({ error: { code: "40001" } });
     expect(
       (
@@ -192,5 +195,45 @@ describe("private saved assistant API", () => {
         )
       ).status,
     ).toBe(409);
+  });
+  it("restores and clears only the selected review scope", async () => {
+    const context: AssistantContext = {
+      mode: "workspace",
+      page: "/calendar",
+      sections: ["calendar"],
+      search: "",
+    };
+    const query = new URL(req().url);
+    query.searchParams.set("context", JSON.stringify(context));
+    expect((await history(new Request(query))).status).toBe(200);
+    expect(mocks.filters).toContainEqual(["context_key", contextKey(context)]);
+    expect(mocks.filters).toContainEqual(["family_id", "f1"]);
+    expect(mocks.filters).toContainEqual(["user_id", "u1"]);
+    expect(
+      (
+        await clear(
+          req({
+            family_id: "f1",
+            model: "test/model",
+            clear: true,
+            revision: 0,
+            context,
+          }),
+        )
+      ).status,
+    ).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "save_workspace_conversation",
+      expect.objectContaining({
+        target_context: contextKey(context),
+        new_messages: [],
+      }),
+    );
+  });
+  it("rejects malformed history context without querying saved messages", async () => {
+    const query = new URL(req().url);
+    query.searchParams.set("context", "{broken");
+    expect((await history(new Request(query))).status).toBe(400);
+    expect(mocks.from).not.toHaveBeenCalled();
   });
 });

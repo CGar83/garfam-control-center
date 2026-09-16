@@ -17,6 +17,7 @@ import type { ModuleConfig } from "@/lib/modules";
 import type { AnyRecord } from "@/lib/types";
 import { formatDateTime, recordMap, safeNumber, titleCase } from "@/lib/utils";
 import { RecordFormDialog } from "@/components/pages/record-form-dialog";
+import { AssistantTrigger } from "@/components/assistant/workspace-assistant";
 
 interface DataTableProps {
   config: ModuleConfig;
@@ -169,6 +170,7 @@ export function DataTable({ config, records, readOnly = false }: DataTableProps)
                 ))}
                 {!readOnly && <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    <AssistantTrigger table={config.table} recordId={record.id} />
                     <Button variant="ghost" size="icon" onClick={() => setEditing(record)} title="Edit record">
                       <Pencil className="h-4 w-4" />
                       <span className="sr-only">Edit</span>

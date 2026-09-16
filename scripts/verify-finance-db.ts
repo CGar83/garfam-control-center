@@ -257,6 +257,68 @@ async function main() {
       );
     assert.equal((await saveChat("test/model", 0)).rows[0].revision, 1);
     assert.equal((await saveChat("test/other-model", 0)).rows[0].revision, 1);
+    await db.exec("reset role");
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20260916050946_workspace_assistant_context.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      "grant execute on function public.save_workspace_conversation(text,text,text,integer,jsonb), public.save_finance_conversation(text,text,integer,jsonb) to anon",
+    );
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20260916052208_workspace_assistant_function_grants.sql",
+        "utf8",
+      ),
+    );
+    assert.equal(
+      (
+        await db.query<{ allowed: boolean }>(
+          "select has_function_privilege('anon','public.save_workspace_conversation(text,text,text,integer,jsonb)','execute') as allowed",
+        )
+      ).rows[0].allowed,
+      false,
+    );
+    assert.equal(
+      (
+        await db.query<{ allowed: boolean }>(
+          "select has_function_privilege('anon','public.save_finance_conversation(text,text,integer,jsonb)','execute') as allowed",
+        )
+      ).rows[0].allowed,
+      false,
+    );
+    await db.exec("set role authenticated");
+    const scopedChat = (
+      scope: string,
+      revision: number,
+      messages: unknown[] = [{ role: "user", content: "Scoped review" }],
+    ) =>
+      db.query<{ revision: number }>(
+        "select save_workspace_conversation('family-a','test/model',$1,$2,$3::jsonb) revision",
+        [scope, revision, JSON.stringify(messages)],
+      );
+    assert.equal((await scopedChat("health", 0)).rows[0].revision, 1);
+    assert.equal((await scopedChat("calendar", 0)).rows[0].revision, 1);
+    assert.equal((await scopedChat("health", 1, [])).rows[0].revision, 2);
+    await assert.rejects(scopedChat("health", 1), /Conversation changed/);
+    assert.equal(
+      (
+        await db.query(
+          "select * from finance_assistant_conversations where context_key='calendar' and revision=1",
+        )
+      ).rows.length,
+      1,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select * from finance_assistant_conversations where context_key='finance' and revision=1",
+        )
+      ).rows.length,
+      2,
+    );
     await assert.rejects(saveChat("test/model", 0), /Conversation changed/);
     await assert.rejects(
       saveChat(
@@ -333,7 +395,7 @@ async function main() {
     assert.equal(
       (await db.query("select * from finance_assistant_conversations")).rows
         .length,
-      2,
+      4,
     );
     await db.exec(
       "delete from auth.users where id='00000000-0000-4000-8000-000000000001'",

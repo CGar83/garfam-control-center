@@ -42,6 +42,7 @@ export async function loadConversation(
   access: FinanceAccess,
   familyId: string,
   model: string,
+  context = "finance",
 ) {
   const { data, error } = await access.client
     .from("finance_assistant_conversations")
@@ -49,6 +50,7 @@ export async function loadConversation(
     .eq("family_id", familyId)
     .eq("user_id", access.userId)
     .eq("model", model)
+    .eq("context_key", context)
     .maybeSingle();
   if (error) throw storageError();
   return {
@@ -63,13 +65,20 @@ export async function saveConversation(
   model: string,
   revision: number,
   messages: SavedFinanceMessage[],
+  context = "finance",
 ) {
-  const { data, error } = await access.client.rpc("save_finance_conversation", {
-    target_family: familyId,
-    target_model: model,
-    expected_revision: revision,
-    new_messages: savedMessagesSchema.parse(messages),
-  });
+  const { data, error } = await access.client.rpc(
+    context === "finance"
+      ? "save_finance_conversation"
+      : "save_workspace_conversation",
+    {
+      target_family: familyId,
+      target_model: model,
+      ...(context === "finance" ? {} : { target_context: context }),
+      expected_revision: revision,
+      new_messages: savedMessagesSchema.parse(messages),
+    },
+  );
   if (error?.code === "40001")
     throw new FinanceApiError(
       "This conversation changed in another tab. Reload its history before sending again.",

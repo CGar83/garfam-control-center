@@ -19,11 +19,21 @@ import { useToast } from "@/hooks/use-toast";
 import type { FinanceProposal } from "@/lib/finance/assistant";
 import { titleCase } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
+import {
+  tablesForContext,
+  type AssistantContext,
+  type AssistantSource,
+  type AssistantCoverage,
+} from "@/lib/assistant/context";
+import { SourceEvidence } from "@/components/assistant/source-evidence";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   proposals?: FinanceProposal[];
+  sources?: AssistantSource[];
+  coverage?: AssistantCoverage[];
+  fetched_at?: string;
 }
 interface Model {
   id: string;
@@ -31,7 +41,12 @@ interface Model {
   pricing?: { prompt: string; completion: string };
 }
 
-export function FinanceAssistantPanel() {
+export function FinanceAssistantPanel({
+  context,
+}: { context?: AssistantContext } = {}) {
+  const contextQuery = context
+    ? `&context=${encodeURIComponent(JSON.stringify(context))}`
+    : "";
   const {
     supabase,
     usingLocalData,
@@ -103,7 +118,7 @@ export function FinanceAssistantPanel() {
         setModel(connection.model);
         if (connection.model) {
           const history = await request(
-            `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(connection.model)}`,
+            `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(connection.model)}${contextQuery}`,
           );
           if (!active) return;
           setMessages(history.messages);
@@ -128,7 +143,7 @@ export function FinanceAssistantPanel() {
     return () => {
       active = false;
     };
-  }, [allowed, familyId, request]);
+  }, [allowed, familyId, request, contextQuery]);
 
   async function restoreHistory(nextModel: string) {
     setMessages([]);
@@ -136,7 +151,7 @@ export function FinanceAssistantPanel() {
     setRevision(null);
     if (nextModel && storageReady) {
       const history = await request(
-        `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(nextModel)}`,
+        `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(nextModel)}${contextQuery}`,
       );
       setMessages(history.messages);
       setRevision(history.revision);
@@ -178,6 +193,7 @@ export function FinanceAssistantPanel() {
           family_id: familyId,
           model,
           share_financial_context: true,
+          ...(context ? { context } : {}),
           messages: history,
           ...(revision !== null ? { conversation_revision: revision } : {}),
         },
@@ -190,6 +206,9 @@ export function FinanceAssistantPanel() {
           role: "assistant",
           content: result.message,
           proposals: result.proposals,
+          sources: result.sources,
+          coverage: result.coverage,
+          fetched_at: result.fetched_at,
         },
       ]);
       setPrompt("");
@@ -346,22 +365,11 @@ export function FinanceAssistantPanel() {
             output. Billed by OpenRouter.
           </p>
         )}
-        <label className="flex items-start gap-3 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1 h-5 w-5 shrink-0 accent-primary"
-            checked={consent}
-            onChange={(e) => setConsent(e.target.checked)}
-            disabled={busy || restoring || !allowed}
-          />
-          <span>
-            Share this workspace&apos;s financial records and my messages with
-            OpenRouter and the selected model provider.
-          </span>
-        </label>
         <p className="text-xs text-muted-foreground">
-          Account login details, family health, and relationship records are
-          excluded. Review every proposed change before applying it. Payments
+          {context
+            ? "Reviews use the selected workspace sections. Non-financial records are read-only. "
+            : "Account login details, family health, and relationship records are excluded. "}
+          Review every proposed financial change before applying it. Payments
           and provider cancellations stay with you.
         </p>
         <Button
@@ -386,7 +394,9 @@ export function FinanceAssistantPanel() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 shrink-0 text-primary" />
           <h2 className="min-w-0 flex-1 text-base font-semibold sm:text-lg">
-            Your financial strategy assistant
+            {context
+              ? "Your workspace assistant"
+              : "Your financial strategy assistant"}
           </h2>
           <Button
             variant="ghost"
@@ -420,12 +430,20 @@ export function FinanceAssistantPanel() {
               Start with a question or a specific change.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
-              {[
-                "What needs attention in my recovery plan?",
-                "Compare my subscription costs with my allowance.",
-                "Create a high-priority action to verify every card's autopay this week.",
-                "What information is missing before I can compare payoff strategies?",
-              ].map((s) => (
+              {(context
+                ? [
+                    "Review the available records and prioritize what needs attention.",
+                    "What conflicts, gaps, or overdue obligations can you identify?",
+                    "Build a practical strategy for the next 30 days using the available information.",
+                    "What information is missing before I can make a decision?",
+                  ]
+                : [
+                    "What needs attention in my recovery plan?",
+                    "Compare my subscription costs with my allowance.",
+                    "Create a high-priority action to verify every card's autopay this week.",
+                    "What information is missing before I can compare payoff strategies?",
+                  ]
+              ).map((s) => (
                 <button
                   key={s}
                   className="rounded-lg border p-3 text-left text-sm transition hover:bg-muted focus-ring"
@@ -456,6 +474,14 @@ export function FinanceAssistantPanel() {
               <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
                 {m.content}
               </p>
+              {m.sources && (
+                <SourceEvidence
+                  sources={m.sources}
+                  coverage={m.coverage ?? []}
+                  fetchedAt={m.fetched_at}
+                  content={m.content}
+                />
+              )}
               {m.proposals?.map((p) => (
                 <div key={p.request_id} className="mt-4 rounded-lg border p-4">
                   <p className="text-sm font-semibold">{p.summary}</p>
@@ -476,7 +502,12 @@ export function FinanceAssistantPanel() {
                   </dl>
                   <Button
                     size="sm"
-                    disabled={busy || applied.has(p.request_id)}
+                    disabled={
+                      busy ||
+                      applied.has(p.request_id) ||
+                      (!!context &&
+                        !tablesForContext(context).includes(p.table))
+                    }
                     onClick={() =>
                       void run(async () => {
                         const result = await request("/api/finance/actions", {
@@ -522,8 +553,22 @@ export function FinanceAssistantPanel() {
             void send();
           }}
         >
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 h-5 w-5 shrink-0 accent-primary"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              disabled={busy || restoring || !allowed}
+            />
+            <span>
+              {context
+                ? "Share the checked sections, saved conversation, and my question with OpenRouter and the selected model provider."
+                : "Share this workspace's financial records and my messages with OpenRouter and the selected model provider."}
+            </span>
+          </label>
           <label htmlFor="finance-prompt" className="sr-only">
-            Message the finance assistant
+            Message the {context ? "workspace" : "finance"} assistant
           </label>
           <Textarea
             id="finance-prompt"
@@ -536,7 +581,9 @@ export function FinanceAssistantPanel() {
           />
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground">
-              Changes require your review.{" "}
+              {!consent
+                ? "Check the sharing permission above to send. "
+                : "Changes require your review. "}
               {revision !== null
                 ? "Replies are saved to your account."
                 : "Chat is not saved."}
@@ -574,7 +621,7 @@ export function FinanceAssistantPanel() {
         description={
           confirm === "key"
             ? "Removes your personal saved key and any key entered here. Conversations and model selection remain. This does not revoke the key at OpenRouter or disable an administrator's shared server connection."
-            : "Permanently removes this model's saved messages and pending proposals. Other models' conversations and changes already applied to your workspace remain."
+            : "Permanently removes saved messages and pending proposals for this model and review scope. Other conversations and changes already applied to your workspace remain."
         }
         confirmLabel={confirm === "key" ? "Forget key" : "Clear conversation"}
         onConfirm={() =>
@@ -596,6 +643,7 @@ export function FinanceAssistantPanel() {
                   model,
                   revision,
                   clear: true,
+                  ...(context ? { context } : {}),
                 });
                 setRevision(result.revision);
               }

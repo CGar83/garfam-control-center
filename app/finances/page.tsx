@@ -35,7 +35,7 @@ import { useAppData } from "@/components/app/providers";
 import { DataTable } from "@/components/pages/data-table";
 import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 import { FinanceImportDialog } from "@/components/finance/import-dialog";
-import { FinanceAssistantPanel } from "@/components/finance/assistant-panel";
+import { WorkspaceAssistant } from "@/components/assistant/workspace-assistant";
 import { StrategyGuide } from "@/components/finance/strategy-guide";
 import { SubscriptionScenario } from "@/components/finance/subscription-scenario";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
@@ -941,7 +941,7 @@ function FinanceHub() {
           )}
         </TabsContent>
         <TabsContent value="assistant" className="pt-3">
-          <FinanceAssistantPanel
+          <WorkspaceAssistant page="/finances"
             key={`${familyId}:${currentUser.id}:${currentMember?.id}`}
           />
         </TabsContent>
