@@ -1,3 +1,6 @@
+import type { z } from "zod";
+import type { recoverySchemas } from "@/lib/finance/schemas";
+
 export type Role = "admin" | "parent" | "viewer";
 export type Priority = "low" | "medium" | "high" | "urgent";
 export type TaskStatus = "not_started" | "in_progress" | "waiting" | "done";
@@ -178,7 +181,7 @@ export interface CreditCard extends FamilyScopedRecord {
   last_four?: string | null;
   current_balance: number;
   credit_limit: number;
-  apr: number;
+  apr: number | null;
   minimum_payment: number;
   extra_payment: number;
   statement_day?: number | null;
@@ -530,7 +533,18 @@ export interface WeeklyReview extends FamilyScopedRecord {
   reviewed_by?: string[];
 }
 
+export type RecoveryPlan = FamilyScopedRecord & z.infer<typeof recoverySchemas.recovery_plans>;
+export type RecoverySubscription = FamilyScopedRecord & z.infer<typeof recoverySchemas.recovery_subscriptions>;
+export type FinancialAsset = FamilyScopedRecord & z.infer<typeof recoverySchemas.financial_assets>;
+export type InstallmentDebt = FamilyScopedRecord & z.infer<typeof recoverySchemas.installment_debts>;
+export type FinanceAction = FamilyScopedRecord & z.infer<typeof recoverySchemas.finance_actions>;
+
 export interface DataStore {
+  recovery_plans: RecoveryPlan[];
+  recovery_subscriptions: RecoverySubscription[];
+  financial_assets: FinancialAsset[];
+  installment_debts: InstallmentDebt[];
+  finance_actions: FinanceAction[];
   families: Family[];
   family_members: FamilyMember[];
   events: EventRecord[];

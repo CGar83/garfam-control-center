@@ -372,7 +372,7 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">{record ? "Save Changes" : config.addLabel}</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Saving..." : record ? "Save Changes" : config.addLabel}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

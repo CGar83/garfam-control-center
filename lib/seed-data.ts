@@ -41,6 +41,11 @@ export function createSeedData(): DataStore {
   }
 
   return {
+    recovery_plans: [],
+    recovery_subscriptions: [],
+    financial_assets: [],
+    installment_debts: [],
+    finance_actions: [],
     families: [
       {
         id: familyId,

@@ -15,7 +15,7 @@ export interface MemberPalette {
 }
 
 export const memberPalettes: Record<MemberColor, MemberPalette> = {
-  coral: { solid: "#F0705A", onSolid: "#FFFFFF", soft: "#FDE8E3", ink: "#8E3A2B", border: "#F5A797", label: "Coral" },
+  coral: { solid: "#F0705A", onSolid: "#38170F", soft: "#FDE8E3", ink: "#8E3A2B", border: "#F5A797", label: "Coral" },
   ocean: { solid: "#3B82C4", onSolid: "#FFFFFF", soft: "#E1EEFB", ink: "#1F4C78", border: "#93BDE6", label: "Ocean" },
   sunshine: { solid: "#F2B233", onSolid: "#3F2B00", soft: "#FDF1D2", ink: "#7A5200", border: "#F7D485", label: "Sunshine" },
   meadow: { solid: "#4CAF6E", onSolid: "#FFFFFF", soft: "#E0F3E6", ink: "#20603A", border: "#9AD4AE", label: "Meadow" },

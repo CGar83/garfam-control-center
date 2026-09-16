@@ -46,6 +46,7 @@ import {
 } from "@/lib/options";
 import { schemas, type SchemaKey } from "@/lib/schemas";
 import type { TableName, ViewMode } from "@/lib/types";
+import { recoveryConfigs } from "@/lib/finance/modules";
 
 export type FieldType =
   | "text"
@@ -101,6 +102,7 @@ export interface ModuleConfig<TSchema extends SchemaKey = SchemaKey> {
 }
 
 export const moduleConfigs = {
+  ...recoveryConfigs,
   calendar: {
     key: "calendar",
     route: "/calendar",

@@ -30,6 +30,7 @@ import {
 } from "@/lib/options";
 import { isGoogleCalendarEmbedUrl } from "@/lib/calendar-embed";
 import { containsUnsafeSecret } from "@/lib/utils";
+import { recoverySchemas } from "@/lib/finance/schemas";
 
 const optionalText = (max = 1000) =>
   z.preprocess(
@@ -236,7 +237,7 @@ export const creditCardSchema = z.object({
   ),
   current_balance: optionalMoney,
   credit_limit: optionalMoney,
-  apr: optionalRate,
+  apr: z.preprocess(value => value === "" || value == null ? null : value, z.coerce.number().finite().min(0).max(1).nullable()),
   minimum_payment: optionalMoney,
   extra_payment: optionalMoney,
   statement_day: optionalInteger,
@@ -636,6 +637,7 @@ export const weeklyReviewSchema = z.object({
 });
 
 export const schemas = {
+  ...recoverySchemas,
   family_members: familyMemberSchema,
   events: eventSchema,
   tasks: taskSchema,

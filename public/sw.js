@@ -17,6 +17,7 @@ const PRECACHE_URLS = [
   "/tasks",
   "/grocery",
   "/budget",
+  "/finances",
   "/manifest.webmanifest",
   "/icons/family-control.svg",
   "/icons/family-control-maskable.svg",
@@ -125,6 +126,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(networkFirst(event.request));

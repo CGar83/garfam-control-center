@@ -1,0 +1,190 @@
+// @vitest-environment node
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mocks = vi.hoisted(() => ({
+  authorize: vi.fn(),
+  provider: vi.fn(),
+  rpc: vi.fn(),
+  from: vi.fn(),
+  queries: [] as { table: string; columns: string; family: string }[],
+}));
+vi.mock("@/lib/finance/server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/finance/server")>();
+  return {
+    ...actual,
+    authorizeFinance: mocks.authorize,
+    openRouterFetch: mocks.provider,
+  };
+});
+import { POST } from "@/app/api/finance/assistant/route";
+import { GET } from "@/app/api/finance/models/route";
+import { FinanceApiError } from "@/lib/finance/server";
+
+const body = {
+  family_id: "family-a",
+  model: "example/tool-model",
+  share_financial_context: true,
+  messages: [
+    { role: "user", content: "Add a statement review action for this week." },
+  ],
+};
+const request = (value: unknown = body) =>
+  new Request("http://localhost/api/finance/assistant", {
+    method: "POST",
+    headers: { "x-openrouter-key": "private-test-key-not-real" },
+    body: JSON.stringify(value),
+  });
+const change = {
+  table: "finance_actions",
+  operation: "create",
+  record_id: "",
+  values: {
+    title: "Review statements",
+    phase: "this_week",
+    status: "not_started",
+    priority: "medium",
+    due_date: null,
+  },
+  summary: "Add statement review",
+};
+const response = (proposal: unknown = change) => ({
+  choices: [
+    {
+      message: {
+        content: "Review this change.",
+        tool_calls: [
+          {
+            function: {
+              name: "propose_finance_change",
+              arguments: JSON.stringify(proposal),
+            },
+          },
+        ],
+      },
+    },
+  ],
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.queries.length = 0;
+  mocks.from.mockImplementation((table: string) => {
+    const item = { table, columns: "", family: "" };
+    mocks.queries.push(item);
+    const query = {
+      select: vi.fn((columns: string) => {
+        item.columns = columns;
+        return query;
+      }),
+      eq: vi.fn((_field: string, family: string) => {
+        item.family = family;
+        return query;
+      }),
+      order: vi.fn(() => query),
+      limit: vi.fn(async () => ({ data: [], count: 0, error: null })),
+    };
+    return query;
+  });
+  mocks.rpc.mockResolvedValue({ data: true, error: null });
+  mocks.authorize.mockResolvedValue({
+    client: { from: mocks.from, rpc: mocks.rpc },
+  });
+  mocks.provider.mockResolvedValue(response());
+});
+
+describe("assistant proposal boundary", () => {
+  it("validates the key before reporting a connection and exposes only tool-capable models", async () => {
+    mocks.provider.mockResolvedValueOnce({ data: {} }).mockResolvedValueOnce({
+      data: [
+        {
+          id: "tools",
+          name: "Tools",
+          supported_parameters: ["tools"],
+          pricing: { prompt: "0", completion: "0" },
+        },
+        { id: "text-only", name: "Text only", supported_parameters: [] },
+      ],
+    });
+    const result = await GET(
+      new Request("http://localhost/api/finance/models?family_id=family-a", {
+        headers: { "x-openrouter-key": "private-test-key-not-real" },
+      }),
+    );
+    expect(result.status).toBe(200);
+    expect(mocks.provider.mock.calls.map((c) => c[0])).toEqual([
+      "key",
+      "models",
+    ]);
+    expect(
+      (await result.json()).models.map((m: { id: string }) => m.id),
+    ).toEqual(["tools"]);
+  });
+  it("does not mistake access to the public model catalog for a valid key", async () => {
+    mocks.provider.mockRejectedValueOnce(
+      new FinanceApiError("OpenRouter rejected this key.", 502),
+    );
+    const result = await GET(
+      new Request("http://localhost/api/finance/models?family_id=family-a", {
+        headers: { "x-openrouter-key": "private-test-key-not-real" },
+      }),
+    );
+    expect(result.status).toBe(502);
+    expect(mocks.provider).toHaveBeenCalledTimes(1);
+  });
+  it("requires explicit sharing consent before context access or provider calls", async () => {
+    expect(
+      (await POST(request({ ...body, share_financial_context: false }))).status,
+    ).toBe(400);
+    expect(mocks.authorize).not.toHaveBeenCalled();
+    expect(mocks.provider).not.toHaveBeenCalled();
+  });
+  it("returns validated proposals without writing records and excludes private unrelated data", async () => {
+    const result = await POST(request());
+    expect(result.status).toBe(200);
+    const json = await result.json();
+    expect(json.proposals[0].request_id).toMatch(/^[\da-f-]{36}$/);
+    expect(json.proposals[0].record_id).not.toBe("");
+    expect(json.proposals[0].values.title).toBe("Review statements");
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc).toHaveBeenCalledWith("claim_finance_assistant_request", {
+      target_family: "family-a",
+    });
+    expect(mocks.queries).toHaveLength(8);
+    for (const query of mocks.queries) {
+      expect(query.family).toBe("family-a");
+      expect(query.columns).not.toMatch(
+        /password_location|last_four|notes|payment_account/,
+      );
+      expect(query.table).not.toMatch(/health|relationship|family_members/);
+    }
+    const providerBody = mocks.provider.mock.calls[0][2];
+    expect(providerBody.max_tokens).toBe(2500);
+    expect(providerBody.provider.data_collection).toBe("deny");
+    expect(JSON.stringify(providerBody)).not.toContain(
+      "private-test-key-not-real",
+    );
+    expect(result.headers.get("cache-control")).toContain("no-store");
+  });
+  it("rejects a model update to a record outside the supplied workspace", async () => {
+    mocks.provider.mockResolvedValue(
+      response({ ...change, operation: "update", record_id: "foreign-record" }),
+    );
+    expect((await POST(request())).status).toBe(502);
+  });
+  it("stops before a paid request when quota is exhausted or context cannot load", async () => {
+    mocks.rpc.mockResolvedValueOnce({ data: false });
+    expect((await POST(request())).status).toBe(429);
+    expect(mocks.provider).not.toHaveBeenCalled();
+    mocks.rpc.mockResolvedValueOnce({
+      error: { message: "missing migration" },
+    });
+    expect((await POST(request())).status).toBe(503);
+    expect(mocks.provider).not.toHaveBeenCalled();
+  });
+  it("does not accept a model command to change permissions", async () => {
+    mocks.provider.mockResolvedValue(
+      response({ ...change, table: "family_members" }),
+    );
+    expect((await POST(request())).status).toBe(400);
+  });
+});

@@ -91,6 +91,7 @@ const navigationSectionInputs: NavSectionInput[] = [
     href: "/finances",
     icon: PiggyBank,
     items: [
+      { title: "Finance Hub", href: "/finances", icon: PiggyBank },
       { title: "Budget & Cards", href: "/budget", icon: WalletCards },
       { title: "Bills", href: "/bills", icon: ReceiptText },
       { title: "Accounts", href: "/accounts", icon: KeyRound }

@@ -21,10 +21,12 @@ import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 interface DataTableProps {
   config: ModuleConfig;
   records: AnyRecord[];
+  readOnly?: boolean;
 }
 
 const personColumns = new Set(["assigned_to", "person_id", "child_id", "visible_to", "created_by", "added_by"]);
 const dateColumns = new Set([
+  "as_of_date",
   "start_at",
   "end_at",
   "due_at",
@@ -43,6 +45,7 @@ const dateColumns = new Set([
   "last_synced_at"
 ]);
 const currencyColumns = new Set([
+  "estimated_value", "debt", "balance", "monthly_payment", "monthly_income",
   "amount",
   "monthly_plan",
   "prior_balance",
@@ -138,7 +141,7 @@ function renderCell(record: AnyRecord, column: string, config: ModuleConfig) {
   );
 }
 
-export function DataTable({ config, records }: DataTableProps) {
+export function DataTable({ config, records, readOnly = false }: DataTableProps) {
   const { deleteRecord } = useAppData();
   const { toast } = useToast();
   const [editing, setEditing] = useState<AnyRecord | null>(null);
@@ -153,7 +156,7 @@ export function DataTable({ config, records }: DataTableProps) {
               {config.columns.map((column) => (
                 <TableHead key={column}>{titleCase(column)}</TableHead>
               ))}
-              <TableHead className="w-24 text-right">Actions</TableHead>
+              {!readOnly && <TableHead className="w-24 text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -164,7 +167,7 @@ export function DataTable({ config, records }: DataTableProps) {
                     {renderCell(record, column, config)}
                   </TableCell>
                 ))}
-                <TableCell className="text-right">
+                {!readOnly && <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" onClick={() => setEditing(record)} title="Edit record">
                       <Pencil className="h-4 w-4" />
@@ -175,7 +178,7 @@ export function DataTable({ config, records }: DataTableProps) {
                       <span className="sr-only">Delete</span>
                     </Button>
                   </div>
-                </TableCell>
+                </TableCell>}
               </TableRow>
             ))}
           </TableBody>

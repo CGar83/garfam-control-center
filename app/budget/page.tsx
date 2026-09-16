@@ -410,7 +410,7 @@ function DebtPayoffPanel({ cards, strategy }: { cards: CreditCardRecord[]; strat
                   <TableRow key={card.id}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell className="font-medium">{card.card_name}</TableCell>
-                    <TableCell>{percent(safeNumber(card.apr))}</TableCell>
+                    <TableCell>{card.apr === null ? "Unknown" : percent(safeNumber(card.apr))}</TableCell>
                     <TableCell>
                       <MaskedMoney value={balance} />
                     </TableCell>
@@ -418,7 +418,7 @@ function DebtPayoffPanel({ cards, strategy }: { cards: CreditCardRecord[]; strat
                       <MaskedMoney value={payment} />
                     </TableCell>
                     <TableCell>
-                      <MaskedMoney value={interest} />
+                      {card.apr === null ? "Add APR" : <MaskedMoney value={interest} />}
                     </TableCell>
                     <TableCell>{months ?? "Set payment"}</TableCell>
                   </TableRow>

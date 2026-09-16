@@ -10,13 +10,15 @@ import { useAppData } from "@/components/app/providers";
 import { searchData } from "@/lib/filtering";
 import { memberCanAccessPath } from "@/lib/access-control";
 import { titleCase } from "@/lib/utils";
+import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 
 export function GlobalSearch() {
   const router = useRouter();
   const { data, currentMember } = useAppData();
+  const { privacyMode } = usePrivacyMode();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const results = useMemo(() => searchData(data, query).filter((result) => memberCanAccessPath(currentMember, result.route)).slice(0, 12), [currentMember, data, query]);
+  const results = useMemo(() => searchData(data, query).filter((result) => memberCanAccessPath(currentMember, result.route) && (!privacyMode || !/^\/(finances|budget|bills|accounts|health|emergency|relationship|checkin)(\?|\/|$)/.test(result.route))).slice(0, 12), [currentMember, data, privacyMode, query]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

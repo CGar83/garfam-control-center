@@ -27,7 +27,9 @@ Installed on a phone, Gather runs as a Progressive Web App: it opens from the Ho
 - **Weekly Plan**: a six-step Sunday reset covering wins, calendar, meals, chores, money and connection.
 - **Relationship** hub and the parent **Notes Board** from the original app.
 
-**Money and Records**: Budget & Cards, Bills, Accounts, Health, School, Home, Vehicles, Documents, Contacts, Emergency, and an **Overview** dashboard of every open loop.
+**Money and Records**: Finance Hub, Budget & Cards, Bills, Accounts, Health, School, Home, Vehicles, Documents, Contacts, Emergency, and an **Overview** dashboard of every open loop.
+
+**Finance Hub** (`/finances`): monthly cash-flow allocations, a recovery playbook and action queue, emergency reserve, per-card utilization milestones, fixed-payment payoff estimates, installment debts, subscription decisions and a what-if calculator, and assets with known-equity totals. Existing budget, bill, and account records remain connected. An optional OpenRouter assistant answers questions and proposes reviewed changes to financial records.
 
 **Profiles**: each member has a color that follows them everywhere. A "Who is using this?" switcher makes a shared kitchen tablet work: switching to a kid personalizes Today and hides money, health, and adult areas.
 
@@ -65,9 +67,13 @@ Create `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# Optional shared server connection; leave both unset for session-only user keys.
+OPENROUTER_API_KEY=your-openrouter-key
+OPENROUTER_ALLOWED_FAMILY_IDS=your-family-id
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` is only for server-side scripts such as seeding. Never expose it in client code.
+The finance API uses the signed-in user's token and RLS, not the service-role key. Never prefix an OpenRouter key with `NEXT_PUBLIC_`. `.env.example` lists the variables without credentials.
 
 Future calendar OAuth work should add provider credentials only as server-side environment variables, such as `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `MICROSOFT_CALENDAR_CLIENT_ID`, `MICROSOFT_CALENDAR_CLIENT_SECRET`, and a token encryption key.
 
@@ -78,6 +84,33 @@ Future calendar OAuth work should add provider credentials only as server-side e
 3. Apply `20260906145331_calendar_embed_fields.sql` if your project already existed before the embedded calendar work. It adds the Google Calendar embed URL, display toggle, and iframe height fields to `calendar_connections`.
 4. Create a user in Supabase Auth and sign in from Settings. A workspace is bootstrapped automatically for a new user.
 5. Optionally seed the sample family: `SEED_USER_ID=auth-user-uuid npm run seed:starter`.
+
+## Financial recovery files
+
+1. Open **Money > Finance Hub > Import files**. Choose the supplied recovery HTML, workbook, or both. Parsing happens in the browser; source files are not uploaded or executed.
+2. Review each candidate and its warnings. The workbook and HTML contain conflicting balances and allocations, so no rows are selected automatically. Choose one source for each conflicting record and verify it against current statements.
+3. Select the records to add, then import. Existing matching records are not overwritten. If a save fails partway through, successfully saved rows stay marked and can be skipped on retry.
+4. Set the verified date, unknown APRs, minimum payments, and asset values before using estimates. An unknown value is not a zero balance or a zero-interest loan.
+
+The workbook parser reads `Recovery Hub`, `Recovery Subscriptions`, `Asset Register`, and populated `Credit Cards` rows. Sample transactions, sample bills, and the workbook's generic starter budget are excluded. Card rows labeled as samples are flagged for review. The HTML parser reads its recovery plan, cards, subscriptions, installments, and action checklist. Listed subscription rows determine totals; source summary discrepancies produce warnings. Personal source values are not embedded in the repository or seed data.
+
+Plan allowances are distinct from actual spending in Budget. Cancellation decisions are distinct from confirmed provider cancellations. The hub does not claim a complete net worth or guarantee credit-score changes.
+
+## OpenRouter assistant setup
+
+1. Apply existing migrations first, then `supabase/migrations/20260915232546_finance_recovery_hub.sql` using the Supabase SQL editor or your linked CLI migration workflow. The migration creates five finance tables, family-scoped RLS, realtime subscriptions, transactional change receipts, and a request quota. It also fixes workspace bootstrap so users cannot self-join another family by knowing its ID.
+2. Sign in to Gather as a parent or admin. Viewer accounts cannot use the assistant or apply changes. A local-only workspace supports finance records but cannot make LLM requests.
+3. Create an API key at [OpenRouter](https://openrouter.ai/settings/keys). Set a credit limit appropriate for your household. Never put the key in a financial note, Git, or a public environment variable.
+4. Open **Finance Hub > Assistant**, enter the key, and select **Connect & load models**. Choose a tool-capable model and check its displayed token prices. The key and chat live only in the current page's memory, not localStorage or Supabase. Leaving the assistant, turning on privacy mode, or reloading clears them.
+5. Alternatively, set `OPENROUTER_API_KEY` on the server and `OPENROUTER_ALLOWED_FAMILY_IDS` to a comma-separated list of approved workspace IDs, then redeploy. The current ID is under **Workspace connection details** in the assistant. Both variables are required for a shared key; an unrelated workspace cannot use it.
+6. Read and accept the financial-data sharing checkbox. Requests send an allowlisted financial snapshot and your chat messages to OpenRouter and the selected provider. Login references, account last-four values, health records, relationship records, and record notes are excluded from the snapshot. Anything you type into chat is still sent.
+7. Try: "Review my cash-flow shortfall" or "Add a high-priority action to verify my card minimums this week." Review exact proposed fields, then select **Apply this change**. Applying persists the record inside Gather and saves a before/after receipt in `finance_change_log`.
+
+Assistant scope: recovery plans, subscription records, assets, installments, private finance actions, credit cards, bills, and budget categories. It cannot delete records, change family permissions, make payments, transfer money, contact creditors, or cancel services with providers. Subscription changes inside Gather are tracking changes only.
+
+Each request is bounded to one model call, 2,500 output tokens, up to five proposed changes, and the latest 100 records per supported table. Ten chat requests per user per ten minutes are allowed. Subset warnings appear in model context; large contexts are rejected. Retries of an applied proposal return its first receipt; edits made after a proposal was generated cause a conflict instead of being overwritten. Request limits are not a dollar spending cap: set one on your OpenRouter key.
+
+Provider routing requests `data_collection: deny`; this is not a promise of zero retention. Review [OpenRouter's data policy](https://openrouter.ai/docs/guides/privacy/data-collection) and your chosen provider's terms. Never paste full account identifiers or secrets into chat. Models can make mistakes; confirm figures and advice against statements and appropriate professional guidance.
 
 ## Calendar embeds and sync
 
@@ -125,11 +158,15 @@ For Outlook/Microsoft 365, use Microsoft Entra app registration, request Microso
 npm run lint
 npm run typecheck
 npm run test
+npm run test:finance-db
 npm run build
 npm run icons:pwa
 ```
 
 Tests cover schemas, filtering, access control, calendar sync and embeds, PWA config, the natural-language quick-add parser, chore scheduling and streak math, and the daily brief builder.
+Finance tests also cover import parsing, unknown values, utilization math, cash-flow deficits, subscription scenarios, API authorization, context boundaries, consent, quotas, and proposal validation. `test:finance-db` runs the new migration against isolated in-memory Postgres via PGlite to check RLS, workspace bootstrap, atomic writes, retries, and stale-edit conflicts. It does not connect to production. Live Supabase and paid OpenRouter calls require your configured accounts and a deployment smoke test.
+
+Dependency check for this release: `npm audit --omit=dev` reports zero runtime advisories. The full audit still flags 10 development-tool dependencies, including the existing Vitest 2 UI-server advisory. Tests here use `vitest run`, not an exposed UI server. Updating the test toolchain remains separate follow-up work; do not expose development or test servers publicly.
 
 ## Security notes
 
@@ -137,10 +174,13 @@ Tests cover schemas, filtering, access control, calendar sync and embeds, PWA co
 - Privacy mode hides money, health, account, vehicle, and emergency details on shared screens.
 - Offline cloud edits and the latest signed-in workspace snapshot are cached in browser storage on the device so the installed app can keep working through connection drops. Treat installed devices as trusted family devices and use the device passcode/biometric lock.
 - Supabase RLS scopes every table by family membership. Check-ins are visible to the author and, when shared, to the other parents. Kid profiles (role `viewer`) are blocked from finance, accounts, health, documents, contacts, communication, relationship and emergency areas by default.
+- Finance API responses are `no-store`, and the service worker excludes API requests. Finance privacy mode unmounts records, import previews, and assistant chat; global search also omits financial records while privacy mode is active. Privacy mode is a display control, not encryption or an account security boundary.
 
 ## Deployment
 
 Deploy to Vercel, Netlify or any Node host, add the three Supabase variables, apply migrations, and add the production URL to Supabase Auth redirect URLs. The build ships a web manifest, iOS metadata, maskable icons and a service worker with offline fallback, push-notification handlers, and app-badge support so it installs as a standalone app.
+
+For this finance release, apply the finance migration before using the new cloud records, deploy the updated Next.js server routes, and configure an OpenRouter connection as above. On Netlify, keep shared OpenRouter credentials server-side in Functions scope. Public Supabase variables must be present at build time and available to server functions. Use Node 22 or newer. Do not deploy as a static export: the assistant requires server execution. After deployment, verify sign-in, import one reviewed record, reload it, and test a small assistant proposal and apply action. Code changes here do not automatically update the hosted site until committed, pushed, and deployed.
 
 Native App Store packaging is intentionally deferred. If you later want store distribution, wrap the tuned web app with Capacitor and add native push/calendar bridges after the web experience is stable.
 

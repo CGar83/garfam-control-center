@@ -43,6 +43,11 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 function emptyDataStore(): DataStore {
   return {
+    recovery_plans: [],
+    recovery_subscriptions: [],
+    financial_assets: [],
+    installment_debts: [],
+    finance_actions: [],
     families: [],
     family_members: [],
     events: [],
@@ -276,6 +281,11 @@ type AuthActionResult = {
 };
 
 const syncTables: EditableTable[] = [
+  "recovery_plans",
+  "recovery_subscriptions",
+  "financial_assets",
+  "installment_debts",
+  "finance_actions",
   "family_members",
   "events",
   "tasks",
@@ -908,7 +918,9 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         action,
         entity_type: table,
         entity_id: record.id,
-        summary: `${action} ${table.replace(/_/g, " ")}: ${recordTitle(record)}`,
+        summary: ["recovery_plans", "recovery_subscriptions", "financial_assets", "installment_debts", "finance_actions"].includes(table)
+          ? `${action} a private financial record`
+          : `${action} ${table.replace(/_/g, " ")}: ${recordTitle(record)}`,
         created_at: nowIso()
       };
 

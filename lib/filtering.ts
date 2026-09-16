@@ -108,6 +108,7 @@ export interface SearchResult {
 }
 
 const searchableTables: TableName[] = [
+  "recovery_plans", "recovery_subscriptions", "financial_assets", "installment_debts", "finance_actions",
   "tasks",
   "events",
   "grocery_items",
@@ -137,6 +138,7 @@ const searchableTables: TableName[] = [
 ];
 
 const routes: Partial<Record<TableName, string>> = {
+  recovery_plans: "/finances", recovery_subscriptions: "/finances", financial_assets: "/finances", installment_debts: "/finances", finance_actions: "/finances",
   tasks: "/tasks",
   events: "/calendar",
   grocery_items: "/grocery",
