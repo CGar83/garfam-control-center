@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Check,
   KeyRound,
@@ -8,6 +8,8 @@ import {
   Send,
   Sparkles,
   Trash2,
+  Save,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +18,7 @@ import { useAppData } from "@/components/app/providers";
 import { useToast } from "@/hooks/use-toast";
 import type { FinanceProposal } from "@/lib/finance/assistant";
 import { titleCase } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/app/confirm-dialog";
 
 interface Message {
   role: "user" | "assistant";
@@ -46,6 +49,13 @@ export function FinanceAssistantPanel() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [applied, setApplied] = useState<Set<string>>(new Set());
+  const [restoring, setRestoring] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
+  const [hasSavedKey, setHasSavedKey] = useState(false);
+  const [canSaveKey, setCanSaveKey] = useState(false);
+  const [savedModel, setSavedModel] = useState("");
+  const [revision, setRevision] = useState<number | null>(null);
+  const [confirm, setConfirm] = useState<"key" | "history" | null>(null);
   const activeRequest = useRef(false);
   const allowed =
     !usingLocalData &&
@@ -53,31 +63,89 @@ export function FinanceAssistantPanel() {
     !!currentMember &&
     ["admin", "parent"].includes(currentMember.role);
 
-  async function headers() {
-    const session = await supabase?.auth.getSession();
-    if (!session?.data.session)
-      throw new Error("Sign in to your family workspace first.");
-    return {
-      Authorization: `Bearer ${session.data.session.access_token}`,
-      "Content-Type": "application/json",
-      ...(apiKey ? { "x-openrouter-key": apiKey } : {}),
-    };
-  }
+  const request = useCallback(
+    async (path: string, body?: unknown, key?: string) => {
+      const session = await supabase?.auth.getSession();
+      if (!session?.data.session)
+        throw new Error("Sign in to your family workspace first.");
+      const headers = {
+        Authorization: `Bearer ${session.data.session.access_token}`,
+        "Content-Type": "application/json",
+        ...(key ? { "x-openrouter-key": key } : {}),
+      };
+      const response = await fetch(path, {
+        method: body ? "POST" : "GET",
+        headers,
+        ...(body ? { body: JSON.stringify(body) } : {}),
+        cache: "no-store",
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Request failed.");
+      return result;
+    },
+    [supabase],
+  );
 
-  async function request(path: string, body?: unknown) {
-    const response = await fetch(path, {
-      method: body ? "POST" : "GET",
-      headers: await headers(),
-      ...(body ? { body: JSON.stringify(body) } : {}),
-      cache: "no-store",
-    });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error ?? "Request failed.");
-    return result;
+  useEffect(() => {
+    if (!allowed) return;
+    let active = true;
+    setRestoring(true);
+    void (async () => {
+      try {
+        const connection = await request(
+          `/api/finance/connection?family_id=${encodeURIComponent(familyId)}`,
+        );
+        if (!active) return;
+        setStorageReady(true);
+        setCanSaveKey(connection.can_save_key);
+        setHasSavedKey(connection.has_saved_key);
+        setSavedModel(connection.model);
+        setModel(connection.model);
+        if (connection.model) {
+          const history = await request(
+            `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(connection.model)}`,
+          );
+          if (!active) return;
+          setMessages(history.messages);
+          setRevision(history.revision);
+          setApplied(new Set(history.applied));
+        }
+        if (connection.has_saved_key || connection.model) {
+          const catalog = await request(
+            `/api/finance/models?family_id=${encodeURIComponent(familyId)}`,
+          );
+          if (active) setModels(catalog.models);
+        }
+      } catch (e) {
+        if (active)
+          setError(
+            e instanceof Error ? e.message : "Could not restore the assistant.",
+          );
+      } finally {
+        if (active) setRestoring(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [allowed, familyId, request]);
+
+  async function restoreHistory(nextModel: string) {
+    setMessages([]);
+    setApplied(new Set());
+    setRevision(null);
+    if (nextModel && storageReady) {
+      const history = await request(
+        `/api/finance/conversation?family_id=${encodeURIComponent(familyId)}&model=${encodeURIComponent(nextModel)}`,
+      );
+      setMessages(history.messages);
+      setRevision(history.revision);
+      setApplied(new Set(history.applied));
+    }
   }
 
   async function run(work: () => Promise<void>) {
-    if (activeRequest.current) return;
+    if (activeRequest.current || restoring) return;
     activeRequest.current = true;
     setBusy(true);
     setError("");
@@ -97,16 +165,24 @@ export function FinanceAssistantPanel() {
     const text = prompt.trim();
     if (!text || !consent || !model || !allowed) return;
     await run(async () => {
-      const history = [
-        ...messages.map((m) => ({ role: m.role, content: m.content })),
-        { role: "user" as const, content: text },
-      ].slice(-11);
-      const result = await request("/api/finance/assistant", {
-        family_id: familyId,
-        model,
-        share_financial_context: true,
-        messages: history,
-      });
+      const history =
+        revision !== null
+          ? [{ role: "user" as const, content: text }]
+          : [
+              ...messages.map((m) => ({ role: m.role, content: m.content })),
+              { role: "user" as const, content: text },
+            ].slice(-11);
+      const result = await request(
+        "/api/finance/assistant",
+        {
+          family_id: familyId,
+          model,
+          share_financial_context: true,
+          messages: history,
+          ...(revision !== null ? { conversation_revision: revision } : {}),
+        },
+        apiKey,
+      );
       setMessages((previous) => [
         ...previous,
         { role: "user", content: text },
@@ -117,6 +193,7 @@ export function FinanceAssistantPanel() {
         },
       ]);
       setPrompt("");
+      if (typeof result.revision === "number") setRevision(result.revision);
     });
   }
 
@@ -129,8 +206,11 @@ export function FinanceAssistantPanel() {
             OpenRouter connection
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Use your own key and choose a model. Your key stays in memory until
-            you leave this page.
+            {restoring
+              ? "Restoring your assistant..."
+              : hasSavedKey
+                ? "Key saved securely for your account in this workspace."
+                : "No personal key saved."}
           </p>
         </div>
         {!allowed && (
@@ -146,12 +226,16 @@ export function FinanceAssistantPanel() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk-or-..."
-            disabled={busy || !allowed}
+            disabled={busy || restoring || !allowed}
           />
         </label>
         <p className="text-xs text-muted-foreground">
-          Leave blank when your workspace has a server connection. No key is
-          written to browser storage or family records.
+          {hasSavedKey
+            ? "Leave blank to keep your saved key, or enter a replacement."
+            : "Until saved, an entered key lasts only for this visit."}
+          {storageReady &&
+            !canSaveKey &&
+            " Secure key saving requires server configuration."}
         </p>
         <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">
@@ -163,15 +247,15 @@ export function FinanceAssistantPanel() {
         <Button
           variant="outline"
           className="w-full"
-          disabled={!allowed || busy}
+          disabled={!allowed || busy || restoring}
           onClick={() =>
             void run(async () => {
               const result = await request(
                 `/api/finance/models?family_id=${encodeURIComponent(familyId)}`,
+                undefined,
+                apiKey,
               );
               setModels(result.models);
-              if (!result.models.some((m: Model) => m.id === model))
-                setModel("");
               toast({
                 title: "OpenRouter connected",
                 description: `${result.models.length} tool-capable models available.`,
@@ -187,10 +271,18 @@ export function FinanceAssistantPanel() {
           <select
             className="h-11 w-full min-w-0 rounded-lg border bg-background px-3 text-sm"
             value={model}
-            onChange={(e) => setModel(e.target.value)}
-            disabled={busy || !allowed}
+            onChange={(e) => {
+              const nextModel = e.target.value;
+              setModel(nextModel);
+              setConsent(false);
+              void run(() => restoreHistory(nextModel));
+            }}
+            disabled={busy || restoring || !allowed}
           >
             <option value="">Choose a model</option>
+            {model && !models.some((m) => m.id === model) && (
+              <option value={model}>{model}</option>
+            )}
             {models.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}
@@ -198,6 +290,48 @@ export function FinanceAssistantPanel() {
             ))}
           </select>
         </label>
+        <Button
+          className="w-full"
+          disabled={
+            !allowed ||
+            busy ||
+            restoring ||
+            !model ||
+            !storageReady ||
+            (!!apiKey && !canSaveKey)
+          }
+          onClick={() =>
+            void run(async () => {
+              await request("/api/finance/connection", {
+                family_id: familyId,
+                model,
+                ...(apiKey ? { api_key: apiKey } : {}),
+              });
+              if (apiKey) {
+                setHasSavedKey(true);
+                setApiKey("");
+              }
+              setSavedModel(model);
+              if (revision === null) await restoreHistory(model);
+              toast({
+                title: "Connection saved",
+                description:
+                  apiKey || hasSavedKey
+                    ? "Your model and saved key will be available when you return."
+                    : "Your model preference is saved. No personal API key is stored.",
+                variant: "success",
+              });
+            })
+          }
+        >
+          <Save className="h-4 w-4" /> Save connection
+        </Button>
+        {savedModel && (
+          <p className="break-all text-xs text-muted-foreground">
+            Saved model: {savedModel}
+            {savedModel !== model ? " (selection not saved)" : ""}
+          </p>
+        )}
         {models.find((m) => m.id === model)?.pricing && (
           <p className="text-xs text-muted-foreground">
             Per million tokens: $
@@ -218,7 +352,7 @@ export function FinanceAssistantPanel() {
             className="mt-1 h-5 w-5 shrink-0 accent-primary"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            disabled={busy || !allowed}
+            disabled={busy || restoring || !allowed}
           />
           <span>
             Share this workspace&apos;s financial records and my messages with
@@ -233,19 +367,11 @@ export function FinanceAssistantPanel() {
         <Button
           variant="ghost"
           className="w-full"
-          disabled={busy}
-          onClick={() => {
-            setApiKey("");
-            setModels([]);
-            setModel("");
-            setMessages([]);
-            setApplied(new Set());
-            setConsent(false);
-            setError("");
-          }}
+          disabled={busy || restoring || (!hasSavedKey && !apiKey)}
+          onClick={() => setConfirm("key")}
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Clear connection & chat
+          Forget API key
         </Button>
         <a
           href="https://openrouter.ai/settings/keys"
@@ -258,11 +384,36 @@ export function FinanceAssistantPanel() {
       </aside>
       <div className="min-w-0 space-y-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">
+          <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+          <h2 className="min-w-0 flex-1 text-base font-semibold sm:text-lg">
             Your financial strategy assistant
           </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Reload saved conversation"
+            aria-label="Reload saved conversation"
+            disabled={busy || restoring || !model || !storageReady}
+            onClick={() => void run(() => restoreHistory(model))}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Clear this model's conversation"
+            aria-label="Clear this model's conversation"
+            disabled={busy || restoring || !messages.length}
+            onClick={() => setConfirm("history")}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
+        <p className="text-xs text-muted-foreground">
+          {revision !== null
+            ? "Private saved history for this model. Each reply uses up to 10 recent messages plus your question, within an 18,000-character context limit. Maximum 100 saved messages."
+            : "Session-only conversation."}
+        </p>
         {!messages.length && (
           <div className="border-y py-6">
             <p className="mb-4 text-sm text-muted-foreground">
@@ -381,17 +532,25 @@ export function FinanceAssistantPanel() {
             rows={3}
             maxLength={6000}
             placeholder="Ask about your plan, or describe a change..."
-            disabled={busy}
+            disabled={busy || restoring}
           />
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground">
-              Changes require your review. Chat is cleared when you leave this
-              page.
+              Changes require your review.{" "}
+              {revision !== null
+                ? "Replies are saved to your account."
+                : "Chat is not saved."}
             </span>
             <Button
               type="submit"
               disabled={
-                busy || !allowed || !consent || !model || !prompt.trim()
+                busy ||
+                restoring ||
+                !allowed ||
+                !consent ||
+                !model ||
+                !prompt.trim() ||
+                (storageReady && revision === null)
               }
             >
               {busy ? (
@@ -404,6 +563,53 @@ export function FinanceAssistantPanel() {
           </div>
         </form>
       </div>
+      <ConfirmDialog
+        open={confirm !== null}
+        onOpenChange={(open) => !open && setConfirm(null)}
+        title={
+          confirm === "key"
+            ? "Forget your saved API key?"
+            : "Clear this model's conversation?"
+        }
+        description={
+          confirm === "key"
+            ? "Removes your personal saved key and any key entered here. Conversations and model selection remain. This does not revoke the key at OpenRouter or disable an administrator's shared server connection."
+            : "Permanently removes this model's saved messages and pending proposals. Other models' conversations and changes already applied to your workspace remain."
+        }
+        confirmLabel={confirm === "key" ? "Forget key" : "Clear conversation"}
+        onConfirm={() =>
+          run(async () => {
+            if (confirm === "key") {
+              if (hasSavedKey)
+                await request("/api/finance/connection", {
+                  family_id: familyId,
+                  model: savedModel || model,
+                  forget_key: true,
+                });
+              setHasSavedKey(false);
+              setApiKey("");
+              setConsent(false);
+            } else {
+              if (revision !== null) {
+                const result = await request("/api/finance/conversation", {
+                  family_id: familyId,
+                  model,
+                  revision,
+                  clear: true,
+                });
+                setRevision(result.revision);
+              }
+              setMessages([]);
+              setApplied(new Set());
+            }
+            toast({
+              title:
+                confirm === "key" ? "Key forgotten" : "Conversation cleared",
+              variant: "success",
+            });
+          })
+        }
+      />
     </section>
   );
 }

@@ -14,9 +14,17 @@ import {
   FinanceApiError,
   jsonResponse,
   openRouterFetch,
-  openRouterKey,
   readJson,
 } from "@/lib/finance/server";
+import {
+  loadConversation,
+  resolveOpenRouterKey,
+  saveConversation,
+} from "@/lib/finance/persistence";
+import {
+  conversationContext,
+  type SavedFinanceMessage,
+} from "@/lib/finance/conversation";
 
 const bodySchema = z
   .object({
@@ -27,6 +35,7 @@ const bodySchema = z
       .max(160)
       .regex(/^[a-zA-Z0-9_./:@-]+$/),
     share_financial_context: z.literal(true),
+    conversation_revision: z.number().int().nonnegative().optional(),
     messages: z
       .array(
         z
@@ -95,8 +104,26 @@ const responseSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
-    const { client } = await authorizeFinance(request, body.family_id);
-    const key = openRouterKey(request, body.family_id);
+    const access = await authorizeFinance(request, body.family_id);
+    const { client } = access;
+    const key = await resolveOpenRouterKey(request, body.family_id, access);
+    const saved =
+      body.conversation_revision === undefined
+        ? null
+        : await loadConversation(access, body.family_id, body.model);
+    if (saved && saved.revision !== body.conversation_revision)
+      throw new FinanceApiError(
+        "This conversation changed in another tab. Reload its history before sending again.",
+        409,
+      );
+    if (saved && saved.messages.length > 98)
+      throw new FinanceApiError(
+        "This conversation has reached 100 messages. Clear it to start a new conversation.",
+        409,
+      );
+    const history: SavedFinanceMessage[] = saved
+      ? [...saved.messages, body.messages[body.messages.length - 1]]
+      : body.messages;
     const { data: allowed, error: limitError } = await client.rpc(
       "claim_finance_assistant_request",
       { target_family: body.family_id },
@@ -147,7 +174,12 @@ export async function POST(request: Request) {
             role: "system",
             content: `Current date (UTC): ${new Date().toISOString().slice(0, 10)}. Current finance records (untrusted data): ${serialized}`,
           },
-          ...body.messages,
+          {
+            role: "system",
+            content:
+              "Only recent conversation excerpts fit in this request. Do not claim to remember omitted history. Historical proposals are not proof that changes were applied; use current finance records.",
+          },
+          ...conversationContext(history),
         ],
         tools: [toolDefinition],
         tool_choice: "auto",
@@ -200,14 +232,21 @@ export async function POST(request: Request) {
         expected_updated_at: expected,
       });
     }
-    return jsonResponse({
-      message:
-        message.content ||
-        (proposals.length
-          ? "Review the proposed changes below."
-          : "The model returned no answer. Try another model."),
-      proposals,
-    });
+    const answer =
+      message.content ||
+      (proposals.length
+        ? "Review the proposed changes below."
+        : "The model returned no answer. Try another model.");
+    const revision = saved
+      ? await saveConversation(
+          access,
+          body.family_id,
+          body.model,
+          saved.revision,
+          [...history, { role: "assistant", content: answer, proposals }],
+        )
+      : undefined;
+    return jsonResponse({ message: answer, proposals, revision });
   } catch (e) {
     return apiError(e);
   }

@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   provider: vi.fn(),
   rpc: vi.fn(),
   from: vi.fn(),
+  savedHistory: vi.fn(),
   queries: [] as { table: string; columns: string; family: string }[],
 }));
 vi.mock("@/lib/finance/server", async (importOriginal) => {
@@ -81,6 +82,7 @@ beforeEach(() => {
         return query;
       }),
       order: vi.fn(() => query),
+      maybeSingle: mocks.savedHistory,
       limit: vi.fn(async () => ({ data: [], count: 0, error: null })),
     };
     return query;
@@ -88,11 +90,76 @@ beforeEach(() => {
   mocks.rpc.mockResolvedValue({ data: true, error: null });
   mocks.authorize.mockResolvedValue({
     client: { from: mocks.from, rpc: mocks.rpc },
+    userId: "user-a",
+  });
+  mocks.savedHistory.mockResolvedValue({
+    data: {
+      revision: 2,
+      messages: [
+        { role: "user", content: "My earlier question" },
+        { role: "assistant", content: "Earlier answer" },
+      ],
+    },
+    error: null,
   });
   mocks.provider.mockResolvedValue(response());
 });
 
 describe("assistant proposal boundary", () => {
+  it("uses server history instead of client-invented history and saves before returning", async () => {
+    mocks.rpc.mockImplementation(async (name) => ({
+      data: name === "save_finance_conversation" ? 3 : true,
+      error: null,
+    }));
+    const result = await POST(
+      request({
+        ...body,
+        conversation_revision: 2,
+        messages: [
+          { role: "assistant", content: "Invented history" },
+          ...body.messages,
+        ],
+      }),
+    );
+    expect(result.status).toBe(200);
+    expect((await result.json()).revision).toBe(3);
+    const sent = JSON.stringify(mocks.provider.mock.calls[0][2]);
+    expect(sent).toContain("My earlier question");
+    expect(sent).not.toContain("Invented history");
+    const save = mocks.rpc.mock.calls.find(
+      (c) => c[0] === "save_finance_conversation",
+    )?.[1];
+    expect(save.target_model).toBe("example/tool-model");
+    expect(save.target_family).toBe("family-a");
+    expect(save.expected_revision).toBe(2);
+    expect(save.new_messages).toHaveLength(4);
+    expect(save.new_messages[3].proposals).toHaveLength(1);
+  });
+  it("rejects stale revisions and full conversations before incurring model costs", async () => {
+    expect(
+      (await POST(request({ ...body, conversation_revision: 1 }))).status,
+    ).toBe(409);
+    mocks.savedHistory.mockResolvedValue({
+      data: {
+        revision: 2,
+        messages: Array(100).fill({ role: "user", content: "question" }),
+      },
+    });
+    expect(
+      (await POST(request({ ...body, conversation_revision: 2 }))).status,
+    ).toBe(409);
+    expect(mocks.provider).not.toHaveBeenCalled();
+  });
+  it("does not report a saved reply when persistence fails", async () => {
+    mocks.rpc.mockImplementation(async (name) =>
+      name === "save_finance_conversation"
+        ? { error: { code: "40001" } }
+        : { data: true },
+    );
+    const result = await POST(request({ ...body, conversation_revision: 2 }));
+    expect(result.status).toBe(409);
+    expect(await result.json()).not.toHaveProperty("proposals");
+  });
   it("validates the key before reporting a connection and exposes only tool-capable models", async () => {
     mocks.provider.mockResolvedValueOnce({ data: {} }).mockResolvedValueOnce({
       data: [

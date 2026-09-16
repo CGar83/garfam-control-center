@@ -4,8 +4,8 @@ import {
   authorizeFinance,
   jsonResponse,
   openRouterFetch,
-  openRouterKey,
 } from "@/lib/finance/server";
+import { resolveOpenRouterKey } from "@/lib/finance/persistence";
 
 export async function GET(request: Request) {
   try {
@@ -14,8 +14,8 @@ export async function GET(request: Request) {
       .min(1)
       .max(160)
       .parse(new URL(request.url).searchParams.get("family_id"));
-    await authorizeFinance(request, familyId);
-    const key = openRouterKey(request, familyId);
+    const access = await authorizeFinance(request, familyId);
+    const key = await resolveOpenRouterKey(request, familyId, access);
     // The catalog is public; validate credentials before reporting a connection.
     await openRouterFetch("key", key);
     const body = await openRouterFetch("models", key);

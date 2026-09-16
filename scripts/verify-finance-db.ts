@@ -7,7 +7,12 @@ async function main() {
   try {
     await db.exec(`
       create role authenticated;
+      create role anon;
       create schema auth;
+      create table auth.users(id uuid primary key);
+      insert into auth.users
+        select ('00000000-0000-4000-8000-' || lpad(n::text,12,'0'))::uuid
+        from generate_series(1,5) n;
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.user_id',true),'')::uuid $$;
       grant usage on schema auth to authenticated;
       create table public.families(id text primary key);
@@ -223,6 +228,128 @@ async function main() {
       (await db.query("select * from finance_change_log")).rows.length,
       0,
       "Other-family parent cannot read receipts",
+    );
+    await db.exec("reset role");
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20260916010000_saved_finance_assistant.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      "insert into family_members(id,family_id,user_id,role) values ('other-admin','family-a','00000000-0000-4000-8000-000000000005','admin')",
+    );
+    await db.exec(
+      "set role authenticated; set test.user_id = '00000000-0000-4000-8000-000000000001'",
+    );
+    await db.exec(
+      "insert into finance_assistant_connections(family_id,user_id,model,encrypted_api_key) values ('family-a',auth.uid(),'test/model','v1.encrypted-placeholder')",
+    );
+    const saveChat = (
+      model: string,
+      revision: number,
+      messages: unknown[] = [{ role: "user", content: "Review my plan" }],
+      family = "family-a",
+    ) =>
+      db.query<{ revision: number }>(
+        "select save_finance_conversation($1,$2,$3,$4::jsonb) revision",
+        [family, model, revision, JSON.stringify(messages)],
+      );
+    assert.equal((await saveChat("test/model", 0)).rows[0].revision, 1);
+    assert.equal((await saveChat("test/other-model", 0)).rows[0].revision, 1);
+    await assert.rejects(saveChat("test/model", 0), /Conversation changed/);
+    await assert.rejects(
+      saveChat(
+        "test/model",
+        1,
+        Array(101).fill({ role: "user", content: "x" }),
+      ),
+      /check constraint/,
+    );
+    assert.equal((await saveChat("test/model", 1, [])).rows[0].revision, 2);
+    await assert.rejects(
+      saveChat("test/model", 1),
+      /Conversation changed/,
+      "An in-flight reply must not restore cleared history",
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select * from finance_assistant_conversations where model='test/other-model'",
+        )
+      ).rows.length,
+      1,
+    );
+    await assert.rejects(
+      saveChat("test/model", 0, [], "family-b"),
+      /Parent access required/,
+    );
+    await assert.rejects(
+      db.exec(
+        "update finance_assistant_connections set user_id='00000000-0000-4000-8000-000000000005'",
+      ),
+      /row-level security/,
+    );
+    for (const user of [
+      "00000000-0000-4000-8000-000000000002",
+      "00000000-0000-4000-8000-000000000003",
+      "00000000-0000-4000-8000-000000000005",
+    ]) {
+      await db.exec(`set test.user_id = '${user}'`);
+      assert.equal(
+        (await db.query("select * from finance_assistant_connections")).rows
+          .length,
+        0,
+      );
+      assert.equal(
+        (await db.query("select * from finance_assistant_conversations")).rows
+          .length,
+        0,
+      );
+      await assert.rejects(
+        db.exec(
+          "insert into finance_assistant_connections(family_id,user_id,model) values ('family-a','00000000-0000-4000-8000-000000000001','test/spoof')",
+        ),
+        /row-level security/,
+      );
+      await db.exec("delete from finance_assistant_conversations");
+    }
+    await db.exec(
+      "reset role; update family_members set role='viewer' where id='parent-a'; set role authenticated; set test.user_id='00000000-0000-4000-8000-000000000001'",
+    );
+    assert.equal(
+      (await db.query("select * from finance_assistant_connections")).rows
+        .length,
+      0,
+    );
+    await assert.rejects(saveChat("test/model", 2), /Parent access required/);
+    await db.exec("reset role; set role anon");
+    await assert.rejects(
+      db.exec("select * from finance_assistant_connections"),
+      /permission denied/,
+    );
+    await assert.rejects(saveChat("test/model", 2), /permission denied/);
+    await db.exec("reset role");
+    assert.equal(
+      (await db.query("select * from finance_assistant_conversations")).rows
+        .length,
+      2,
+    );
+    await db.exec(
+      "delete from auth.users where id='00000000-0000-4000-8000-000000000001'",
+    );
+    assert.equal(
+      (await db.query("select * from finance_assistant_connections")).rows
+        .length,
+      0,
+    );
+    assert.equal(
+      (await db.query("select * from finance_assistant_conversations")).rows
+        .length,
+      0,
+    );
+    console.log(
+      "Assistant storage checks passed: owner and workspace isolation, admin privacy, viewer/anon rejection, demotion, model separation, history limits, concurrent/cleared conversation conflicts, and user deletion cleanup.",
     );
     console.log(
       "Finance database checks passed: migration, creator-only workspace bootstrap, RLS, family isolation, replay protection, conflicts, atomic receipts, request limits.",
