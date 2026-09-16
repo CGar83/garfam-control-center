@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { openRouterFetch } from "@/lib/finance/server";
+import { FinanceApiError, openRouterFetch } from "@/lib/finance/server";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -39,6 +39,8 @@ describe("OpenRouter error reporting", () => {
       const error = await openRouterFetch("chat/completions", "test-key").catch(
         (e) => e,
       );
+      if (!(error instanceof FinanceApiError))
+        throw new Error("Expected a classified provider error");
       expect(error.message).toContain(`OpenRouter ${status}`);
       expect(error.message).toContain(reason);
       expect(error.message).not.toMatch(
