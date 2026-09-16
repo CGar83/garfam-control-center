@@ -108,6 +108,44 @@ export function openRouterKey(request: Request, familyId: string) {
   return key;
 }
 
+function openRouterError(status: number, message: string) {
+  // Classify provider text, but never echo it: it can contain prompts, keys, or raw upstream metadata.
+  let reason: string;
+  if (
+    [400, 404, 503].includes(status) &&
+    /data policy|privacy|data collection|zero.data.retention/i.test(message)
+  ) {
+    reason =
+      "No provider matches the selected model and privacy restrictions. Choose another model; Gather will not relax its financial-data privacy settings.";
+  } else if (
+    [400, 404, 503].includes(status) &&
+    /parameter|tool.use|tool.call|support.*tools/i.test(message)
+  ) {
+    reason =
+      "No provider supports the requested model features. Choose another tool-capable model and try again.";
+  } else {
+    const messages: Record<number, string> = {
+      400: "The provider rejected the request parameters. Try another tool-capable model.",
+      401: "This API key was rejected. Replace it and save the connection again.",
+      402: "Your account or API key has insufficient credits. Check your OpenRouter balance and key spending limit.",
+      403: "The request was blocked by permissions, moderation, or an account guardrail. Check your OpenRouter activity and key permissions.",
+      404: "No eligible endpoint was found for this model. Check the model's availability and your OpenRouter routing settings, or choose another model.",
+      408: "The provider timed out. Try again shortly.",
+      413: "The provider rejected the request size. Try a shorter question or a model with a larger context window.",
+      422: "The provider rejected the request format. Try another tool-capable model.",
+      429: "Your account or the provider is rate limited. Wait before trying again.",
+      500: "OpenRouter encountered an internal error. Try again shortly.",
+      502: "The selected model is unavailable or returned an invalid response. Try again shortly or choose another model.",
+      503: "No provider is currently available under the routing requirements. Try again later or choose another model.",
+      504: "The provider timed out. Try again shortly.",
+    };
+    reason =
+      messages[status] ??
+      "The provider rejected the request. Check your OpenRouter activity for details or try another model.";
+  }
+  return new FinanceApiError(`OpenRouter ${status}: ${reason}`, 502);
+}
+
 export async function openRouterFetch(
   path: "key" | "models" | "chat/completions",
   key: string,
@@ -132,18 +170,32 @@ export async function openRouterFetch(
       504,
     );
   }
-  if (!response.ok) {
-    const messages: Record<number, string> = {
-      401: "OpenRouter rejected this key.",
-      402: "Your OpenRouter account needs credits.",
-      429: "OpenRouter is busy or your request limit was reached. Try again shortly.",
-      400: "The selected model could not process this request. Choose a model that supports tools.",
-    };
-    throw new FinanceApiError(
-      messages[response.status] ??
-        "The model provider could not complete the request.",
-      502,
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw openRouterError(response.ok ? 502 : response.status, "");
+  }
+  const envelope = z
+    .object({
+      error: z.object({
+        code: z.union([z.number(), z.string()]).optional(),
+        message: z.string().optional(),
+      }),
+    })
+    .safeParse(payload);
+  if (!response.ok || envelope.success) {
+    const code = envelope.success ? Number(envelope.data.error.code) : NaN;
+    const status =
+      response.ok && Number.isInteger(code) && code >= 400 && code <= 599
+        ? code
+        : response.ok
+          ? 502
+          : response.status;
+    throw openRouterError(
+      status,
+      envelope.success ? (envelope.data.error.message ?? "") : "",
     );
   }
-  return response.json();
+  return payload;
 }

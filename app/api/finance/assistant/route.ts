@@ -183,7 +183,7 @@ export async function POST(request: Request) {
         ],
         tools: [toolDefinition],
         tool_choice: "auto",
-        parallel_tool_calls: false,
+        // Keep the required parameter set portable; proposals are validated and reviewed, never executed here.
         max_tokens: 2500,
         provider: { require_parameters: true, data_collection: "deny" },
       }),

@@ -106,6 +106,34 @@ beforeEach(() => {
 });
 
 describe("assistant proposal boundary", () => {
+  it("routes Gemini with supported parameters without weakening privacy or executing proposals", async () => {
+    mocks.provider.mockImplementation(async (_path, _key, payload) => {
+      if ("parallel_tool_calls" in payload)
+        throw new FinanceApiError(
+          "No endpoints support the requested parameters",
+          502,
+        );
+      return response();
+    });
+    const result = await POST(
+      request({ ...body, model: "google/gemini-3.8-flash" }),
+    );
+    expect(result.status).toBe(200);
+    const payload = mocks.provider.mock.calls[0][2];
+    expect(payload).not.toHaveProperty("parallel_tool_calls");
+    expect(payload.provider).toEqual({
+      require_parameters: true,
+      data_collection: "deny",
+    });
+    expect(payload.tools).toHaveLength(1);
+    expect(payload.tool_choice).toBe("auto");
+    expect((await result.json()).proposals).toHaveLength(1);
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc).not.toHaveBeenCalledWith(
+      "apply_finance_change",
+      expect.anything(),
+    );
+  });
   it("uses server history instead of client-invented history and saves before returning", async () => {
     mocks.rpc.mockImplementation(async (name) => ({
       data: name === "save_finance_conversation" ? 3 : true,
