@@ -1,0 +1,1936 @@
+[
+  {
+    "id": "INITIAL_CD_CHECKLIST",
+    "title": "Initial CD Checklist",
+    "category": "Closing disclosure",
+    "relatedTemplateIds": [
+      "CD_REQUEST",
+      "CLOSING_COORDINATION"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 3941,
+      "lineEnd": 3992,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Complete written checklist from this bounded source page. Its timing, fee, fulfillment and disclosure instructions are unverified training claims, not current policy or Hub completion gates. The final row about matching LE/CD amounts is ambiguous alongside the source instruction to keep the prior LE amount and current CD amount; obtain human clarification before use. Source text also calls the saved document final CD while naming it 0. Initial CD. The Hub does not issue or send disclosures.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "#### Page: Initial CD Checklist",
+        "sourceLine": 3941,
+        "ordinal": 1
+      },
+      {
+        "type": "paragraph",
+        "text": "Follow this checklist to ensure all required steps are taken when preparing and sending the Initial Closing Disclosure (CD)",
+        "sourceLine": 3943,
+        "ordinal": 2
+      },
+      {
+        "type": "heading",
+        "text": "**Trigger and Timing for Sending Initial CD**",
+        "sourceLine": 3945,
+        "ordinal": 3
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm all LEs are signed",
+        "sourceLine": 3946,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 4
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Ensure the loan is locked",
+        "sourceLine": 3947,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 5
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Verify LECOC (if issued) is signed",
+        "sourceLine": 3948,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 6
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Wait 1 business day after LE signing (excl. Sundays/holidays)",
+        "sourceLine": 3949,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 7
+      },
+      {
+        "type": "heading",
+        "text": "**Gather and Review Documents in LendingPad**",
+        "sourceLine": 3951,
+        "ordinal": 8
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Estimated Fees / Preliminary CD",
+        "sourceLine": 3952,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 9
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Title Commitment",
+        "sourceLine": 3953,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 10
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Tax Documents",
+        "sourceLine": 3954,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 11
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Latest LECOC or Initial Disclosures (if no LECOC issued)",
+        "sourceLine": 3955,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 12
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Flood Certificate",
+        "sourceLine": 3956,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 13
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Insurance Documents (latest)",
+        "sourceLine": 3957,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 14
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Appraisal Report & Invoice",
+        "sourceLine": 3958,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 15
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] CDA Invoice (if applicable)",
+        "sourceLine": 3959,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 16
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Condo Questionnaire (if applicable)",
+        "sourceLine": 3960,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 17
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Credit Report Invoice",
+        "sourceLine": 3961,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 18
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Payoff Statement",
+        "sourceLine": 3962,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 19
+      },
+      {
+        "type": "heading",
+        "text": "**Verify Loan and Closing Details**",
+        "sourceLine": 3964,
+        "ordinal": 20
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Match vesting to title commitment and LP",
+        "sourceLine": 3965,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 21
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] If vesting mismatched, request deed + LECOC",
+        "sourceLine": 3966,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 22
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Verify LE dates: Issued, Received, Delivered",
+        "sourceLine": 3967,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 23
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Check CD issue date is current date",
+        "sourceLine": 3968,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 24
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm closing/funding dates and first payment date",
+        "sourceLine": 3969,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 25
+      },
+      {
+        "type": "heading",
+        "text": "**Fee Entry and Reconciliation in LendingPad**",
+        "sourceLine": 3971,
+        "ordinal": 26
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Enter borrower-paid and other fees correctly",
+        "sourceLine": 3972,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 27
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Ensure APR column is accurate (esp. AMC fee)",
+        "sourceLine": 3973,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 28
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Match fee invoices to disclosed amounts",
+        "sourceLine": 3974,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 29
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm appraisal, CDA, credit, flood, HOA fees",
+        "sourceLine": 3975,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 30
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Match title/escrow fees (Section C, E)",
+        "sourceLine": 3976,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 31
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Enter prepaids and escrow amounts",
+        "sourceLine": 3977,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 32
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Click 'Set Default' to calculate reserves",
+        "sourceLine": 3978,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 33
+      },
+      {
+        "type": "heading",
+        "text": "**Finalize CD and Push to IDS**",
+        "sourceLine": 3980,
+        "ordinal": 34
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Enter title ref # in LP (Disclosure > Additional)",
+        "sourceLine": 3981,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 35
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Update payoffs if needed (Loan App > Liabilities)",
+        "sourceLine": 3982,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 36
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Verify fee tolerance for Sections A, B, C, E",
+        "sourceLine": 3983,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 37
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm investor, program, and loan terms",
+        "sourceLine": 3984,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 38
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Check escrow months/premiums in IDS",
+        "sourceLine": 3985,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 39
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Go to Audit & Order, preview CD",
+        "sourceLine": 3986,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 40
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] If correct, check 'Send to Fulfillment' and ORDER DOCS",
+        "sourceLine": 3987,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 41
+      },
+      {
+        "type": "heading",
+        "text": "**Save CD and Handle Changes**",
+        "sourceLine": 3989,
+        "ordinal": 42
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Upload final CD to LP (label as '0. Initial CD')",
+        "sourceLine": 3990,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 43
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] For CDCOC, confirm reason and redisclosure date",
+        "sourceLine": 3991,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 44
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Ensure LE and CD amounts match across changes",
+        "sourceLine": 3992,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 45
+      }
+    ],
+    "omissions": [],
+    "contentSha256": "0c907fd177981a3e780051a0e416f76a9e056212fe2a8e06250dfcbd2dc27a3e"
+  },
+  {
+    "id": "CTC_CHECKLIST",
+    "title": "What to do at CTC Checklist",
+    "category": "Closing coordination",
+    "relatedTemplateIds": [
+      "CLOSING_COORDINATION",
+      "CONDITION_FOLLOWUP",
+      "MLP_SIGNING_COORDINATION"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 4299,
+      "lineEnd": 4331,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Complete written checklist from this bounded source page. Investor CTC, rescission, seasoning and funding statements are imported and unverified. CTC and clearance are external decisions; Hub work completion does not establish them. The source states a broad VA/FHA seasoning rule elsewhere qualified by product-specific material. A responsible human must verify applicability and current authority.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "#### Page: What to do at CTC Checklist",
+        "sourceLine": 4299,
+        "ordinal": 1
+      },
+      {
+        "type": "heading",
+        "text": "**1. Investor CTC & Underwriting Review**",
+        "sourceLine": 4301,
+        "ordinal": 2
+      },
+      {
+        "type": "list-item",
+        "text": "- **Compare Investor CTC vs. LP File:** Ensure that the investor's CTC aligns with the LP file data.",
+        "sourceLine": 4302,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 3
+      },
+      {
+        "type": "list-item",
+        "text": "- **Add Underwriting Conditions:** Add any required conditions for funding or purchasing to the LP.",
+        "sourceLine": 4303,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 4
+      },
+      {
+        "type": "list-item",
+        "text": "- **Investor CTC Inaccurate?** → Request the Processor to obtain an updated CTC from the investor.",
+        "sourceLine": 4304,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 5
+      },
+      {
+        "type": "heading",
+        "text": "**2. Disclosures & Signed CDs**",
+        "sourceLine": 4306,
+        "ordinal": 6
+      },
+      {
+        "type": "list-item",
+        "text": "- **Verify All Disclosed CDs Are Signed:** Ensure all Closing Disclosures (CDs) are signed and uploaded to LP.",
+        "sourceLine": 4307,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 7
+      },
+      {
+        "type": "list-item",
+        "text": "- **Missing Signed CDs?** → Contact the Loan Processing Assistant (LPA) to upload them promptly.",
+        "sourceLine": 4308,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 8
+      },
+      {
+        "type": "list-item",
+        "text": "- **Review Last Disclosed CD:** Confirm that no material changes have occurred since the last CD.",
+        "sourceLine": 4309,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 9
+      },
+      {
+        "type": "list-item",
+        "text": "- **Check Rescission Requirements:** Cross-check signed CD dates with rescission period rules to ensure we're clear to fund.",
+        "sourceLine": 4310,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 10
+      },
+      {
+        "type": "list-item",
+        "text": "- **Important:** Nexbank follows TRID rules on DSCR loans – confirm CD timelines and waiting periods accordingly.",
+        "sourceLine": 4311,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 11
+      },
+      {
+        "type": "heading",
+        "text": "**3. Government Loan Requirements (VA/FHA)**",
+        "sourceLine": 4313,
+        "ordinal": 12
+      },
+      {
+        "type": "list-item",
+        "text": "- **210-Day Seasoning Check (Refinance Only):** For VA or FHA refinances, confirm that 210-day seasoning requirement is met.",
+        "sourceLine": 4314,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 13
+      },
+      {
+        "type": "heading",
+        "text": "**4. Signing Party & Escrow Coordination**",
+        "sourceLine": 4316,
+        "ordinal": 14
+      },
+      {
+        "type": "list-item",
+        "text": "- **Confirm Additional Signing Parties Needed?** Verify if spouse, partner, or other parties need to be present for signing.",
+        "sourceLine": 4317,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 15
+      },
+      {
+        "type": "list-item",
+        "text": "- **Request Escrow to Balance for Closing:** Escrow will coordinate with Loan Partner/Processor for borrower availability.",
+        "sourceLine": 4318,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 16
+      },
+      {
+        "type": "list-item",
+        "text": "- **Review Escrow's CD/Settlement Statement:** Compare against internal LP file; update fees in LP as needed.",
+        "sourceLine": 4319,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 17
+      },
+      {
+        "type": "heading",
+        "text": "**5. Final Loan Platform (LP) Updates**",
+        "sourceLine": 4321,
+        "ordinal": 18
+      },
+      {
+        "type": "list-item",
+        "text": "- **Update Estimated Close/Funding Dates:** Make sure LP reflects accurate Est. Close and Funding dates.",
+        "sourceLine": 4322,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 19
+      },
+      {
+        "type": "list-item",
+        "text": "- **Confirm POC Fee Receipts:** All Paid Outside Closing (POC) fees must have receipts uploaded.",
+        "sourceLine": 4323,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 20
+      },
+      {
+        "type": "list-item",
+        "text": "- **Match Cash to Close / Cash Back to CTC:** Once balanced, verify final cash figures in LP match Investor CTC.",
+        "sourceLine": 4324,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 21
+      },
+      {
+        "type": "list-item",
+        "text": "- **Borrower Bringing in Funds (Refi)?** → Confirm with LPA if they're comfortable with borrower funding.",
+        "sourceLine": 4325,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 22
+      },
+      {
+        "type": "heading",
+        "text": "**Reminders**",
+        "sourceLine": 4327,
+        "ordinal": 23
+      },
+      {
+        "type": "list-item",
+        "text": "- TRID applies to Nexbank DSCRs",
+        "sourceLine": 4328,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 24
+      },
+      {
+        "type": "list-item",
+        "text": "- Seasoning = 210 days for VA/FHA refis",
+        "sourceLine": 4329,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 25
+      },
+      {
+        "type": "list-item",
+        "text": "- Always sync LP updates to escrow/CD docs",
+        "sourceLine": 4330,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 26
+      },
+      {
+        "type": "list-item",
+        "text": "- Discrepancies = flag early to avoid funding delays",
+        "sourceLine": 4331,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 27
+      }
+    ],
+    "omissions": [],
+    "contentSha256": "18db1dc47f72b493565648f862ee3e59a67126f165373e051e142f88a5d4bf47"
+  },
+  {
+    "id": "SIGNED_LOAN_DOCS_REVIEW",
+    "title": "Reviewing Signed Loan Docs",
+    "category": "Signed document review",
+    "relatedTemplateIds": [
+      "CLOSING_COORDINATION",
+      "MLP_SIGNING_COORDINATION",
+      "POST_CLOSE_QC"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 4554,
+      "lineEnd": 4614,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Unverified source procedure. All three written source pages are retained in their original order; the generic split-signing example is retained exactly. Source links are reference descriptions only. Instructions to change LendingPad status, clear conditions, submit a wire, upload packages or update a tracker describe external human actions. The Hub performs none of those actions and does not authorize funding. Its wet-state exception and funding conditions require current owner review. Original screenshot media was not supplied separately.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "### Document: Reviewing Signed Loan Docs",
+        "sourceLine": 4554,
+        "ordinal": 1
+      },
+      {
+        "type": "heading",
+        "text": "#### Page: Updating Closed Date",
+        "sourceLine": 4556,
+        "ordinal": 2
+      },
+      {
+        "type": "paragraph",
+        "text": "Make sure you review closed loan docs and make sure they are all SIGNED first!",
+        "sourceLine": 4558,
+        "ordinal": 3
+      },
+      {
+        "type": "heading",
+        "text": "**Update the Closed Date**",
+        "sourceLine": 4560,
+        "ordinal": 4
+      },
+      {
+        "type": "paragraph",
+        "text": "In LendingPad, locate the field for the \"Closed Date\" and enter the date the loan was signed. This date should reflect the actual signing date of the loan documents.",
+        "sourceLine": 4562,
+        "ordinal": 5
+      },
+      {
+        "type": "paragraph",
+        "text": "Example: If the loan was signed on July 7, 2025, this is the date that should be entered. (If this is a split signing, enter the date of the last person who signed.) IE—B1 signs July 7, 2025, B2 signs July 9, 2025. Enter July 9, 2025, as the Closed Date.",
+        "sourceLine": 4564,
+        "ordinal": 6
+      },
+      {
+        "type": "heading",
+        "text": "**Navigate to the Critical Dates Section**",
+        "sourceLine": 4566,
+        "ordinal": 7
+      },
+      {
+        "type": "paragraph",
+        "text": "Under the Critical Dates section in LendingPad, input the signing date as the official Closed Date.",
+        "sourceLine": 4568,
+        "ordinal": 8
+      },
+      {
+        "type": "heading",
+        "text": "**Update Loan Status**",
+        "sourceLine": 4570,
+        "ordinal": 9
+      },
+      {
+        "type": "paragraph",
+        "text": "Once the Closed Date is entered, update the loan status to \"Closed\" in LendingPad to reflect the finalized status.",
+        "sourceLine": 4572,
+        "ordinal": 10
+      },
+      {
+        "type": "heading",
+        "text": "#### Page: Clearing Conditons & Submitting Wire",
+        "sourceLine": 4574,
+        "ordinal": 11
+      },
+      {
+        "type": "heading",
+        "text": "**Clear Outstanding Conditions**",
+        "sourceLine": 4576,
+        "ordinal": 12
+      },
+      {
+        "type": "paragraph",
+        "text": "Navigate to the Conditions tab in LendingPad. Review and clear all outstanding conditions associated with the loan. Ensure all requirements are fully satisfied before proceeding.",
+        "sourceLine": 4578,
+        "ordinal": 13
+      },
+      {
+        "type": "heading",
+        "text": "**Verify the Funding Estimate**",
+        "sourceLine": 4580,
+        "ordinal": 14
+      },
+      {
+        "type": "list-item",
+        "text": "- Go to the Funding Estimate section.",
+        "sourceLine": 4581,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 15
+      },
+      {
+        "type": "list-item",
+        "text": "- Confirm the estimate reflects accurate and updated figures.",
+        "sourceLine": 4582,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 16
+      },
+      {
+        "type": "list-item",
+        "text": "- If applicable, ensure recession [rescission] is included and properly calculated.",
+        "sourceLine": 4583,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 17
+      },
+      {
+        "type": "list-item",
+        "text": "- Do not submit the wire until the file has been reviewed (unless Wet state)",
+        "sourceLine": 4584,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 18
+      },
+      {
+        "type": "list-item",
+        "text": "- On Purchases: Good to submit wire after SLP is reviewed (Funds to Close not needed)",
+        "sourceLine": 4585,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 19
+      },
+      {
+        "type": "heading",
+        "text": "**Confirm Funding Details with Warehouse Bank**",
+        "sourceLine": 4587,
+        "ordinal": 20
+      },
+      {
+        "type": "list-item",
+        "text": "- Double-check that the Funding Estimate Date is correct.",
+        "sourceLine": 4588,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 21
+      },
+      {
+        "type": "list-item",
+        "text": "- Verify the wire amount is accurate and aligns with the final disbursement amount.",
+        "sourceLine": 4589,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 22
+      },
+      {
+        "type": "list-item",
+        "text": "- Ensure these details are correctly entered for the applicable warehouse bank.",
+        "sourceLine": 4590,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 23
+      },
+      {
+        "type": "heading",
+        "text": "**Submit the Wire**",
+        "sourceLine": 4592,
+        "ordinal": 24
+      },
+      {
+        "type": "paragraph",
+        "text": "Once everything is reviewed and verified, proceed to submit the wire to complete the funding process.",
+        "sourceLine": 4594,
+        "ordinal": 25
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Page includes a cross-reference link to the \"Wire Steps\" document elsewhere in this Closing Trainings curriculum — that document is captured separately, later in this master file.)*",
+        "sourceLine": 4596,
+        "ordinal": 26
+      },
+      {
+        "type": "heading",
+        "text": "#### Page: Uploading Docs",
+        "sourceLine": 4598,
+        "ordinal": 27
+      },
+      {
+        "type": "heading",
+        "text": "**Upload to LendingPad**",
+        "sourceLine": 4600,
+        "ordinal": 28
+      },
+      {
+        "type": "list-item",
+        "text": "- Locate the \"Closing Package\" section within LendingPad.",
+        "sourceLine": 4601,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 29
+      },
+      {
+        "type": "list-item",
+        "text": "- Upload the signed loan package and label it as: X. SLP",
+        "sourceLine": 4602,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 30
+      },
+      {
+        "type": "heading",
+        "text": "**Upload to Investor Portal**",
+        "sourceLine": 4604,
+        "ordinal": 31
+      },
+      {
+        "type": "list-item",
+        "text": "- Upload the same signed loan package to the investor portal, ensuring it matches the version submitted to LendingPad.",
+        "sourceLine": 4605,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 32
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Page includes a cross-reference link to the \"Submitting Closing Packages\" document elsewhere in this Closing Trainings curriculum — that document is captured separately, later in this master file.)*",
+        "sourceLine": 4607,
+        "ordinal": 33
+      },
+      {
+        "type": "heading",
+        "text": "**Update Status in the Tracker**",
+        "sourceLine": 4609,
+        "ordinal": 34
+      },
+      {
+        "type": "paragraph",
+        "text": "Once the wire has been ordered and the signed package has been uploaded to both platforms (LendingPad and investor portal):",
+        "sourceLine": 4611,
+        "ordinal": 35
+      },
+      {
+        "type": "list-item",
+        "text": "- Navigate to the Updates Sheet and change the loan status to: \"File Review\"",
+        "sourceLine": 4612,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 36
+      },
+      {
+        "type": "list-item",
+        "text": "- Respond to the email chain to confirm the wire amount.",
+        "sourceLine": 4613,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 37
+      },
+      {
+        "type": "list-item",
+        "text": "- Once the file has been funded, move it up. Keep it BOLD.",
+        "sourceLine": 4614,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 38
+      }
+    ],
+    "omissions": [],
+    "contentSha256": "64087805d0bc0c3b7f73b0e6d1fdb468905ff0b2bff7e8e812014ef73fb478f4"
+  },
+  {
+    "id": "LOAN_DOC_CHECKLIST",
+    "title": "Loan Doc Checklist",
+    "category": "Document preparation",
+    "relatedTemplateIds": [
+      "CLOSING_COORDINATION",
+      "MLP_SIGNING_COORDINATION",
+      "POST_CLOSE_QC"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 6327,
+      "lineEnd": 6375,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Complete written checklist from this bounded source page, including source wording and order. TRID, riders, guaranties, trust/POA signatures, signing dates, compensation and error-correction instructions are unverified references. The trust-guaranty row and source-wide audit instructions require specialist review before use. No checklist row runs a vendor action, changes LOS data, authorizes funding or becomes a Hub policy gate.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "#### Page: Loan Doc Checklist",
+        "sourceLine": 6327,
+        "ordinal": 1
+      },
+      {
+        "type": "paragraph",
+        "text": "Use this checklist when preparing, processing, and finalizing loan documents through LendingPad, IDS, and for special cases like LLCs, Trusts, and POAs.",
+        "sourceLine": 6329,
+        "ordinal": 2
+      },
+      {
+        "type": "heading",
+        "text": "**LendingPad Steps**",
+        "sourceLine": 6331,
+        "ordinal": 3
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Enter CD received date",
+        "sourceLine": 6332,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 4
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Enter CD COC received date (if applicable)",
+        "sourceLine": 6333,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 5
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Input estimated closing and funding dates",
+        "sourceLine": 6334,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 6
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Ensure TRID compliance if applicable",
+        "sourceLine": 6335,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 7
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Update LP fees to match the title CD",
+        "sourceLine": 6336,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 8
+      },
+      {
+        "type": "heading",
+        "text": "**IDS Steps**",
+        "sourceLine": 6338,
+        "ordinal": 9
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Balance payoffs with title (esp. credit card payoffs)",
+        "sourceLine": 6339,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 10
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Order docs in IDS",
+        "sourceLine": 6340,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 11
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Go to Setup > Lender and confirm lender info based on loan type",
+        "sourceLine": 6341,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 12
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Go to Setup > Lender and choose investor using the gear icon",
+        "sourceLine": 6342,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 13
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Go to Settlement/Title and confirm title info and Escrow #",
+        "sourceLine": 6343,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 14
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Add trustee if applicable (varies by state and file type)",
+        "sourceLine": 6344,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 15
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Copy vesting from LP under Loan Parties > Parties Info",
+        "sourceLine": 6345,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 16
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Verify and add property riders in Collateral section",
+        "sourceLine": 6346,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 17
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm all loan term dates and prepayment penalties",
+        "sourceLine": 6347,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 18
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Verify and assign service providers under Loan Fees",
+        "sourceLine": 6348,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 19
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Confirm escrow amounts under Loan Fees > Escrows",
+        "sourceLine": 6349,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 20
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Leave LE/CD section empty unless sending COC with docs",
+        "sourceLine": 6350,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 21
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Audit & Order: Uncheck FEES DETAIL FORM TRID",
+        "sourceLine": 6351,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 22
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Include required docs (e.g., BPOA, Nexbank 1003, Allonges)",
+        "sourceLine": 6352,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 23
+      },
+      {
+        "type": "heading",
+        "text": "**LLC/Trust/POA Specific**",
+        "sourceLine": 6354,
+        "ordinal": 24
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] For LLC: Signature = '[LLC Name], by [Individual Name], member'",
+        "sourceLine": 6355,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 25
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Match names with the Operating Agreement in LP",
+        "sourceLine": 6356,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 26
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Use program with BPOA & Guaranty for LLC closings",
+        "sourceLine": 6357,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 27
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Add Guaranty if loan is closing in LLC",
+        "sourceLine": 6358,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 28
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Edit Guaranty for Trust loans to be signed personally",
+        "sourceLine": 6359,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 29
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Use proper trust vesting format and add riders as needed",
+        "sourceLine": 6360,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 30
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Follow POA rules and state-specific NBS signature rules",
+        "sourceLine": 6361,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 31
+      },
+      {
+        "type": "heading",
+        "text": "**Post-Draw and Funding Requirements**",
+        "sourceLine": 6363,
+        "ordinal": 32
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] For purchases: scan loan docs, track original note, receipt of funds",
+        "sourceLine": 6364,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 33
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] For refis: scan loan docs, track original note",
+        "sourceLine": 6365,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 34
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Update the Updates Sheet with borrower and loan details",
+        "sourceLine": 6366,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 35
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] New docs required if borrower signs before printed date",
+        "sourceLine": 6367,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 36
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Adjust wire if borrower signs after printed date",
+        "sourceLine": 6368,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 37
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] New docs required if signing date changes first payment date",
+        "sourceLine": 6369,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 38
+      },
+      {
+        "type": "heading",
+        "text": "**Compliance Checks**",
+        "sourceLine": 6371,
+        "ordinal": 39
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Log into ComplianceEase and find the loan",
+        "sourceLine": 6372,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 40
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Edit disclosures as needed",
+        "sourceLine": 6373,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 41
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Set compensation to 'Third Party Provider'",
+        "sourceLine": 6374,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 42
+      },
+      {
+        "type": "list-item",
+        "text": "- [ ] Correct high cost, Section 32, or tolerance errors before sending",
+        "sourceLine": 6375,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 43
+      }
+    ],
+    "omissions": [],
+    "contentSha256": "28e6145be060a6b977c005d0e74547ca1082ce3eded44a0511f77a9c5329893f"
+  },
+  {
+    "id": "POST_FUNDING_WRAP_UP",
+    "title": "Post-Funding Loan File Wrap-Up Procedure",
+    "category": "File reconciliation",
+    "relatedTemplateIds": [
+      "POST_CLOSE_QC",
+      "EXCEPTION_REVIEW"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 6609,
+      "lineEnd": 6722,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Written procedure retained in source order, with generic interface descriptions and directory examples retained; descriptions containing private loan or financial examples are explicitly omitted. Both source steps numbered 5, the source spelling Prinicipal, fixed fee values, arithmetic statements and EPO periods are intentionally preserved as unverified references. These values are not current fee schedules, calculations, financial advice or live reconciliations. External LOS/CRM and warehouse evidence is needed; this view cannot establish revenue, purchase, settlement or completion. Original screenshot media was not supplied separately.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "#### Page: Post-Funding Loan File Wrap-Up Procedure",
+        "sourceLine": 6609,
+        "ordinal": 1
+      },
+      {
+        "type": "heading",
+        "text": "**How to Check Daily Settlements:**",
+        "sourceLine": 6611,
+        "ordinal": 2
+      },
+      {
+        "type": "paragraph",
+        "text": "Click on Reports → Open Daily Settlements - External",
+        "sourceLine": 6612,
+        "ordinal": 3
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Screenshot 1 shows the SRG Warehouse Loan System main menu with \"Reports\" highlighted in the top menu bar — First Bank branded loan system window.)*",
+        "sourceLine": 6614,
+        "ordinal": 4
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Screenshot 2 shows the \"First Bank - WLS Reports\" window, General tab, with a \"View\" button and a list of report names including: Collateral Status - Note Shipped - Detail, Collateral Status - Note Shipped - Not Settled - Detail, Collateral Status - Note Shipped - Summary, Collateral Status - Note Shipped to Custodian - Detail, Collateral Status - Settled, Collateral Status - Wet and Outstanding - Detail, Daily Adjustments, Daily Advances; and fields for Originator (Griffin Funding, Inc.), Investor, Closing Agent, Funding Source, Personnel.)*",
+        "sourceLine": 6616,
+        "ordinal": 5
+      },
+      {
+        "type": "heading",
+        "text": "**1. Save Final Documents to Dropbox**",
+        "sourceLine": 6618,
+        "ordinal": 6
+      },
+      {
+        "type": "paragraph",
+        "text": "Documents to Save:",
+        "sourceLine": 6620,
+        "ordinal": 7
+      },
+      {
+        "type": "list-item",
+        "text": "- Final Closing Disclosure (CD)",
+        "sourceLine": 6621,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 8
+      },
+      {
+        "type": "list-item",
+        "text": "- Final Purchase Advice (PA)",
+        "sourceLine": 6622,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 9
+      },
+      {
+        "type": "paragraph",
+        "text": "Dropbox Location: Griffin Funding Lender Docs > [Month_Year of Funding] (example: 3/2025 for March 2025 funding)",
+        "sourceLine": 6624,
+        "ordinal": 10
+      },
+      {
+        "type": "paragraph",
+        "text": "File Naming Format: `[Loan #] [Borrower Last, First Name]_[BRANCH]`",
+        "sourceLine": 6626,
+        "ordinal": 11
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6628. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6628,
+        "omission": true,
+        "ordinal": 12
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6630. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6630,
+        "omission": true,
+        "ordinal": 13
+      },
+      {
+        "type": "heading",
+        "text": "**2. Download Settlement Recap from Warehouse Line**",
+        "sourceLine": 6632,
+        "ordinal": 14
+      },
+      {
+        "type": "heading",
+        "text": "**Accessing NEXBANK Warehouse:**",
+        "sourceLine": 6634,
+        "ordinal": 15
+      },
+      {
+        "type": "list-item",
+        "text": "1. Navigate to INQUIRY",
+        "sourceLine": 6635,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 16
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Screenshot shows the SRG Warehouse Loan System main menu with \"Inquiry\" highlighted and a NexBank-branded splash screen.)*",
+        "sourceLine": 6637,
+        "ordinal": 17
+      },
+      {
+        "type": "list-item",
+        "text": "2. Type in the **borrower's name**",
+        "sourceLine": 6639,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 18
+      },
+      {
+        "type": "list-item",
+        "text": "3. Locate and enter the loan (text continues into next steps captured below)",
+        "sourceLine": 6640,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 19
+      },
+      {
+        "type": "list-item",
+        "text": "4. Go to **Reports**, select **Daily Settlements-Worksheet**",
+        "sourceLine": 6641,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 20
+      },
+      {
+        "type": "paragraph",
+        "text": "Save to Dropbox with file name format: `[Loan #] [Borrower Last, First Name] Settlement Recap [Warehouse Line]_[BRANCH]`",
+        "sourceLine": 6643,
+        "ordinal": 21
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6645. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6645,
+        "omission": true,
+        "ordinal": 22
+      },
+      {
+        "type": "heading",
+        "text": "**3. Input Revenue in HubSpot**",
+        "sourceLine": 6647,
+        "ordinal": 23
+      },
+      {
+        "type": "paragraph",
+        "text": "Open: Final Settlement Statement (SS), Final Purchase Advice (PA), Settlement Recap. Navigate to the loan record in HubSpot. Enter gross revenue in the designated field.",
+        "sourceLine": 6649,
+        "ordinal": 24
+      },
+      {
+        "type": "heading",
+        "text": "**4. Update LendingPad**",
+        "sourceLine": 6651,
+        "ordinal": 25
+      },
+      {
+        "type": "paragraph",
+        "text": "*Enter Wire and Warehouse Info:*",
+        "sourceLine": 6653,
+        "ordinal": 26
+      },
+      {
+        "type": "list-item",
+        "text": "- Locate the loan in LendingPad, go to the **Funding** tab",
+        "sourceLine": 6654,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 27
+      },
+      {
+        "type": "list-item",
+        "text": "- Input:",
+        "sourceLine": 6655,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 28
+      },
+      {
+        "type": "list-item",
+        "text": "  - **Wire sent (WAREHOUSE AMOUNT CUSTOM)** in Lending Pad. **(DisbWHPW)** on the settlement recap.",
+        "sourceLine": 6656,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 29
+      },
+      {
+        "type": "list-item",
+        "text": "  - **Warehouse used**",
+        "sourceLine": 6657,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 30
+      },
+      {
+        "type": "list-item",
+        "text": "- Confirm: **Funding difference should equal $0!!**",
+        "sourceLine": 6658,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 31
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6660. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6660,
+        "omission": true,
+        "ordinal": 32
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6662. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6662,
+        "omission": true,
+        "ordinal": 33
+      },
+      {
+        "type": "heading",
+        "text": "**Secondary Tab:**",
+        "sourceLine": 6664,
+        "ordinal": 34
+      },
+      {
+        "type": "list-item",
+        "text": "- Verify the **Sell Price** matches the **PA**",
+        "sourceLine": 6665,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 35
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6667. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6667,
+        "omission": true,
+        "ordinal": 36
+      },
+      {
+        "type": "paragraph",
+        "text": "**\"Nexbank PA example:\"**",
+        "sourceLine": 6669,
+        "ordinal": 37
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6671. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6671,
+        "omission": true,
+        "ordinal": 38
+      },
+      {
+        "type": "heading",
+        "text": "**5. Copy Purchase Advice:**",
+        "sourceLine": 6673,
+        "ordinal": 39
+      },
+      {
+        "type": "list-item",
+        "text": "- Paste the **Purchase Advice** into LendingPad's **Purchase Advice** section",
+        "sourceLine": 6674,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 40
+      },
+      {
+        "type": "list-item",
+        "text": "- Watch out for:",
+        "sourceLine": 6675,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 41
+      },
+      {
+        "type": "list-item",
+        "text": "  - Interest calculated using **360 vs 365 days**",
+        "sourceLine": 6676,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 42
+      },
+      {
+        "type": "list-item",
+        "text": "  - **Rounding adjustments** needed for interest",
+        "sourceLine": 6677,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 43
+      },
+      {
+        "type": "paragraph",
+        "text": "**\"Deephaven PA example:\"**",
+        "sourceLine": 6679,
+        "ordinal": 44
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6681. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6681,
+        "omission": true,
+        "ordinal": 45
+      },
+      {
+        "type": "paragraph",
+        "text": "Fee mapping notes:",
+        "sourceLine": 6683,
+        "ordinal": 46
+      },
+      {
+        "type": "list-item",
+        "text": "- **Delivery Fee** = Funding Fee",
+        "sourceLine": 6684,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 47
+      },
+      {
+        "type": "list-item",
+        "text": "- **Non-Delegated Underwriting Fee** = Underwriting Fee",
+        "sourceLine": 6685,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 48
+      },
+      {
+        "type": "list-item",
+        "text": "- **DHM Note Prinicipal Payment** = Other",
+        "sourceLine": 6686,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 49
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Note: source text spells this \"Prinicipal\" — transcribed verbatim.)*",
+        "sourceLine": 6688,
+        "ordinal": 50
+      },
+      {
+        "type": "paragraph",
+        "text": "**\"VPM PA example: Only Funding Fee\"**",
+        "sourceLine": 6690,
+        "ordinal": 51
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6692. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6692,
+        "omission": true,
+        "ordinal": 52
+      },
+      {
+        "type": "paragraph",
+        "text": "The **PA** wire amount **NEEDS** to match the **investor wire amount** in LendingPad.",
+        "sourceLine": 6694,
+        "ordinal": 53
+      },
+      {
+        "type": "heading",
+        "text": "**5. Input Settlement Recap**",
+        "sourceLine": 6696,
+        "ordinal": 54
+      },
+      {
+        "type": "list-item",
+        "text": "- Go to LendingPad's **Settlement Statement** section",
+        "sourceLine": 6698,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 55
+      },
+      {
+        "type": "list-item",
+        "text": "- Enter all values from the recap **as negatives**",
+        "sourceLine": 6699,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 56
+      },
+      {
+        "type": "list-item",
+        "text": "- Hit **Save**",
+        "sourceLine": 6700,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 57
+      },
+      {
+        "type": "list-item",
+        "text": "- **Warehouse Amount** in LendingPad = **RpyWHPW**",
+        "sourceLine": 6701,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 58
+      },
+      {
+        "type": "list-item",
+        "text": "- **Interest Amount** in LendingPad = **Int**",
+        "sourceLine": 6702,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 59
+      },
+      {
+        "type": "list-item",
+        "text": "- **Funding Fee** in LendingPad = **$90 for FB, $100 for BOFC and NB, $125 for ORIGIN**",
+        "sourceLine": 6703,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 60
+      },
+      {
+        "type": "list-item",
+        "text": "- Confirm **Cash In/Cash Out** (in LP) = **Originator Settlement** (settlement recap)",
+        "sourceLine": 6704,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 61
+      },
+      {
+        "type": "heading",
+        "text": "**6. Leakage & Lock Desk Notes**",
+        "sourceLine": 6706,
+        "ordinal": 62
+      },
+      {
+        "type": "paragraph",
+        "text": "Determine **Leakage** (if revenue expected ≠ actual revenue, calculate leakage):",
+        "sourceLine": 6708,
+        "ordinal": 63
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 6709. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 6709,
+        "omission": true,
+        "ordinal": 64
+      },
+      {
+        "type": "list-item",
+        "text": "- Gross Estimated Revenue − Cash in/Out = NEGATIVE value",
+        "sourceLine": 6710,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 65
+      },
+      {
+        "type": "paragraph",
+        "text": "Update **Lock Desk Notes** with a brief explanation of leakage if applicable.",
+        "sourceLine": 6712,
+        "ordinal": 66
+      },
+      {
+        "type": "heading",
+        "text": "**7. Check EPO Dates**",
+        "sourceLine": 6714,
+        "ordinal": 67
+      },
+      {
+        "type": "list-item",
+        "text": "- **Standard EPO** (Non-QM, Conventional): **180 days** from purchase date",
+        "sourceLine": 6716,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 68
+      },
+      {
+        "type": "list-item",
+        "text": "- **VA Loans**: **210 days** from first payment date",
+        "sourceLine": 6717,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 69
+      },
+      {
+        "type": "list-item",
+        "text": "- **DH Files**: Refer to the **PA** for EPO",
+        "sourceLine": 6718,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 70
+      },
+      {
+        "type": "heading",
+        "text": "**Final Step: You're Done!**",
+        "sourceLine": 6720,
+        "ordinal": 71
+      },
+      {
+        "type": "paragraph",
+        "text": "All final docs are now saved, entered, and reconciled — post-funding workflow complete.",
+        "sourceLine": 6722,
+        "ordinal": 72
+      }
+    ],
+    "omissions": [
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6628
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6630
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6645
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6660
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6662
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6667
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6671
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6681
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6692
+        ]
+      },
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          6709
+        ]
+      }
+    ],
+    "contentSha256": "2415f2c405509ef6f11c8fc76c55672d86a348fd167103f83aa0619871502382"
+  },
+  {
+    "id": "COLLATERAL_ARRIVAL_REVIEW",
+    "title": "Has Collateral arrived?",
+    "category": "Post-closing evidence",
+    "relatedTemplateIds": [
+      "POST_CLOSE_QC",
+      "CONDITION_FOLLOWUP"
+    ],
+    "source": {
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "lineStart": 7052,
+      "lineEnd": 7073,
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476"
+    },
+    "status": "UNVERIFIED_REFERENCE",
+    "limitations": "Written source page with generic menu/report descriptions retained and the private tracking example explicitly omitted. The three-day follow-up statement is an unverified source cadence, not a calculated deadline or legal requirement. A report, tracking number or shipment does not itself establish investor acceptance or purchase. External evidence and a human reviewer are required. Original screenshot media was not supplied separately.",
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "#### Page: Has Collateral arrived?",
+        "sourceLine": 7052,
+        "ordinal": 1
+      },
+      {
+        "type": "heading",
+        "text": "**Navigating to the Trial Balance External Report**",
+        "sourceLine": 7054,
+        "ordinal": 2
+      },
+      {
+        "type": "list-item",
+        "text": "1. **Start by accessing the \"Reports\" section.**",
+        "sourceLine": 7056,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 3
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Screenshot shows the SRG Warehouse Loan System menu with \"Reports\" highlighted — First Bank branded splash screen.)*",
+        "sourceLine": 7058,
+        "ordinal": 4
+      },
+      {
+        "type": "list-item",
+        "text": "2. **Locate the report titled \"Trial Balance External.\"**",
+        "sourceLine": 7060,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 5
+      },
+      {
+        "type": "paragraph",
+        "text": "This report provides a detailed breakdown of each loan file, indicating whether the note has been received and/or shipped.",
+        "sourceLine": 7062,
+        "ordinal": 6
+      },
+      {
+        "type": "paragraph",
+        "text": "*(Screenshot shows the \"First Bank - WLS Reports\" General tab report list, with \"Trial Balance External\" highlighted/selected among many other report names (Originator Portfolio/Production/Settlement Statistics by various fields, Review Report by Originator - By Name, Trial Balance External With Interest Rate, etc.).)*",
+        "sourceLine": 7064,
+        "ordinal": 7
+      },
+      {
+        "type": "list-item",
+        "text": "3. Once notes have been shipped:",
+        "sourceLine": 7066,
+        "depth": 0,
+        "markerPreserved": true,
+        "ordinal": 8
+      },
+      {
+        "type": "list-item",
+        "text": "   - **Go to the \"Trial Balance External\" report** under the \"Reports\" section.",
+        "sourceLine": 7067,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 9
+      },
+      {
+        "type": "list-item",
+        "text": "   - **Locate the far-right column** of the report.",
+        "sourceLine": 7068,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 10
+      },
+      {
+        "type": "list-item",
+        "text": "   - This column displays **tracking information** for any notes that have already been shipped.",
+        "sourceLine": 7069,
+        "depth": 1,
+        "markerPreserved": true,
+        "ordinal": 11
+      },
+      {
+        "type": "paragraph",
+        "text": "[Source illustration/example omitted at line 7071. Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.]",
+        "sourceLine": 7071,
+        "omission": true,
+        "ordinal": 12
+      },
+      {
+        "type": "paragraph",
+        "text": "**TIP:** If the note has not been received and funded over 3 days ago, please follow up with title/escrow for the tracking of the note. Also, check that we do not have the original note in the office!!!!",
+        "sourceLine": 7073,
+        "ordinal": 13
+      }
+    ],
+    "omissions": [
+      {
+        "reason": "Screenshot or example description omitted because it may contain private loan, financial, account or staff details. Original screenshot media was not supplied separately.",
+        "sourceLines": [
+          7071
+        ]
+      }
+    ],
+    "contentSha256": "f7f24c5105215a91ac1036eeb4672d279d5e9b0f96098a33bdcde0cff0d98e99"
+  }
+]

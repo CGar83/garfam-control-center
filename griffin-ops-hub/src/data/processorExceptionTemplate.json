@@ -1,0 +1,537 @@
+{
+  "id": "INVESTOR_EXCEPTION_REQUEST",
+  "title": "Investor Exception Request Form",
+  "shortTitle": "Investor exception draft",
+  "department": "MLP",
+  "allowedDepartments": [
+    "LO",
+    "MLP",
+    "PROCESSOR",
+    "CLOSING",
+    "LOCK_DESK"
+  ],
+  "description": "Prepare a source-faithful investor exception request draft with separate Hub coordination. The investor-only decision section is read-only reference text. No request is transmitted.",
+  "source": "Griffin Processor Master Content · GF-EXC-2026-v3.0 · unverified reference",
+  "source_status": "UNVERIFIED_REFERENCE",
+  "version": 1,
+  "source_metadata": {
+    "source_title": "GRIFFIN FUNDING — NON-QM MORTGAGE LENDING — Investor Exception Request Form",
+    "source_form_version": "GF-EXC-2026-v3.0",
+    "archive_file_name": "Griffin_Processor_Master_Content.zip",
+    "archive_sha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476",
+    "artifact_file_name": "Griffin_Processor_Master_Content.md",
+    "artifact_sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+    "source_locator": "Lines 8802–8862; investor exception form within Annaly investor reference",
+    "source_field_count": 53,
+    "coordination_field_count": 7,
+    "field_count": 60,
+    "source_section_order": [
+      "Section 1: Request Information",
+      "Section 2A: Loan Terms",
+      "Section 2B: Property Details",
+      "Section 3: Nature of Request",
+      "Section 4: Compensating Factors",
+      "Section 5: Relevant Guideline Reference",
+      "Section 6: Recommended Attachments",
+      "Section 7: Additional Notes / Supporting Context",
+      "Section 8: Investor Decision (FOR INVESTOR USE ONLY)"
+    ],
+    "assessment_disposition": "Supplied two-page form transcription preserved as a native draft. Source field labels, order, group meaning, factor order, attachment order, disclaimer and footer are retained. Section 8 is read-only source description. No inferred choices, requiredness, policy validation, certification, investor permission, external submission, approval or denial output."
+  },
+  "sections": [
+    {
+      "id": "source_section_1",
+      "title": "Section 1: Request Information",
+      "fields": [
+        {
+          "key": "request_date",
+          "label": "Request Date",
+          "type": "date",
+          "required": false,
+          "span": 1
+        },
+        {
+          "key": "target_investor",
+          "label": "Target Investor",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "e.g. Deephaven, Verus, Vista Point...",
+          "span": 2
+        },
+        {
+          "key": "request_type",
+          "label": "Request Type",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 1
+        },
+        {
+          "key": "investor_loan_number",
+          "label": "Investor Loan Number",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2
+        },
+        {
+          "key": "loanNumber",
+          "label": "Griffin Loan ID (LendingPad)",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2,
+          "readOnly": true
+        },
+        {
+          "key": "requestor_name",
+          "label": "Requestor Name",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2
+        },
+        {
+          "key": "requestor_email",
+          "label": "Requestor Email",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2
+        },
+        {
+          "key": "borrower_first_name",
+          "label": "Borrower First Name",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2
+        },
+        {
+          "key": "borrower_last_name",
+          "label": "Borrower Last Name",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 2
+        }
+      ],
+      "columns": 4
+    },
+    {
+      "id": "source_section_2a",
+      "title": "Section 2A: Loan Terms",
+      "fields": [
+        {
+          "key": "loan_program",
+          "label": "Loan Program",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "doc_type",
+          "label": "Doc Type",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "loan_amount",
+          "label": "Loan Amount",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "purpose",
+          "label": "Purpose",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "occupancy",
+          "label": "Occupancy",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "ltv",
+          "label": "LTV",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "fico",
+          "label": "FICO",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "dti_dscr_ratio",
+          "label": "DTI / DSCR Ratio",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "cash_out_amount",
+          "label": "Cash-Out Amount",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "amort_term",
+          "label": "Amort Term",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "amort_type",
+          "label": "Amort Type",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "months_reserves",
+          "label": "Months Reserves",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        }
+      ],
+      "columns": 4
+    },
+    {
+      "id": "source_section_2b",
+      "title": "Section 2B: Property Details",
+      "fields": [
+        {
+          "key": "property_type",
+          "label": "Property Type",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "number_of_units",
+          "label": "# of Units",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "state",
+          "label": "State",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "citizenship",
+          "label": "Citizenship",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "property_address",
+          "label": "Property Address",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "span": 4
+        }
+      ],
+      "columns": 4
+    },
+    {
+      "id": "source_section_3",
+      "title": "Section 3: Nature of Request",
+      "fields": [
+        {
+          "key": "nature_of_request",
+          "label": "Nature of Request",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "span": 2
+        }
+      ],
+      "description": "Describe the specific exception, the guideline it deviates from, and the business case for approval.",
+      "columns": 2
+    },
+    {
+      "id": "source_section_4",
+      "title": "Section 4: Compensating Factors",
+      "fields": [
+        {
+          "key": "factor_reserves_3",
+          "label": "3 months reserves > program requirement",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_reserves_6",
+          "label": "6 months reserves > program requirement",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_contribution",
+          "label": "Borrower contribution exceeds requirement by 5%+",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_fico",
+          "label": "FICO > program requirement",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_ltv",
+          "label": "LTV is 10%+ below maximum per matrix",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_other",
+          "label": "Other (explain):",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "key": "factor_dti",
+          "label": "DTI > 10% below program maximum",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_discretionary_income",
+          "label": "High discretionary income (see excess amount below)",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_payment_history",
+          "label": "VOR/VOM 0x30 in 24 months",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_job_5",
+          "label": "5+ years in current job (not applicable for DSCR)",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "factor_job_10",
+          "label": "10+ years in current job",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "excess_income_amount",
+          "label": "Excess Income Amount (if applicable): $",
+          "type": "text",
+          "required": false,
+          "maxLength": 500
+        }
+      ],
+      "description": "Check all that apply based on the underwriter's review of the loan file:",
+      "columns": 1
+    },
+    {
+      "id": "source_section_5",
+      "title": "Section 5: Relevant Guideline Reference",
+      "fields": [
+        {
+          "key": "relevant_guideline_reference",
+          "label": "Relevant Guideline Reference",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "span": 2
+        }
+      ],
+      "description": "Cite the specific guideline section(s) the exception relates to. Include page numbers or section IDs if available.",
+      "columns": 2
+    },
+    {
+      "id": "source_section_6",
+      "title": "Section 6: Recommended Attachments",
+      "fields": [
+        {
+          "key": "attachment_1003",
+          "label": "1003 (Loan Application)",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_1008",
+          "label": "1008 (Transmittal Summary)",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_credit",
+          "label": "Credit Report",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_appraisal",
+          "label": "Appraisal / BPO",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_income",
+          "label": "Income Documentation",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_bank",
+          "label": "Bank Statements",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_assets",
+          "label": "Asset Statements / Reserves",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_dscr",
+          "label": "DSCR Calculation / Lease",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_title",
+          "label": "Title Report",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_insurance",
+          "label": "Insurance Binder",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_prior_exception",
+          "label": "Prior Exception Approval(s)",
+          "type": "checkbox",
+          "required": false
+        },
+        {
+          "key": "attachment_other",
+          "label": "Other (describe in Section 3)",
+          "type": "checkbox",
+          "required": false
+        }
+      ],
+      "description": "Check all documents included with this submission:",
+      "columns": 1
+    },
+    {
+      "id": "source_section_7",
+      "title": "Section 7: Additional Notes / Supporting Context",
+      "fields": [
+        {
+          "key": "additional_notes",
+          "label": "Additional Notes / Supporting Context",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "span": 2
+        }
+      ],
+      "description": "Any additional context, borrower history, or supporting information the investor should consider.",
+      "columns": 2
+    },
+    {
+      "id": "source_section_8",
+      "title": "Section 8: Investor Decision (FOR INVESTOR USE ONLY)",
+      "fields": [],
+      "description": "Decision: Approved / Conditionally Approved / Denied / No Exception Needed\nConditions / Comments: (free-text field)\nReviewer Name, Reviewer Signature, Date",
+      "columns": 2
+    },
+    {
+      "id": "hub_coordination",
+      "title": "Hub coordination — separate from the source form",
+      "fields": [
+        {
+          "key": "hub_packet_reference",
+          "label": "Draft packet or controlled document reference",
+          "type": "text",
+          "required": true,
+          "maxLength": 500,
+          "hint": "Reference controlled records only. Selecting a source attachment does not upload or transmit a document."
+        },
+        {
+          "key": "hub_reviewer",
+          "label": "Named human reviewer",
+          "type": "text",
+          "required": true,
+          "maxLength": 500
+        },
+        {
+          "key": "hub_next_owner",
+          "label": "Next responsible person or team",
+          "type": "text",
+          "required": true,
+          "maxLength": 500
+        },
+        {
+          "key": "hub_next_action",
+          "label": "Next action for this draft",
+          "type": "textarea",
+          "required": true,
+          "maxLength": 4000
+        },
+        {
+          "key": "hub_lia_session_reference",
+          "label": "LIA session reference (optional)",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "Manually reported attribution reference; not verified funded-loan impact."
+        },
+        {
+          "key": "hub_manual_handoff_reference",
+          "label": "External handoff evidence reference (optional)",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "Record an actual external handoff only when evidence exists. Saving this draft sends nothing."
+        },
+        {
+          "key": "hub_review_ack",
+          "label": "I reviewed this draft as coordination work; the investor-only section remains uncompleted.",
+          "type": "checkbox",
+          "required": true
+        }
+      ],
+      "description": "Added Hub coordination fields. The supplied form instructions and disclaimer are quoted reference text. Saving, marking work complete, or exporting does not submit the request, execute a certification, provide a signature, record an investor decision, or establish current policy.",
+      "columns": 2,
+      "origin": "hub"
+    }
+  ],
+  "sourceFooter": "DISCLAIMER: By submitting this exception request form, the seller certifies that (i) seller has made, or is making, its own credit decision with respect to the loan to the borrower, regardless of whether the investor approves or declines to approve the exception request herein; (ii) none of the investor, its directors, officers, employees, agents, contractors, or affiliates has influenced, or will influence, the seller's credit decision with respect to the loan to the borrower; and (iii) if seller has closed, or in the future does close, the loan to the borrower, seller did, or will, fund the closing of the loan with funds from a source other than the investor. This request and any responses are non-binding. Responses are based on information provided as of the submission date and are subject to change. Rate, terms, and programs may change without notice.\n\nGriffin Funding, Inc. | Confidential – For Investor Use Only — Form GF-EXC-2026-v3.0",
+  "checklist": [],
+  "boundary": "Draft preparation and Hub coordination only. Cadre owns processing and evaluation; an authorized human investor response stays external. Original source instructions and the disclaimer are reference text, not an executed certification. Saving, completing, copying, or exporting this work does not send an exception request, sign a document, grant investor authority, approve or deny a loan, clear a condition, or update LendingPad."
+}

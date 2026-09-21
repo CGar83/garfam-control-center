@@ -1,0 +1,41 @@
+{
+  "name": "griffin-ops-hub",
+  "private": true,
+  "version": "1.6.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "seed": "node supabase/seed/seed.mjs",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint .",
+    "check": "npm run lint && npm test && npm run build",
+    "test:db": "node supabase/tests/run-local.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.116.0",
+    "jspdf": "4.2.1",
+    "lucide-react": "1.47.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "7.18.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@vitejs/plugin-react": "6.1.1",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "jsdom": "30.1.0",
+    "vite": "8.3.0",
+    "vitest": "5.0.1"
+  },
+  "engines": {
+    "node": ">=24.15.0 <25"
+  }
+}

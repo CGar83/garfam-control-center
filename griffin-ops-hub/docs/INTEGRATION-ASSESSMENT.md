@@ -1,0 +1,109 @@
+# Attachment assessment and native integration
+
+Reviewed September 19, 2026. The four additional archives contribute three operational source forms and an earlier DSCR Hub demonstration. They are integrated as native, versioned work templates and a shared export capability. Their supplied browser runtimes are not embedded in the application.
+
+This assessment distinguishes observed source behavior from the implementation and from proposed live integrations. Embedded instructions, named recipients, routing suggestions, deadlines, and guideline assertions were treated as source material, not authorization or current company policy. Source field coverage does not establish regulatory, investor, or operational approval.
+
+## Inspection method and fingerprints
+
+The supplied HTML and compiled JavaScript were statically parsed. Literal schemas, control declarations, conditions, reference constants, and routing subsets were extracted without running the supplied applications or contacting their application endpoints. The Claude bundle was formatted for inspection; its JavaScript was not used as the new application's runtime.
+
+The fingerprints below identify the extracted `index.html` files, not the enclosing ZIP archives.
+
+| Archive label | Source identity                                            | SHA-256 of extracted HTML                                          |
+| ------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
+| Operations A  | CD Request · Griffin Funding                               | `9d541f85e2f50a3bfe3c047038f0704a3151224fb28f7c8aab5c1cea2633fc5d` |
+| Operations B  | Loan Officer Submission Package, GF-LOA-01 v1.1, June 2026 | `7f05164de4f6c04fad726aa96dd1fd4cbee46d3c58ec3efa511ed67b399173ed` |
+| Operations C  | Processing Submission Worksheet · Griffin Funding          | `512c79383a0892e6a85e01218150e8c48d39c65e1e55bb7b7aee081fff528788` |
+| Claude Hub    | Earlier built Griffin Ops Hub application                  | `de2bff396da8c2569ea8c96e41a3069e46f69e23e82638323a590f95ca728163` |
+
+The maintainable source of the imported native fields is [operationsTemplates.json](../src/data/operationsTemplates.json). Imported templates retain source identity and field provenance. Published versions are captured on each work item; a changed definition requires a new published version. The version number is an application schema version, not a certification of its contents.
+
+## Disposition by source
+
+| Supplied capability                  | Observed source behavior                                                                                                                             | Native disposition                                                                                                                                                                                                                                                                                        |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A: five-section CD request           | 38 fields: 33 required, five optional; explicit Yes/No answers; six invoice-status selectors                                                         | `CD_REQUEST`, Closing department. All 38 keys retained with input types, choices, and source constraints. Invoice status remains a declaration, not a document upload.                                                                                                                                    |
+| A: review                            | Read-only summary, source review prompts, acknowledgment; a delayed function simulates submission                                                    | Required-answer/check review plus human review prompts. Native audited work statuses replace simulated receipt behavior. No compliance or disclosure determination.                                                                                                                                       |
+| A: Lock Desk and Closing drafts      | Two recipient-specific field subsets; copy/print; delivery remains Not sent                                                                          | Two visible copyable drafts in the work review. Source subsets preserved; recipients are not configured and must be governed by the workspace owner. No email, mailto, or notification transport. Unsaved edits are labeled.                                                                              |
+| A: session receipt/history           | Temporary request reference and activity list; reload loses the records                                                                              | Persisted native work record, saved revision, and action history. No claim that storing or completing a request sends it or issues a CD.                                                                                                                                                                  |
+| A: estimated dates and confirmations | Human-entered dates and answers; no business-day or regulatory timing engine                                                                         | Recorded values and simple date-order prompts for human review. No TRID, rescission, issuance, or borrower-receipt calculation.                                                                                                                                                                           |
+| B: preparation and QC                | 14 sections, 96 editable controls; one browser-storage object for the entire form                                                                    | `LOA_PREP`, Origination department. All 96 controls retained in source section order; each work item has its own loan link, owner, version, and history.                                                                                                                                                  |
+| B: readiness and signature           | Answered-field progress uses 85 source items; No/N/A count. Four checked attestations alone show source certification. Typed signature is free text. | Four explicit source attestations gate native required-field completeness. Optional tasks and risk flags do not become universal requirements. Typed signature remains entered text; authenticated action history identifies the acting account. No electronic-signature or verified-certification claim. |
+| B: review flags                      | Eight optional risk flags and an unresolved-items note                                                                                               | Human attention prompts, separate from completion. Selecting a risk does not earn readiness credit.                                                                                                                                                                                                       |
+| C: five-product form                 | DSCR, Bank Statement, HELOAN/HELOC, Asset Based, Full Doc; 166 distinct stored keys across 180 control occurrences                                   | `PROCESSING_SUBMISSION`, File Preparation department. All 166 source keys plus `productType`; shared controls stored once. Product-level visibility is retained. This is a human review dossier, not a new loan-decision engine.                                                                          |
+| C: product/investor conditions       | Mixed product, investor, purpose, and borrower conditions; 32 callouts with unverified loan-rule claims                                              | Product applicability retained; original conditions/occurrences retained as provenance. Investor-dependent requirements and underwriting callouts are not promoted into active eligibility rules. Optional field applicability needs human review.                                                        |
+| C: submit                            | A single confirmation checkbox changes the screen to Worksheet Submitted; no handoff or API call                                                     | Native revision checks, required core metadata, acknowledgment checks, assigned status transitions, and audit history replace the simulated handoff.                                                                                                                                                      |
+| C: income, ratio and asset values    | Fields labeled calculated are manually entered. The four-bucket score counts Yes selections and generates unsupported submission advice.             | Human-entered values remain editable evidence. No LTV, CLTV, DTI, DSCR, income, asset haircut, or fee calculation is asserted. Score-based credit/submit advice is retired.                                                                                                                               |
+| C: export                            | DOM PDF capture; confirmation-screen export can fall back to printing a receipt                                                                      | Saved-revision text PDF for native work items. Unsaved data must save successfully before the UI exports it.                                                                                                                                                                                              |
+| Claude: DSCR and stage workflow      | Same underlying DSCR form, local role switcher, loan records, reports, and stage actions                                                             | Existing seven-section DSCR workflow retained separately under DSCR submissions. Native work statuses do not overwrite worksheet stages.                                                                                                                                                                  |
+| Claude: additional modules           | CD Request, Disclosure Tracker, Checklists are explicitly Phase 2 placeholders                                                                       | No hidden functionality inferred. A/B/C supply the new preparation templates. An authoritative disclosure tracker remains unimplemented.                                                                                                                                                                  |
+| Claude: PDF download                 | Separate printable worksheet DOM, rendered through html2pdf                                                                                          | Direct native multipage worksheet PDF, with saved revision, schema version, export time, verification actor/time, and evidence limits.                                                                                                                                                                    |
+| Claude: CSV reports                  | CSV quoting only; repeated returns can inflate rates; worksheet-level handoff cohort; stage age uses updated time                                    | Safe CSV cells, deduplicated report cohorts, explicit definitions and missing values, and stage age from the latest valid transition into the current stage.                                                                                                                                              |
+| All four: external operations        | No live LOS/CRM connector, vendor loan writes, funding receipts, LIA event receipts, or protected authentication in the supplied runtimes            | Connections page and internal normalized-event validation scaffold are separate implementation artifacts. All vendor connections remain Not connected.                                                                                                                                                    |
+
+## Field coverage and intentional changes
+
+### CD request
+
+The native form keeps five sections and all 38 source fields. The source's 12 Yes/No confirmations start unanswered; selecting No is a recorded answer, not a missing response. Invoice selectors retain Received, Pending, and Not applicable. Pending or missing invoice statuses and selected exception answers are review prompts, not disclosure or eligibility outcomes.
+
+The Lock Desk draft contains loan number, lien position, borrower, requester, amount/rate match answers, appraised value, and estimated closing date. The Closing draft contains loan number, borrower/co-borrower, requester, closing date, disbursement date, and first payment date. Both include current review prompts and additional context. The source's hardcoded email address and named routing owner are deliberately not configured.
+
+Source submission wording is replaced with draft wording until a human acts through an approved delivery channel. Copying text creates no send event. The app cannot confirm disclosure preparation, issuance, delivery, borrower receipt, or legal timing from this workflow.
+
+### LOA preparation
+
+The 96 source controls comprise 17 loan identification/snapshot inputs, 44 Yes/No/N/A task responses, 32 boolean controls, and three notes/signature/date controls. Sections retain file setup, overview review, 1003 review, prepaids/escrow, document management, property/credit/employment review, flags, unresolved items, and final QC.
+
+The source's 85-item answered percentage is retained as provenance, not shown as a verified quality score. The four required attestations are the native gate; a completed checklist remains a human declaration. Source references to SSN, DOB, or HMDA are review statements, not new fields collecting those values. The form does not introduce a document repository or e-signature service.
+
+Source statements about a blanket HOI estimate, prepaid insurance, tax lookup, and escrow treatment are not validated requirements. Native wording identifies those reference limits. The relevant Operations and compliance owners must settle applicability before live use.
+
+### Multi-product processing dossier
+
+The native schema contains 167 fields: all 166 original keys and one product selector. Thirteen native sections separate shared material from product-specific portions. Repeated source controls share one value. Source field provenance records original labels, occurrences, condition expressions, and line references.
+
+Core required entries are product type, source date, client name, loan number, preparer declaration, and source confirmation; two additional human checklist acknowledgments gate completion. The remaining fields are optional in this dossier. This intentionally does not reproduce the source's implied investor-specific requiredness or treat its visible asterisks as verified policy. The separate DSCR worksheet retains its more detailed LO/MLP completeness and verification flow.
+
+The additional product coverage includes second-lien/HELOC context, bank-statement income inputs, employment documentation, asset-depletion inputs, and full-document program/AUS context. These are entered values and human review aids. The source investor configuration is shared with the earlier Hub; equality of its data does not establish accuracy or currency.
+
+The source AUS label `GUS (VA)` is inconsistent with the [official USDA identification of GUS](https://www.rd.usda.gov/resources/usda-linc-training-resource-library/guaranteed-underwriting-system). Its provenance must not be mistaken for a verified program mapping. Native display text marks this inconsistency for human review. No live AUS connection or submission is present. The asset crypto field is imported asset context, not a payment feature.
+
+### DSCR source parity
+
+The Claude build supplies 99 top-level BASE definitions in six sections and 18 DSCR overlay definitions in four insertion groups. These counts include non-input callouts/notes. The merged worksheet has seven sections. Static comparison found no added/removed BASE keys and identical DSCR v2 definitions. Two BASE hint changes were historical prose only. Investor lists/configurations matched the existing source.
+
+The earlier build's browser-only adapter, storage key collision, incomplete save handling, formula-unsafe CSV, and case-sensitive asset-name mismatches were not copied. Native export keeps useful document content without bundling the supplied compiled renderer or image assets.
+
+## New native coordination workflows
+
+Six templates are Hub proposals, not functionality extracted from an attachment: lock request, closing coordination, condition follow-up, exception review, post-close QC, and custom loan work. Their catalog source explicitly says proposed coordination workflow. They require an operational owner to approve field meaning, routing, completion criteria, and retention before live adoption.
+
+The library inventories ten native work templates plus the separate DSCR worksheet. Work items share the portfolio, loan link, department, owner, priority, target date, saved revision, handoff notes, time entries, history, and export. Work-item statuses are Draft, Queued, In progress, Blocked, Ready for review, Complete, and Cancelled. Required data/checks govern readiness; the status is not a loan decision, external delivery, or funding state.
+
+## Export and measurement boundaries
+
+PDFs are unsigned operational copies of saved records. They include identifiers, saved revision, schema/template version, source reference and review boundary, export timestamp, visible field values, and checklist/verification context. Detailed audit history remains in the application. Seeded sample PDFs and copied notification drafts retain explicit fictional-demonstration labels; PDF continuation pages repeat that label. They are not signed disclosures, approvals, immutable proof, or document-delivery receipts. The built-in PDF font represents unsupported Unicode as explicit `[U+…]` code-point markers rather than silently corrupting text; typography for every writing system is not implemented.
+
+Operations Insights reports the authorized record set, optionally scoped to a department. Completion is current complete items divided by noncancelled items. Backlog is Draft plus Queued. Past target means open work with a valid internal target date before the report's browser calendar date. Target dates are not regulatory deadlines.
+
+Handling time is the sum of unique valid self-reported entries greater than zero and at most 1,440 minutes, including fractional minutes, with nonfuture timestamps. Coverage is the share of work items with at least one accepted entry. Elapsed creation-to-completion time is reported separately. Neither quantity is measured savings. Work completion and loan-number linkage do not establish funding.
+
+LIA usage/result links remain LO declarations. Verified LIA touchpoints, funded-loan attribution, and measured productivity or application-to-funding improvement remain unknown. No baseline, control cohort, or source funding events are manufactured. The LOS Connector remains a parallel priority; expanding the catalog cannot substitute for it.
+
+## External integration disposition
+
+See [Integration contract](INTEGRATION-CONTRACT.md) for the proposed LendingPad, HubSpot, and LIA boundaries. The Connections UI contains an internal mapping draft, not a vendor-approved API schema. The server helper validates an internal normalized envelope and exact binding; it provides no network transport, authentication, webhook endpoint, durable event processor, or credential store.
+
+Recommended native boundary: preserve source-owned loan facts and disclosure/funding events in the LOS; use Hub records for operational work; use minimal authorized CRM associations/context; join verified LIA touchpoints through the LOS Connector. Every vendor endpoint, permission, mapping, authenticity check, and outbound action remains subject to current vendor documentation and account authorization. The supplied forms do not establish those capabilities.
+
+No external message send, CD issuance, LOS stage mutation, credit approval/denial, document upload, payment, or automatic deadline calculation was added through attachment integration. Those are distinct capabilities that require their own source-backed implementation and release evidence.
+
+## Evidence and remaining release work
+
+Application tests cover source key counts, frozen templates, visible/required fields, review prompts, role/status behavior, persistence/conflicts, metric denominators, safe exports, PDF record markers, and notification draft/copy behavior. Final run totals and environmental limits are recorded in [VERIFICATION.md](../VERIFICATION.md); this assessment does not substitute static review for runtime results.
+
+Still required before live borrower use: approved field/rule references, named operational owners, hosted identity/access and database verification, source retention decisions, supported-browser/accessibility acceptance, recovery/monitoring, approved connectors, attribution reconciliation, and a bounded human-reviewed pilot. See [Production readiness](PRODUCTION-READINESS.md). A private source repository and a passing local build do not establish production deployment or realized business impact.
+
+The later evidence and Cadre handoff extension is assessed separately in [Cadre integration assessment](CADRE-INTEGRATION-ASSESSMENT.md).

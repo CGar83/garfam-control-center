@@ -1,0 +1,1342 @@
+{
+  "version": 3,
+  "sources": [
+    {
+      "id": "diagram-mlp",
+      "label": "MLP workflow lanes",
+      "fileName": "codex-clipboard-a93781f4-d81a-4c15-a182-6dbd39418b65.png",
+      "sha256": "9dd75175d2339e7fb56d1939f9ac67550cfb393fca28b435291f9ec3b82466f4",
+      "status": "SUPPLIED_TRAINING_REFERENCE"
+    },
+    {
+      "id": "diagram-origination",
+      "label": "Lead through application",
+      "fileName": "codex-clipboard-09098928-7967-4e15-af11-0efd60f0035b.png",
+      "sha256": "70ef8380ab0799c19a7bef5ed8afb62b94bb1650736036bd7f449bfb06d7bb8c",
+      "status": "SUPPLIED_TRAINING_REFERENCE"
+    },
+    {
+      "id": "diagram-conditions",
+      "label": "Processing through condition submission",
+      "fileName": "Screenshot 2026-09-19 at 4.15.56 PM.png",
+      "sha256": "0384160fbf821868e4cbf67dadf2018af7a41d148c1f9e9a3a30044916b42447",
+      "status": "SUPPLIED_TRAINING_REFERENCE"
+    },
+    {
+      "id": "diagram-closing",
+      "label": "Condition submission through funded",
+      "fileName": "Screenshot 2026-09-19 at 4.16.24 PM.png",
+      "sha256": "71bed91600a0dfa64113227cbfa79df51c1eebf4087c8983dce09e26add9340d",
+      "status": "SUPPLIED_TRAINING_REFERENCE"
+    },
+    {
+      "id": "pdf-mlp",
+      "label": "GFU Mortgage Loan Partner training",
+      "fileName": "GFU_ Mortgage Loan Partner (MLP).pdf",
+      "sha256": "40982d896592230fd78a2fc0ab62d35869a1c2b5a89ce3f23c56fd07e293dffa",
+      "status": "SUPPLIED_TRAINING_REFERENCE",
+      "locator": "196-page supplied training manual; sanitized page references only"
+    },
+    {
+      "id": "processor-master",
+      "label": "Processor Master Content",
+      "fileName": "Griffin_Processor_Master_Content.md",
+      "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+      "archiveFileName": "Griffin_Processor_Master_Content.zip",
+      "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476",
+      "status": "SUPPLIED_TRAINING_REFERENCE",
+      "locator": "Supplied consolidated Markdown, 14,742 lines; underlying linked originals not supplied."
+    }
+  ],
+  "phases": [
+    {
+      "id": "application",
+      "title": "Application, lock and disclosures",
+      "summary": "LO, Lock Desk and Disclosures dependencies remain distinct. Their source systems and permissions are not connected by this catalog.",
+      "externalStatusLabels": [
+        "Application Taken"
+      ],
+      "steps": [
+        {
+          "id": "application-capture",
+          "title": "Application with the borrower",
+          "owner": "LO",
+          "action": "Work with the borrower to complete the application.",
+          "prerequisite": "Borrower elects to proceed with the authorized application process.",
+          "evidence": "Authoritative application reference and observed date; a Hub task is not an LOS application event.",
+          "nextOwner": "LO",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: borrower completes application with LO"
+            }
+          ],
+          "templateId": "LOA_PREP",
+          "boundary": "This is a source loan-status observation, not a Hub work status, credit decision, or automatic stage change."
+        },
+        {
+          "id": "blend-transfer-check",
+          "title": "Confirm application reached LendingPad",
+          "owner": "LO",
+          "action": "Confirm the Blend file was pushed into LendingPad.",
+          "prerequisite": "Application captured in the source system.",
+          "evidence": "Source application ID, matched LendingPad loan reference, and observed transfer outcome.",
+          "nextOwner": "LO",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: LO confirms Blend file pushed into LendingPad"
+            }
+          ],
+          "templateId": "LOA_PREP",
+          "boundary": "Record the actual human action and source reference. The Hub does not send, place orders, or update external records."
+        },
+        {
+          "id": "lo-file-review",
+          "title": "Complete and review the LO file",
+          "owner": "LO",
+          "action": "Complete the LendingPad file and 1003; review the application and borrower documents for the proposed program. The diagram shows these as parallel branches.",
+          "prerequisite": "Correct source loan identified and authorized documents available.",
+          "evidence": "1003/document references, discrepancies, human reviewer and proposed-program context.",
+          "nextOwner": "LO",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: parallel 1003 completion and program-review boxes"
+            }
+          ],
+          "templateId": "LOA_PREP",
+          "boundary": "The Hub does not qualify the borrower or calculate eligibility from this training."
+        },
+        {
+          "id": "borrower-structure-confirmation",
+          "title": "Confirm structure with the borrower",
+          "owner": "LO",
+          "action": "Discuss the proposed structure and lock with the borrower.",
+          "prerequisite": "LO file-review branches addressed by the responsible human.",
+          "evidence": "Recorded discussion outcome, unresolved questions, and next request.",
+          "nextOwner": "LO",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: LO calls borrower to confirm structure and lock"
+            }
+          ],
+          "templateId": "CUSTOM_TASK",
+          "boundary": "Record the actual human action and source reference. The Hub does not send, place orders, or update external records."
+        },
+        {
+          "id": "float-lock-request",
+          "title": "Request float or lock",
+          "owner": "LO",
+          "action": "Prepare the float or lock request for Lock Desk.",
+          "prerequisite": "Borrower discussion and authorized loan context recorded.",
+          "evidence": "Request reference, intended action, and receiving owner; request is not execution.",
+          "nextOwner": "Lock Desk",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: LO requests a float or lock"
+            }
+          ],
+          "templateId": "LOCK_REQUEST",
+          "boundary": "Record the actual human action and source reference. The Hub does not send, place orders, or update external records."
+        },
+        {
+          "id": "investor-registration",
+          "title": "Investor registration and board entry",
+          "owner": "Lock Desk",
+          "action": "Register and/or lock with the investor and record the deal on the source Hub board.",
+          "prerequisite": "LO request received and vendor permissions confirmed outside the Hub.",
+          "evidence": "Investor registration/lock receipt and board-entry reference, with source observation time.",
+          "nextOwner": "Disclosures Desk",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: two Lock Desk diamonds"
+            }
+          ],
+          "templateId": "LOCK_REQUEST",
+          "boundary": "The source Hub board is not verified as this application. No investor or board write is configured."
+        },
+        {
+          "id": "initial-disclosures",
+          "title": "Initial disclosure delivery",
+          "owner": "Disclosures Desk",
+          "action": "The source assigns initial disclosure delivery through IDS to Disclosures Desk.",
+          "prerequisite": "Responsible disclosure team accepts the handoff.",
+          "evidence": "Issued-package and actual delivery references from the authorized source.",
+          "nextOwner": "LO and MLP",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: Disclosures Desk sends initial disclosures through IDS"
+            }
+          ],
+          "boundary": "A preparation task or copied message does not issue disclosures, establish receipt, or calculate a compliance deadline."
+        }
+      ]
+    },
+    {
+      "id": "preparation",
+      "title": "MLP preparation and follow-up",
+      "summary": "Welcome, document collection and appraisal coordination can overlap. Source prerequisites differ; display order does not enforce a universal sequence.",
+      "externalStatusLabels": [
+        "Processing"
+      ],
+      "steps": [
+        {
+          "id": "welcome-call",
+          "title": "Welcome and contact preferences",
+          "owner": "MLP",
+          "action": "Introduce the team, discuss the next items, and record contact preferences, travel constraints and actual welcome outcome. Record the LP task/Custom Fields completion and notes only after the action.",
+          "prerequisite": "The MLP lane diagram starts after disclosures are sent and the LP task is assigned. The overall loan-flow diagrams place welcome alongside initial Processing after an STP request; confirm the actual trigger.",
+          "evidence": "Contact outcome, preferred channel, welcome date, recap reference and LP entry reference.",
+          "nextOwner": "MLP",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Welcome Call: disclosure/task trigger, call and LP completion nodes"
+            },
+            {
+              "id": "diagram-conditions",
+              "locator": "Processing: lower welcome-call node"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 91–92, 96"
+            }
+          ],
+          "templateId": "MLP_WELCOME",
+          "boundary": "Record the actual human action and source reference. The Hub does not send, place orders, or update external records."
+        },
+        {
+          "id": "wet-sign-needs",
+          "title": "Initial needs and wet-sign items",
+          "owner": "MLP",
+          "action": "Retrieve the source wet-sign items, review the needs list and prepare the borrower communication.",
+          "prerequisite": "Authorized needs list and applicable source forms supplied by the responsible team.",
+          "evidence": "Needs-list revision, requested-item references, actual contact/delivery outcome and next action.",
+          "nextOwner": "Borrower and MLP",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Welcome Call: pull wet signs, email needs and wet signs"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8, 34, 96"
+            }
+          ],
+          "templateId": "MLP_DOCUMENT_CHASE",
+          "boundary": "The source term wet signs needs operational definition. No form is issued or message sent by a saved Hub task."
+        },
+        {
+          "id": "document-chase",
+          "title": "Collect and review requested items",
+          "owner": "MLP",
+          "action": "Follow up on borrower and assigned third-party items; check completeness and legibility, record intended vesting, and route discrepancies. Insurance, title/escrow, payoff, authorization, LOE/CEL and VOR/WVOE requests remain human work.",
+          "prerequisite": "Reviewer-authored needs or a named request; requested items and applicable source access are known.",
+          "evidence": "Requested/received/reviewed references, page or legibility issues, actual delivery outcome, next owner and source revision.",
+          "nextOwner": "MLP and Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Welcome Call: final follow-up; Processing: needs list and intended vesting"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8, 39, 48, 81, 93–99, 101–116, 170–187"
+            }
+          ],
+          "templateId": "MLP_DOCUMENT_CHASE",
+          "boundary": "No training thresholds, mortgagee wording, payoff duration or signature requirement becomes an automated rule. Human follow-up does not clear a condition."
+        },
+        {
+          "id": "lo-stp-request",
+          "title": "LO requests processing handoff",
+          "owner": "LO",
+          "action": "Review disclosures with the borrower, collect remaining STP items and request STP when the responsible human considers the source prerequisites complete.",
+          "prerequisite": "The application diagram describes qualifying items and disclosures as complete; it does not define an executable qualification gate.",
+          "evidence": "Actual request, source checklist references, outstanding items and recipient.",
+          "nextOwner": "MLP and Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-origination",
+              "locator": "Application Taken: LO follow-up and requests STP boxes"
+            }
+          ],
+          "templateId": "PROCESSING_SUBMISSION",
+          "boundary": "The diagram does not establish current investor requiredness or authorize automatic qualification."
+        },
+        {
+          "id": "processing-status-record",
+          "title": "Record the preparation handoff",
+          "owner": "MLP",
+          "action": "Prepare the STP form/reference and record the authorized LP Processing status and handoff.",
+          "prerequisite": "Borrower items and handoff readiness reviewed by the assigned human.",
+          "evidence": "Saved dossier revision, STP attachment reference, LP observation and processor receipt if available.",
+          "nextOwner": "Processor",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Processing (STP): ready trigger and MLP updates LP status"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 39, 54, 97"
+            }
+          ],
+          "templateId": "PROCESSING_SUBMISSION",
+          "boundary": "The source STP form screenshot is incomplete. Hub work completion does not write Processing or prove receipt."
+        },
+        {
+          "id": "initial-processor-review",
+          "title": "Initial processor review and needs",
+          "owner": "Processor",
+          "action": "Review the source file and supply a needs list to MLP. The source describes completeness and qualification review.",
+          "prerequisite": "Processing handoff received; the detailed processor procedure is still outside this catalog.",
+          "evidence": "Processor-authored needs list/version, observed review outcome and unresolved dependencies.",
+          "nextOwner": "MLP",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Processing (STP): Processor review and MLP receives needs"
+            },
+            {
+              "id": "diagram-conditions",
+              "locator": "Processing: initial review and needs-list nodes"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "Processor-owned dependency. Cadre owns processing implementation; current implementation and this source procedure remain unverified."
+        },
+        {
+          "id": "appraisal-order",
+          "title": "Appraisal, Title and Escrow order dependency",
+          "owner": "Processor",
+          "action": "The detailed diagrams assign the disclosure/file checks and appraisal, Title and Escrow ordering to Processor.",
+          "prerequisite": "Assigned order task; source checks include signed disclosures and file/program/property review, subject to owner confirmation.",
+          "evidence": "Actual order references, ordered date and named actor; no order is inferred.",
+          "nextOwner": "MLP",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Appraisal: LP task through appraisal ordered-date node"
+            },
+            {
+              "id": "diagram-conditions",
+              "locator": "Processing: Processor orders appraisal and opens title"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 39, 83–84"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "PDF p. 8 also assigns appraisal ordering to MLP. Confirm ownership; do not grant MLP or Hub ordering authority from the conflict."
+        },
+        {
+          "id": "appraisal-payment-scheduling",
+          "title": "Appraisal payment and scheduling follow-up",
+          "owner": "MLP",
+          "action": "Follow up until appraisal payment and scheduling are confirmed, then record the relevant source dates.",
+          "prerequisite": "Existing order reference and borrower/vendor contact context.",
+          "evidence": "Payment/schedule observations, source dates, contact outcome and next follow-up.",
+          "nextOwner": "Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Appraisal: MLP payment/scheduling and LP date nodes"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 83–84"
+            }
+          ],
+          "templateId": "MLP_APPRAISAL_COORDINATION",
+          "boundary": "Payment or scheduling is not receipt, appraisal acceptance, or a value decision."
+        },
+        {
+          "id": "appraisal-review",
+          "title": "Appraisal receipt and processor review",
+          "owner": "Processor",
+          "action": "Review the returned appraisal for discrepancies, upload it to LP, update authorized value/date fields and notify MLP, LO and Lock Desk.",
+          "prerequisite": "Actual appraisal received in the approved source system.",
+          "evidence": "Report revision, processor review/issue references, upload observation and team notification outcome.",
+          "nextOwner": "MLP, LO and Lock Desk",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Appraisal: received event through Processor team notification"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 85–88"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "Processor-owned dependency. Cadre owns processing implementation; current implementation and this source procedure remain unverified."
+        },
+        {
+          "id": "appraisal-borrower-delivery",
+          "title": "Appraisal and ROV borrower delivery follow-up",
+          "owner": "MLP",
+          "action": "Coordinate appraisal and ROV-form delivery, record delivery evidence and invoice location, and route appraisal concerns to the responsible team.",
+          "prerequisite": "Processor supplies the reviewed source report and appropriate delivery material.",
+          "evidence": "Report/ROV/invoice references, actual sent/delivery observation and source Appraisal Delivered date.",
+          "nextOwner": "MLP and Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Appraisal: final borrower appraisal/ROV node"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8, 85–88"
+            }
+          ],
+          "templateId": "MLP_APPRAISAL_COORDINATION",
+          "boundary": "The Hub does not send the report, decide an ROV, promise an outcome, or implement source deadline claims."
+        },
+        {
+          "id": "lia-los-artifact-reference",
+          "title": "Link the LIA result to its LOS evidence",
+          "owner": "MLP / Processor",
+          "action": "Record the reviewed LIA artifact and its LendingPad document reference in the preparation handoff.",
+          "prerequisite": "A source LIA result and authorized LOS record exist.",
+          "evidence": "LIA session/correlation reference, artifact version, LOS document locator, and named reviewer. Manual references remain unverified.",
+          "nextOwner": "Cadre / Processor",
+          "system": "Hub coordination",
+          "templateId": "CADRE_HANDOFF",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 555–576"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        },
+        {
+          "id": "title-escrow-source-request",
+          "title": "Prepare the title and escrow request",
+          "owner": "MLP / Processor",
+          "action": "Use the source form, preserving its loan details and ten-item request list. Confirm the current recipient and approved loss-payee source.",
+          "prerequisite": "Loan identity and a responsible requester are known; current source requirements need human review.",
+          "evidence": "Prepared request revision, controlled-document reference, recipient verification and next action; wire information remains in the secure system.",
+          "nextOwner": "Title / Escrow",
+          "system": "Hub coordination",
+          "templateId": "PROCESSOR_TITLE_ESCROW_REQUEST",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 2506–2539"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        },
+        {
+          "id": "business-narrative-source-form",
+          "title": "Collect the borrower-authored business narrative",
+          "owner": "Borrower / MLP",
+          "action": "Prepare the original grouped business questions and record where the borrower response and authorized signature process belong.",
+          "prerequisite": "The processor has requested this source form for the particular loan.",
+          "evidence": "Source revision, borrower-response reference, ownership context and unresolved questions; no income or eligibility conclusion.",
+          "nextOwner": "Cadre / Processor",
+          "system": "Hub coordination",
+          "templateId": "PROCESSOR_BUSINESS_NARRATIVE",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 2970–2996; 9128–9147"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        }
+      ]
+    },
+    {
+      "id": "submission",
+      "title": "Initial submission",
+      "summary": "MLP checks and handoff records support a processor-owned submission. A saved package is not an investor receipt.",
+      "externalStatusLabels": [
+        "Initial Submission"
+      ],
+      "steps": [
+        {
+          "id": "document-package-check",
+          "title": "Check the package and notify Processor",
+          "owner": "MLP",
+          "action": "Check that the requested borrower items are the correct documents, notify Processor they are uploaded and record LP notes.",
+          "prerequisite": "Requested items received, with outstanding gaps visible.",
+          "evidence": "Document references/review outcome, dossier and STP-form revision, notification outcome and notes reference.",
+          "nextOwner": "Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Initial Submission: needed-items trigger, review, notification and notes"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 39, 97"
+            }
+          ],
+          "templateId": "PROCESSING_SUBMISSION",
+          "boundary": "Preparation and upload references do not establish an investor submission."
+        },
+        {
+          "id": "investor-submission",
+          "title": "Processor submits to the investor",
+          "owner": "Processor",
+          "action": "When the responsible processor has enough to submit, upload/submit to the investor and update the source LP record.",
+          "prerequisite": "Processor confirms submission readiness using the approved external process.",
+          "evidence": "Submission ID, investor receipt or pending receipt, submitted document revision and LP observation.",
+          "nextOwner": "MLP",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Initial Submission: Processor submits and updates LP"
+            },
+            {
+              "id": "diagram-conditions",
+              "locator": "Initial Submission: enough-to-submit node"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "Processor-owned dependency. Cadre owns processing implementation; current implementation and this source procedure remain unverified."
+        },
+        {
+          "id": "submission-borrower-update",
+          "title": "Submission status update",
+          "owner": "MLP",
+          "action": "Give the borrower a status update supported by the observed submission outcome and record the recap.",
+          "prerequisite": "Actual submission status or explicit pending/unknown state from Processor.",
+          "evidence": "Contact outcome, source submission reference, recap and next action.",
+          "nextOwner": "Processor and MLP",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Initial Submission: final MLP borrower call"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8–9"
+            }
+          ],
+          "templateId": "MLP_BORROWER_UPDATE",
+          "boundary": "Record the actual human action and source reference. The Hub does not send, place orders, or update external records."
+        },
+        {
+          "id": "investor-exception-source-draft",
+          "title": "Prepare the investor exception draft",
+          "owner": "LO / Processor",
+          "action": "Use the supplied exception form with its original sections, factors and attachment list. Keep the investor decision block reference-only.",
+          "prerequisite": "A named human has identified the exception question and current guideline locator.",
+          "evidence": "Draft version, actual guideline reference, reviewed evidence, recipient verification and next action. Saved forms are not submitted requests.",
+          "nextOwner": "Investor / authorized reviewer",
+          "system": "Hub coordination",
+          "templateId": "INVESTOR_EXCEPTION_REQUEST",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 8802–8862"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        },
+        {
+          "id": "portal-review-request-evidence",
+          "title": "Distinguish upload from a review request",
+          "owner": "Processor",
+          "action": "Record separate external evidence for uploading a packet and requesting investor review.",
+          "prerequisite": "The authorized operator has observed the relevant portal actions.",
+          "evidence": "Document upload or commit reference, review-request reference and acknowledgment; each may remain unknown.",
+          "nextOwner": "Investor / Underwriter",
+          "system": "Cadre / processor",
+          "templateId": "CONDITION_FOLLOWUP",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 8331; 8538–8577; 8581–8615"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        }
+      ]
+    },
+    {
+      "id": "conditions",
+      "title": "Decision follow-up and conditions",
+      "summary": "Approved and Suspended are source observations. Branches coordinate human follow-up, term changes and CD preparation; none is an AI loan decision.",
+      "externalStatusLabels": [
+        "Approved",
+        "Suspended"
+      ],
+      "steps": [
+        {
+          "id": "investor-decision-review",
+          "title": "Review investor decision and needs",
+          "owner": "Processor",
+          "action": "On the approved branch, compare investor approval to the LP file, record the source status and create the conditions needs list for MLP.",
+          "prerequisite": "Investor decision available from the authoritative source.",
+          "evidence": "Decision document/version, comparison outcome, LP observation and reviewer-authored needs list.",
+          "nextOwner": "MLP",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Approved: investor review, LP Approved and conditions needs-list nodes"
+            },
+            {
+              "id": "diagram-mlp",
+              "locator": "Approved: Processor status trigger"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "This is a source loan-status observation, not a Hub work status, credit decision, or automatic stage change."
+        },
+        {
+          "id": "approved-needs-followup",
+          "title": "Communicate and follow the conditions list",
+          "owner": "MLP",
+          "action": "Communicate the source status and additional items, record notes, follow up and notify Processor as items arrive.",
+          "prerequisite": "Current processor-authored needs list and decision context.",
+          "evidence": "Conditions/version, requested/received/reviewed references, contact recap and unresolved owner.",
+          "nextOwner": "Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Approved: MLP needs, borrower communication, notes and follow-up"
+            },
+            {
+              "id": "diagram-conditions",
+              "locator": "Approved: MLP borrower notification"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8, 108–115"
+            }
+          ],
+          "templateId": "MLP_DOCUMENT_CHASE",
+          "boundary": "Use the borrower-facing needs list and keep the investor approval in its controlled source. An item collected is not an LOS condition cleared or a loan approved."
+        },
+        {
+          "id": "suspense-review",
+          "title": "Processor reviews the suspense branch",
+          "owner": "Processor",
+          "action": "Review suspense accuracy; if issues cannot be addressed, record Suspended, reason, restructure/solution context and notify LO.",
+          "prerequisite": "Source suspense outcome requires review.",
+          "evidence": "Decision source, named review, reasons, unresolved issues and actual LO handoff.",
+          "nextOwner": "LO",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Suspended: review, unresolved status update and LO notification nodes"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "No automated denial, restructure, or source-status write. The diagram omits the final no-solution route."
+        },
+        {
+          "id": "lo-suspense-followup",
+          "title": "LO communicates solution work",
+          "owner": "LO",
+          "action": "Tell the borrower the team is working on a solution; when one is established, notify Processor and include Lock Desk/Disclosures as needed.",
+          "prerequisite": "Processor suspense handoff and a human-owned next action.",
+          "evidence": "Contact outcome, solution or unresolved status, recipients and escalation reference.",
+          "nextOwner": "Processor, Lock Desk and Disclosures Desk",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Suspended: LO 48–72-hour update and solution notification"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 117–118"
+            }
+          ],
+          "templateId": "EXCEPTION_REVIEW",
+          "boundary": "The processing diagram assigns this action to LO; PDF p. 117 assigns MLP a 48–72-hour response while p. 118 gives LO next-business-day escalation. Confirm owner and timing; no automatic timer or accepted SLA."
+        },
+        {
+          "id": "pricing-change-call",
+          "title": "LO communicates pricing changes",
+          "owner": "LO",
+          "action": "When pricing changes, call the client and record the outcome before the responsible teams continue their external changes.",
+          "prerequisite": "A pricing change identified by the authorized owner; no change means this branch may not apply.",
+          "evidence": "Change source, LO contact outcome, decision owner and next recipient.",
+          "nextOwner": "Lock Desk and Disclosures Desk",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Term-change branch: LO required pricing call and skip banner"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 54, 85, 92"
+            }
+          ],
+          "templateId": "CUSTOM_TASK",
+          "boundary": "MLP records and routes concerns; this LO-owned step does not grant MLP pricing/restructure authority. Training ownership conflicts require resolution."
+        },
+        {
+          "id": "lock-change",
+          "title": "Lock Desk updates investor as needed",
+          "owner": "Lock Desk",
+          "action": "Handle the authorized investor lock update when the applicable term-change branch requires it.",
+          "prerequisite": "Confirmed change request and approved external authority.",
+          "evidence": "Request, actual change/receipt reference or unresolved response and observation date.",
+          "nextOwner": "Disclosures Desk",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Term-change branch: Lock Desk investor-update diamond"
+            }
+          ],
+          "templateId": "LOCK_REQUEST",
+          "boundary": "Skip applicability is human-recorded. The Hub neither computes the trigger nor updates an investor."
+        },
+        {
+          "id": "redisclosure",
+          "title": "Disclosures handles required term updates",
+          "owner": "Disclosures Desk",
+          "action": "Handle redisclosure through the authorized disclosure process when applicable.",
+          "prerequisite": "Responsible team determines an actual disclosure action is required.",
+          "evidence": "Revised package/version and actual delivery/receipt references.",
+          "nextOwner": "Processor",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Term-change branch: Disclosures rediscloses and no-change skip banner"
+            }
+          ],
+          "boundary": "No compliance clock, automatic redisclosure decision, message, or issuance is implemented."
+        },
+        {
+          "id": "cd-readiness-check",
+          "title": "Processor reviews CD request readiness",
+          "owner": "Processor",
+          "action": "The source describes signed LEs, appraisal/title docs received and a locked loan before the processor requests CD.",
+          "prerequisite": "Responsible humans confirm applicable CD prerequisites in the authoritative process.",
+          "evidence": "Current source checklist and document/lock observations, request and unresolved gaps.",
+          "nextOwner": "Lock Desk and Closing",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "CD branch: signed LEs, appraisal/title documents and lock readiness node"
+            }
+          ],
+          "templateId": "CD_REQUEST",
+          "boundary": "These source prerequisites are not adopted universal gates or verified TRID requirements."
+        },
+        {
+          "id": "lock-audit",
+          "title": "Lock Desk audits investor lock against LP",
+          "owner": "Lock Desk",
+          "action": "Compare the investor lock with the LP record and route any discrepancy.",
+          "prerequisite": "CD-related handoff received and both source records available.",
+          "evidence": "Compared revisions, reviewer outcome, discrepancies and next owner.",
+          "nextOwner": "Processor and Closing",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "CD branch: upper Lock Desk audit diamond"
+            }
+          ],
+          "templateId": "LOCK_REQUEST",
+          "boundary": "The diagram places this beside Initial CD issuance. It does not define which must finish first."
+        },
+        {
+          "id": "initial-cd",
+          "title": "Closing handles Initial CD issuance",
+          "owner": "Closing",
+          "action": "The source assigns Initial CD issuance to Closing; MLP separately coordinates the borrower CD update using actual source evidence.",
+          "prerequisite": "Authorized closing/disclosure process and human-owned request.",
+          "evidence": "Issued-package and actual delivery/receipt references, plus communication outcome when performed.",
+          "nextOwner": "Processor and MLP",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "CD branch: lower Closing Initial CD diamond"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "p. 8: Closing Disclosure call"
+            }
+          ],
+          "templateId": "CD_REQUEST",
+          "boundary": "A CD request, review checkbox or borrower update does not issue or deliver a disclosure."
+        }
+      ]
+    },
+    {
+      "id": "closing",
+      "title": "Conditions, clear to close and signing",
+      "summary": "Investor and processor CTC evidence precedes human signing coordination in the source. No Hub state confers CTC or releases documents.",
+      "externalStatusLabels": [
+        "Condition Submission",
+        "Clear to Close"
+      ],
+      "steps": [
+        {
+          "id": "conditions-submission",
+          "title": "Processor submits conditions",
+          "owner": "Processor",
+          "action": "Submit the conditions and record LP Condition Submission.",
+          "prerequisite": "Responsible processor confirms the applicable condition package and upstream dependencies.",
+          "evidence": "Submitted condition revision, actual source receipt/pending outcome and LP observation.",
+          "nextOwner": "Investor",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Condition Submission: Processor submission node"
+            },
+            {
+              "id": "diagram-closing",
+              "locator": "Leftmost Condition Submission node"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "This is a source loan-status observation, not a Hub work status, credit decision, or automatic stage change."
+        },
+        {
+          "id": "investor-ctc",
+          "title": "Observe investor clear-to-close outcome",
+          "owner": "Investor",
+          "action": "The diagram records the investor CTC outcome as an external event.",
+          "prerequisite": "Investor reviewed the submitted file through its authorized process.",
+          "evidence": "Authoritative CTC document/event reference and source observation time.",
+          "nextOwner": "Processor",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-conditions",
+              "locator": "Rightmost Investor CTC node"
+            },
+            {
+              "id": "diagram-closing",
+              "locator": "Investor CTC node"
+            }
+          ],
+          "boundary": "Never infer CTC from a completed work item, missing condition, or AI output."
+        },
+        {
+          "id": "ctc-review",
+          "title": "Processor compares CTC to the LP file",
+          "owner": "Processor",
+          "action": "Review investor CTC against the LP file; if matching with no concerns, make the authorized source update.",
+          "prerequisite": "Actual investor CTC source available; discrepancies retain a human owner.",
+          "evidence": "Compared document/revision, human outcome, unresolved concerns and LP observation.",
+          "nextOwner": "MLP and Closing",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-closing",
+              "locator": "CTC: processor review and conditional LP update nodes"
+            },
+            {
+              "id": "diagram-mlp",
+              "locator": "Clear to Close: Processor LP status trigger"
+            }
+          ],
+          "templateId": "CADRE_HANDOFF",
+          "boundary": "The diagram omits the mismatch route and does not name the exact field written in its conditional update node."
+        },
+        {
+          "id": "signing-availability",
+          "title": "Confirm CD evidence and signing availability",
+          "owner": "MLP",
+          "action": "Check signed-CD evidence, discuss signing availability/location and notify Closing/Processor; record the notes and actual borrower update.",
+          "prerequisite": "Source CTC context and the responsible team’s signing instructions.",
+          "evidence": "CD signature/location reference, borrower availability/location, contact outcome and handoff.",
+          "nextOwner": "Closing and Processor",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Clear to Close: signed CDs, availability/location, notes and team notification"
+            },
+            {
+              "id": "diagram-closing",
+              "locator": "CTC: MLP confirms signing availability"
+            },
+            {
+              "id": "pdf-mlp",
+              "locator": "p. 8: CTC call"
+            }
+          ],
+          "templateId": "MLP_SIGNING_COORDINATION",
+          "boundary": "No earliest-signing, receipt-period or compliance calculation is derived from training."
+        },
+        {
+          "id": "closing-title-handoff",
+          "title": "Processor includes Closing and Title",
+          "owner": "Processor",
+          "action": "Bring Closing and Title into the source process and request balancing for documents.",
+          "prerequisite": "Source CTC review and responsible-team handoff readiness.",
+          "evidence": "Closing/Title handoff, actual receipt or pending response and outstanding owner.",
+          "nextOwner": "Closing and Title",
+          "system": "Cadre / processor",
+          "sources": [
+            {
+              "id": "diagram-closing",
+              "locator": "CTC: processor includes Closing/Title and requests balance"
+            }
+          ],
+          "templateId": "CLOSING_COORDINATION",
+          "boundary": "Processor-owned dependency. Cadre owns processing implementation; current implementation and this source procedure remain unverified."
+        },
+        {
+          "id": "closing-doc-release",
+          "title": "Closing balances and releases documents",
+          "owner": "Closing",
+          "action": "Balance with Title and release closing documents through the authorized source workflow.",
+          "prerequisite": "Closing/Title confirmation and approved document process.",
+          "evidence": "Balanced revision, release reference, actual delivery outcome and unresolved items.",
+          "nextOwner": "Title and MLP",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-closing",
+              "locator": "CTC: Closing balances with Title and releases closing docs"
+            }
+          ],
+          "templateId": "CLOSING_COORDINATION",
+          "boundary": "No fund movement, document release, or external send occurs through this catalog."
+        },
+        {
+          "id": "notary-final-cd",
+          "title": "Confirm notary and review Final CD",
+          "owner": "MLP",
+          "action": "After Title assigns the notary, confirm with the client and review the Final CD before signing.",
+          "prerequisite": "Title supplies the appointment/notary and the applicable Final CD is available.",
+          "evidence": "Appointment confirmation, source Final CD revision, discussion outcome and unresolved questions.",
+          "nextOwner": "Borrower and Closing",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Clear to Close: Title/notary confirmation and Final CD review"
+            }
+          ],
+          "templateId": "MLP_SIGNING_COORDINATION",
+          "boundary": "Appointment or discussion completion is not signed-document receipt or loan closure."
+        },
+        {
+          "id": "signing-followup",
+          "title": "Check signing outcome",
+          "owner": "MLP",
+          "action": "Contact the borrower after signing to confirm the reported outcome and record notes.",
+          "prerequisite": "Signing was scheduled or reported; retain unknown or unsuccessful outcomes.",
+          "evidence": "Actual contact outcome, borrower-reported result, unresolved owner and notes reference.",
+          "nextOwner": "Closing",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "diagram-mlp",
+              "locator": "Clear to Close: post-signing contact and final LP notes"
+            }
+          ],
+          "templateId": "MLP_SIGNING_COORDINATION",
+          "boundary": "Borrower-reported success does not verify execution, receipt, Closed, or Funded."
+        }
+      ]
+    },
+    {
+      "id": "funded",
+      "title": "Closed and funded evidence",
+      "summary": "Closed and Funded remain authoritative external observations. Communication and operational work are separate from outcome attribution.",
+      "externalStatusLabels": [
+        "Closed",
+        "Funded"
+      ],
+      "steps": [
+        {
+          "id": "closed-status",
+          "title": "Observe signed-doc receipt and Closed",
+          "owner": "Closing",
+          "action": "The source assigns the closer an LP Closed update when signed documents are back.",
+          "prerequisite": "Authorized closing team confirms actual signed-document receipt.",
+          "evidence": "Source signed-document receipt and Closed milestone/event reference.",
+          "nextOwner": "Closing",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-closing",
+              "locator": "Closed: signed docs back and closer LP update"
+            }
+          ],
+          "templateId": "CLOSING_COORDINATION",
+          "boundary": "This is a source loan-status observation, not a Hub work status, credit decision, or automatic stage change."
+        },
+        {
+          "id": "funded-status",
+          "title": "Observe funding from the authoritative source",
+          "owner": "Closing",
+          "action": "The diagram assigns the closer Funded after its stated rescission/wire conditions; record only the actual authoritative outcome.",
+          "prerequisite": "Authorized funding process confirms applicable requirements and the source funding event.",
+          "evidence": "Verified LOS funding event and source loan join when connected; otherwise retain manual/unverified status.",
+          "nextOwner": "MLP",
+          "system": "LendingPad / external",
+          "sources": [
+            {
+              "id": "diagram-closing",
+              "locator": "Funded: rescission/wire and closer LP update"
+            }
+          ],
+          "templateId": "POST_CLOSE_QC",
+          "boundary": "Do not calculate rescission or assume it applies to every loan. A wire statement or Hub completion alone does not prove funded-loan attribution."
+        },
+        {
+          "id": "funded-borrower-update",
+          "title": "Funded borrower communication",
+          "owner": "MLP",
+          "action": "Provide the funded milestone update when the responsible source confirms the outcome; record the actual contact and recap.",
+          "prerequisite": "Confirmed external funding information or an explicitly unresolved status.",
+          "evidence": "Source funding reference, contact outcome, recap and outstanding post-close follow-up.",
+          "nextOwner": "MLP and Closing",
+          "system": "Hub coordination",
+          "sources": [
+            {
+              "id": "pdf-mlp",
+              "locator": "pp. 8–9, 156–159, 191: funded communication and recap"
+            }
+          ],
+          "templateId": "MLP_BORROWER_UPDATE",
+          "boundary": "Manual contact or work completion is not proof of LIA impact or a measured productivity gain."
+        },
+        {
+          "id": "post-funding-reconciliation-evidence",
+          "title": "Coordinate reconciliation and collateral follow-up",
+          "owner": "Closing / Post-close",
+          "action": "Use the source wrap-up and collateral references to record exceptions, approved-system evidence and the accountable next owner.",
+          "prerequisite": "Funding and post-close context are supplied by the responsible external source.",
+          "evidence": "Reconciliation document locator, outstanding item/receipt reference, human reviewer and next action. No wire instruction or fund transfer is entered here.",
+          "nextOwner": "Post-close / authorized reviewer",
+          "system": "Hub coordination",
+          "templateId": "POST_CLOSE_QC",
+          "sources": [
+            {
+              "id": "processor-master",
+              "locator": "Lines 6609–6722; 7052–7073"
+            }
+          ],
+          "boundary": "Human preparation and observed evidence only. Cadre and authorized external systems retain execution. Completing this work does not establish delivery, acceptance, a loan milestone, or verified LIA attribution."
+        }
+      ]
+    }
+  ],
+  "reviewPoints": [
+    {
+      "id": "source-state-boundary",
+      "title": "Loan status is not work completion",
+      "detail": "Approved, Suspended, CTC, Closed and Funded are source observations. They never replace Hub work statuses or authorize AI approval, denial, clearance, external writes or automatic step completion.",
+      "sources": [
+        {
+          "id": "diagram-mlp",
+          "locator": "Approved and Clear to Close triggers"
+        },
+        {
+          "id": "diagram-conditions",
+          "locator": "Approved/Suspended branches"
+        },
+        {
+          "id": "diagram-closing",
+          "locator": "Closed and Funded nodes"
+        }
+      ]
+    },
+    {
+      "id": "welcome-trigger-conflict",
+      "title": "Confirm the welcome trigger",
+      "detail": "The MLP lane starts after disclosures are sent/task assigned; the end-to-end view shows welcome beside initial Processing after STP. Preserve the actual trigger instead of enforcing one universal order.",
+      "sources": [
+        {
+          "id": "diagram-mlp",
+          "locator": "Welcome Call trigger"
+        },
+        {
+          "id": "diagram-origination",
+          "locator": "Right-edge processing fork, partially cropped"
+        },
+        {
+          "id": "diagram-conditions",
+          "locator": "Processing: parallel welcome and initial review"
+        },
+        {
+          "id": "pdf-mlp",
+          "locator": "p. 91"
+        }
+      ]
+    },
+    {
+      "id": "appraisal-owner-conflict",
+      "title": "Confirm appraisal ordering ownership",
+      "detail": "Detailed diagrams and training assign appraisal ordering to Processor; the communication overview also names MLP. Record requester, accountable owner and actual actor. MLP coordination must not create automatic orders.",
+      "sources": [
+        {
+          "id": "diagram-mlp",
+          "locator": "Appraisal: Processor orders"
+        },
+        {
+          "id": "diagram-conditions",
+          "locator": "Processing: Processor order/title node"
+        },
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 8, 39, 83"
+        }
+      ]
+    },
+    {
+      "id": "pricing-owner-conflict",
+      "title": "Route pricing and structure decisions explicitly",
+      "detail": "LO owns the diagram pricing call. Training assigns pricing/restructure to LO in one place and MLP in another. MLP records concerns and routes them to LO/Lock Desk; do not adopt credit or pricing authority from that conflict.",
+      "sources": [
+        {
+          "id": "diagram-conditions",
+          "locator": "Term-change branch: LO pricing call"
+        },
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 54, 85, 92"
+        }
+      ]
+    },
+    {
+      "id": "suspense-cadence-conflict",
+      "title": "Resolve suspense follow-up timing",
+      "detail": "The diagram assigns LO a 48–72-hour update; training p. 117 assigns MLP a response, while p. 118 assigns LO next-business-day escalation. Resolve both owner and timing; no accepted timer, calendar or exception policy is established.",
+      "sources": [
+        {
+          "id": "diagram-conditions",
+          "locator": "Suspended: LO update node"
+        },
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 117–118"
+        }
+      ]
+    },
+    {
+      "id": "cd-separate-observations",
+      "title": "Keep CD events distinct",
+      "detail": "CD request, Initial CD issuance, signed-CD evidence, Final CD review and delivery/receipt are separate observations. Lock audit and Initial CD appear as parallel branches. No compliance deadline or universal loan gate is inferred.",
+      "sources": [
+        {
+          "id": "diagram-conditions",
+          "locator": "CD request fork: Lock audit and Closing Initial CD"
+        },
+        {
+          "id": "diagram-mlp",
+          "locator": "Clear to Close: signed CDs and Final CD review"
+        }
+      ]
+    },
+    {
+      "id": "processor-scope",
+      "title": "Processor scope remains with Cadre",
+      "detail": "Processor review, investor submission, suspense resolution, substantive appraisal review and source-status updates are dependencies. The user will supply processor detail later. The catalog is not a second processing engine and does not establish current Cadre capability.",
+      "sources": [
+        {
+          "id": "diagram-mlp",
+          "locator": "Processor-owned nodes across lanes"
+        },
+        {
+          "id": "diagram-conditions",
+          "locator": "Processor review and investor branches"
+        },
+        {
+          "id": "diagram-closing",
+          "locator": "Processor CTC review"
+        }
+      ]
+    },
+    {
+      "id": "external-party-mapping",
+      "title": "External parties are dependencies",
+      "detail": "Disclosures Desk, Investor, Title/notary and borrower are source roles, not automatically provisioned Hub accounts. Blend, IDS and the source Hub board are unverified interface labels. A suggested work template does not transfer the named role authority.",
+      "sources": [
+        {
+          "id": "diagram-origination",
+          "locator": "Blend, Hub board and IDS nodes"
+        },
+        {
+          "id": "diagram-closing",
+          "locator": "Investor and Title/Closing handoffs"
+        }
+      ]
+    },
+    {
+      "id": "partial-source-boundary",
+      "title": "Cropped sources do not supply complete rules",
+      "detail": "The origination image ends inside Processing; the middle image clips neighboring phases. Training embeds partial form/checklist views and unavailable videos. Missing branches, full schemas and current policies are not reconstructed.",
+      "sources": [
+        {
+          "id": "diagram-origination",
+          "locator": "Right edge"
+        },
+        {
+          "id": "diagram-conditions",
+          "locator": "Left and right edges"
+        },
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 65, 82–83, 88, 97"
+        }
+      ]
+    },
+    {
+      "id": "inactive-rule-material",
+      "title": "Training is not a lending-rule engine",
+      "detail": "Conflicting application-element lists, an inconsistent calendar example and unverified program/disclosure statements remain inactive references. No thresholds, qualification verdict, HPML/ROV clock or earliest-signing calculator is imported.",
+      "sources": [
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 65, 81, 86, 89–91"
+        }
+      ]
+    },
+    {
+      "id": "attribution-evidence",
+      "title": "Prove outcomes with source joins",
+      "detail": "Track human contact, document, handoff and revision evidence separately from elapsed waits and self-reported handling time. The training names locks, fundings, pull-through and turnaround; proving LIA impact still requires verified LIA touchpoints joined to authoritative LOS application/funding events and a comparable baseline. Signed, Closed, funded and later investor purchase remain distinct.",
+      "sources": [
+        {
+          "id": "pdf-mlp",
+          "locator": "pp. 8–13, 156–159"
+        },
+        {
+          "id": "diagram-closing",
+          "locator": "Funded source event"
+        }
+      ]
+    },
+    {
+      "id": "processor-training-timing",
+      "title": "Processor timing and recipient conflicts",
+      "detail": "The supplied training differs on disclosure timing, request recipients and the date used for first-payment planning. Dates and recipient selection remain human-reviewed; the Hub does not calculate legal deadlines.",
+      "sources": [
+        {
+          "id": "processor-master",
+          "locator": "Lines 12104; 14253–14263; 14322–14324; 14347; 14401–14403; 14593"
+        }
+      ]
+    },
+    {
+      "id": "processor-training-calculations",
+      "title": "Source calculations need controlled originals",
+      "detail": "Several source examples contain inconsistent periods, units or formulas, and the income workbooks are not included. No source calculation, eligibility threshold or signature requirement is imported as executable logic.",
+      "sources": [
+        {
+          "id": "processor-master",
+          "locator": "Lines 12812–12816; 12967; 13120–13130; 13720–13725; 13828"
+        }
+      ]
+    },
+    {
+      "id": "processor-source-form-boundary",
+      "title": "Preserve forms without implying execution",
+      "detail": "Source questions, list order and disclaimers remain distinct from added Hub coordination fields. Borrower certifications, investor decisions, document issuance and funding are controlled external actions.",
+      "sources": [
+        {
+          "id": "processor-master",
+          "locator": "Lines 2506–2539; 2970–2996; 8802–8862; 14240–14246"
+        }
+      ]
+    }
+  ],
+  "cadences": [
+    {
+      "id": "processor-review-target",
+      "title": "Initial processor review: 24–48 hours",
+      "description": "Unconfirmed diagram target. Start/stop, calendar, exceptions and responsible-owner acceptance are not defined; no timer is created.",
+      "source": {
+        "id": "diagram-conditions",
+        "locator": "Processing: Initial Processor Review (24–48 hrs)"
+      },
+      "automated": false
+    },
+    {
+      "id": "suspense-update-target",
+      "title": "Suspense client update: 48–72 hours",
+      "description": "Unconfirmed source target for the LO update; training also has next-business-day escalation language. Record a human target and resolve the conflict before enforcement.",
+      "source": {
+        "id": "diagram-conditions",
+        "locator": "Suspended: LO client-update node"
+      },
+      "automated": false
+    },
+    {
+      "id": "welcome-target",
+      "title": "Welcome: within 24 hours of disclosure",
+      "description": "Source operational target only. It does not establish a regulatory deadline, accepted SLA or automatic task start.",
+      "source": {
+        "id": "pdf-mlp",
+        "locator": "p. 91"
+      },
+      "automated": false
+    },
+    {
+      "id": "borrower-items-target",
+      "title": "Requested borrower items: three-day expectation",
+      "description": "Source conversation target, subject to contact preferences, travel and actual circumstances. Record an agreed human target; no automatic due date is computed.",
+      "source": {
+        "id": "pdf-mlp",
+        "locator": "p. 92"
+      },
+      "automated": false
+    },
+    {
+      "id": "weekly-update",
+      "title": "Friday borrower check-in",
+      "description": "Training calls for a weekly Friday update even when nothing changed. This is a manual planning reference, not a configured recurring message or task.",
+      "source": {
+        "id": "pdf-mlp",
+        "locator": "pp. 8–9"
+      },
+      "automated": false
+    },
+    {
+      "id": "contact-recap",
+      "title": "Email recap after a call or text",
+      "description": "Training asks for a recap of next steps or requested items. Prepare and review the draft through the authorized human workflow; nothing is sent automatically.",
+      "source": {
+        "id": "pdf-mlp",
+        "locator": "p. 9"
+      },
+      "automated": false
+    }
+  ],
+  "note": "Version 3 removes the Lead and discovery reference phase. The Hub is an operations platform; origination conversations are recorded outside it or as custom work on an existing loan."
+}

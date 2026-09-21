@@ -1,0 +1,184 @@
+{
+  "source": {
+    "title": "Condition Flow Explorer · common document references",
+    "archiveSha256": "9aa8622cb6e1c6334f3b25b7f5714abbd230e7e8ad77f66545bf1b6e576f90dd",
+    "archiveName": "deploy-6a9a430d461ba93f984f6458.zip",
+    "artifactSha256": "d87c01bc7271822597f16c6e5d1b2f538f88d3fa43a961553fc6f6404032327e",
+    "reference": "condition-flow/tools/ops-overlay.json · conditions[].id and conditions[].condition",
+    "status": "UNVERIFIED_REFERENCE",
+    "sourceDate": "2026-09-02",
+    "importDate": "2026-09-19",
+    "version": 1,
+    "boundary": "Document names only. No product applicability, investor requirement, gate, override, or borrower example is included. Categories are Hub taxonomy, not source policy."
+  },
+  "conditions": [
+    {
+      "id": "C01",
+      "label": "Verbal/Written VOE",
+      "category": "Employment and income",
+      "sourcePointer": "/conditions/0/condition"
+    },
+    {
+      "id": "C02",
+      "label": "4506-C / IRS Transcripts",
+      "category": "Employment and income",
+      "sourcePointer": "/conditions/1/condition"
+    },
+    {
+      "id": "C03",
+      "label": "Bank Statements (Income)",
+      "category": "Employment and income",
+      "sourcePointer": "/conditions/2/condition"
+    },
+    {
+      "id": "C04",
+      "label": "Written VOE (Third-Party)",
+      "category": "Employment and income",
+      "sourcePointer": "/conditions/3/condition"
+    },
+    {
+      "id": "C05",
+      "label": "2-Mo Asset Statements",
+      "category": "Assets and funds",
+      "sourcePointer": "/conditions/4/condition"
+    },
+    {
+      "id": "C06",
+      "label": "Large Deposit Explanation",
+      "category": "Assets and funds",
+      "sourcePointer": "/conditions/5/condition"
+    },
+    {
+      "id": "C07",
+      "label": "Gift Funds Letter",
+      "category": "Assets and funds",
+      "sourcePointer": "/conditions/6/condition"
+    },
+    {
+      "id": "C08",
+      "label": "LOE for Credit Derogatory",
+      "category": "Credit and payment history",
+      "sourcePointer": "/conditions/7/condition"
+    },
+    {
+      "id": "C09",
+      "label": "Mortgage/Rental History",
+      "category": "Credit and payment history",
+      "sourcePointer": "/conditions/8/condition"
+    },
+    {
+      "id": "C10",
+      "label": "Appraisal Report",
+      "category": "Valuation",
+      "sourcePointer": "/conditions/9/condition"
+    },
+    {
+      "id": "C11",
+      "label": "Appraisal Review (CDA/Field Review)",
+      "category": "Valuation",
+      "sourcePointer": "/conditions/10/condition"
+    },
+    {
+      "id": "C12",
+      "label": "Lease Agreement or 1007/1025",
+      "category": "Property documents",
+      "sourcePointer": "/conditions/11/condition"
+    },
+    {
+      "id": "C13",
+      "label": "Condo/PUD Project Cert",
+      "category": "Property documents",
+      "sourcePointer": "/conditions/12/condition"
+    },
+    {
+      "id": "C14",
+      "label": "HOA Certification",
+      "category": "Property documents",
+      "sourcePointer": "/conditions/13/condition"
+    },
+    {
+      "id": "C15",
+      "label": "Survey",
+      "category": "Property documents",
+      "sourcePointer": "/conditions/14/condition"
+    },
+    {
+      "id": "C16",
+      "label": "Title Commitment",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/15/condition"
+    },
+    {
+      "id": "C17",
+      "label": "Payoff Statement(s)",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/16/condition"
+    },
+    {
+      "id": "C18",
+      "label": "Closing Protection Letter",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/17/condition"
+    },
+    {
+      "id": "C19",
+      "label": "Final Closing Disclosure",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/18/condition"
+    },
+    {
+      "id": "C20",
+      "label": "Wire Instruction Verification",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/19/condition"
+    },
+    {
+      "id": "C21",
+      "label": "Hazard Insurance Binder",
+      "category": "Insurance",
+      "sourcePointer": "/conditions/20/condition"
+    },
+    {
+      "id": "C22",
+      "label": "Flood Insurance (if applicable)",
+      "category": "Insurance",
+      "sourcePointer": "/conditions/21/condition"
+    },
+    {
+      "id": "C23",
+      "label": "Builder's Risk (Rehab/Constr.)",
+      "category": "Insurance",
+      "sourcePointer": "/conditions/22/condition"
+    },
+    {
+      "id": "C24",
+      "label": "Entity Formation Docs",
+      "category": "Entity documents",
+      "sourcePointer": "/conditions/23/condition"
+    },
+    {
+      "id": "C25",
+      "label": "Certificate of Good Standing",
+      "category": "Entity documents",
+      "sourcePointer": "/conditions/24/condition"
+    },
+    {
+      "id": "C26",
+      "label": "Occupancy Affidavit",
+      "category": "Occupancy",
+      "sourcePointer": "/conditions/25/condition"
+    },
+    {
+      "id": "C27",
+      "label": "Fraud/CBC/OFAC/SSA-89",
+      "category": "Identity and fraud review",
+      "sourcePointer": "/conditions/26/condition"
+    },
+    {
+      "id": "C28",
+      "label": "First Payment Letter",
+      "category": "Title and closing",
+      "sourcePointer": "/conditions/27/condition"
+    }
+  ]
+}

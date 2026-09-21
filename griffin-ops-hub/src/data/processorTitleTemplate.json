@@ -1,0 +1,318 @@
+{
+  "id": "PROCESSOR_TITLE_ESCROW_REQUEST",
+  "title": "Title and Escrow Request",
+  "shortTitle": "Title and Escrow Request",
+  "department": "MLP",
+  "allowedDepartments": [
+    "MLP",
+    "PROCESSOR",
+    "CLOSING"
+  ],
+  "description": "Prepare the supplied source form as a draft, retain its original groups and wording, and record a separate human coordination outcome.",
+  "source": "Supplied processor training · source form",
+  "source_status": "UNVERIFIED_REFERENCE",
+  "source_metadata": {
+    "reference_sources": [
+      {
+        "id": "processor-master-content",
+        "artifact": "Griffin_Processor_Master_Content.md",
+        "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+        "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476",
+        "section": "Module 5 · Title and Escrow Request",
+        "lines": [
+          2506,
+          2539
+        ],
+        "archiveArtifact": "Griffin_Processor_Master_Content.zip"
+      }
+    ],
+    "preservation": "Source text, labeled inputs, and list order are preserved except for the explicitly documented exclusions. Markdown source does not provide the original PDF layout or field definitions.",
+    "source_input_requirements": "The source does not specify mandatory inputs, field types, limits, or validation. Source inputs remain optional text; text-area layout and storage length limits are implementation choices.",
+    "scope": "Human preparation and coordination only. No send, order, legal signature, borrower certification, investor rule, calculation, or LOS mutation.",
+    "source_field_order": [
+      "INSERT TITLE COMPANY OR CONTACT NAME",
+      "LPA NAME",
+      "Processor:",
+      "Borrower:",
+      "Address:",
+      "Vesting:",
+      "Purchase Price (if purchase only):",
+      "Loan Amount:",
+      "Ln #:"
+    ],
+    "request_item_order": [
+      "Title Commitment – Please use Griffin Funding, Inc. ISAOA/ATIMA as the proposed insured.",
+      "24-month Chain of Title",
+      "Plat Map",
+      "Survey (if applicable)",
+      "Legal Description",
+      "Tax Cert",
+      "CPL – see our loss payee and loan number below",
+      "Wire Instructions",
+      "A copy of title's E and O Certificate",
+      "Preliminary CD or Settlement Statement"
+    ],
+    "source_request_lines": [
+      2522,
+      2532
+    ],
+    "exclusions": [
+      {
+        "lines": [
+          2514,
+          2514
+        ],
+        "reason": "Fixed employee identity removed; the original Processor label remains a blank input."
+      },
+      {
+        "lines": [
+          2537,
+          2538
+        ],
+        "reason": "Historical mailing address excluded because current approved mortgagee/contact destinations were not established."
+      },
+      {
+        "lines": [
+          2508,
+          2510
+        ],
+        "reason": "Placeholder delimiters remain in source instructions; recipient and assistant names are blank inputs, not copied contacts."
+      }
+    ],
+    "missing_original_content": [
+      "Original PDF page geometry, logo, interactive field types, field lengths, and requiredness are not supplied.",
+      "No source subject line, date field, signature block, or transaction-type input is present in this specific template; none was invented."
+    ],
+    "routing_basis": [
+      {
+        "lines": [
+          1661,
+          1679
+        ],
+        "note": "Source explicitly describes title requests initiated by MLP or processor with the other party copied."
+      },
+      {
+        "lines": [
+          648,
+          657
+        ],
+        "note": "Closing owns package issuance and participates in closing coordination; the Closing route grants draft review only, not processor execution."
+      }
+    ],
+    "source_field_count": 9,
+    "hub_field_count": 5,
+    "field_count": 14,
+    "assessment_disposition": "Source-form draft with supplied wording and order preserved, except explicitly documented private-example and stale-address exclusions. Source-only certifications and request lists are not executed assertions. Added Hub coordination fields are separate; no current policy validation or external action."
+  },
+  "version": 1,
+  "sections": [
+    {
+      "id": "source_introduction",
+      "title": "Source request introduction",
+      "fields": [
+        {
+          "key": "title_company_or_contact_name",
+          "label": "INSERT TITLE COMPANY OR CONTACT NAME",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2508,
+            2508
+          ],
+          "span": 2
+        },
+        {
+          "key": "lpa_name",
+          "label": "LPA NAME",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2510,
+            2510
+          ],
+          "span": 2
+        }
+      ],
+      "origin": "source",
+      "description": "Hello @INSERT TITLE COMPANY OR CONTACT NAME@,\n\nI am the Senior Loan Processor working with @@@ on his/her/their loan application. Please accept this email as our formal request to open title. I have also cc'd my Loan Processing Assistant, @LPA NAME, for visibility.\n\nPLEASE REPLY TO ALL. THANK YOU!"
+    },
+    {
+      "id": "source_loan_details",
+      "title": "Source loan details",
+      "fields": [
+        {
+          "key": "processor",
+          "label": "Processor:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2514,
+            2514
+          ],
+          "span": 2
+        },
+        {
+          "key": "borrower",
+          "label": "Borrower:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2516,
+            2516
+          ],
+          "span": 2
+        },
+        {
+          "key": "address",
+          "label": "Address:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2517,
+            2517
+          ],
+          "span": 2
+        },
+        {
+          "key": "vesting",
+          "label": "Vesting:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2518,
+            2518
+          ],
+          "hint": "Source note: @I USUALLY ONLY ADD THIS IF I KNOW WE ARE CLOSING IN THE LLC@",
+          "span": 2
+        },
+        {
+          "key": "purchase_price",
+          "label": "Purchase Price (if purchase only):",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2519,
+            2519
+          ],
+          "hint": "Source amount marker: $. Applicability is not determined by the Hub.",
+          "span": 2
+        },
+        {
+          "key": "loan_amount",
+          "label": "Loan Amount:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2520,
+            2520
+          ],
+          "hint": "Source amount marker: $. No amount is calculated by the Hub.",
+          "span": 2
+        }
+      ],
+      "origin": "source"
+    },
+    {
+      "id": "source_requested_documents",
+      "title": "Source requested documents",
+      "fields": [],
+      "origin": "source",
+      "description": "May we please have copies of the following items for our file?\n\n1. Title Commitment – Please use Griffin Funding, Inc. ISAOA/ATIMA as the proposed insured.\n2. 24-month Chain of Title\n3. Plat Map\n4. Survey (if applicable)\n5. Legal Description\n6. Tax Cert\n7. CPL – see our loss payee and loan number below\n8. Wire Instructions\n9. A copy of title's E and O Certificate\n10. Preliminary CD or Settlement Statement"
+    },
+    {
+      "id": "source_loss_payee",
+      "title": "Loss Payee:",
+      "fields": [
+        {
+          "key": "loanNumber",
+          "label": "Ln #:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2539,
+            2539
+          ],
+          "readOnly": true,
+          "hint": "Bound to the linked Hub loan number. Historical mailing address excluded; record the approved clause reference in Hub coordination.",
+          "span": 2
+        }
+      ],
+      "origin": "source",
+      "description": "Griffin Funding, Inc.\nISAOA/ATIMA"
+    },
+    {
+      "id": "hub_coordination",
+      "title": "Hub coordination · not part of the source form",
+      "origin": "hub",
+      "description": "Added by the Hub for draft review, evidence references, and next action. These entries do not certify the source answers or complete an external action.",
+      "fields": [
+        {
+          "key": "hub_source_reference",
+          "label": "Loan record or prepared document reference",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "Use a controlled record ID or document locator. This entry does not verify the source.",
+          "span": 2
+        },
+        {
+          "key": "hub_recipient_reference",
+          "label": "Authorized recipient record reference",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "Use a controlled recipient record. No message is sent.",
+          "span": 2
+        },
+        {
+          "key": "hub_loss_payee_reference",
+          "label": "Current approved loss payee clause reference",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "The historical mailing address was excluded. Obtain the current approved clause through the authorized process.",
+          "span": 2
+        },
+        {
+          "key": "hub_review_notes",
+          "label": "Draft review notes and missing information",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "span": 2
+        },
+        {
+          "key": "hub_next_action",
+          "label": "Next action or documented no further action outcome",
+          "type": "textarea",
+          "required": true,
+          "maxLength": 4000,
+          "hint": "Record the responsible person or team and any unresolved information. Completing this work records a coordination episode only.",
+          "span": 2
+        }
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "hub_draft_reviewed",
+      "label": "Hub review: source wording, entered values, omitted details, and known gaps reviewed for the intended draft.",
+      "required": true
+    },
+    {
+      "id": "hub_boundary_reviewed",
+      "label": "Hub review: next action recorded without claiming an external send, order, signature, certification, or loan outcome.",
+      "required": true
+    }
+  ],
+  "boundary": "Draft preparation only. The retained source introduction describes a Senior Loan Processor and a formal request; it is quoted source wording, not proof of this actor’s role or a sent request. An authorized sender must review wording, recipient, loan details, and the current approved loss payee clause before external use. Requested documents are not evidence of receipt or universal requirements. No title order, external message, wire handling, signature, investor decision, or LOS status change occurs. Cadre and the responsible processor retain processing execution."
+}

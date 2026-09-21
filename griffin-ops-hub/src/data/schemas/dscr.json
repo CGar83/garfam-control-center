@@ -1,0 +1,64 @@
+{
+  "form_type": "DSCR",
+  "version": 2,
+  "title": "DSCR Submission Worksheet",
+  "product_label": "DSCR",
+  "product_description": "Debt Service Coverage Ratio",
+  "sections": [
+    {
+      "id": "snapshot",
+      "fields": [
+        { "after": "cltv", "key": "dscr", "label": "DSCR Ratio", "type": "number", "step": 0.01, "required": true, "hint": { "fromInvestor": "mD", "template": "Min: {value}" } },
+        { "after": "dscr", "type": "callout", "key": "co_dscr_below1", "calloutType": "restriction", "title": "DSCR < 1.00 Restrictions", "listFromInvestor": "d1", "when": { "all": [{ "field": "dscr", "lt": 1 }, { "investor": "d1", "truthy": true }] } }
+      ]
+    },
+    {
+      "id": "property",
+      "fields": [
+        { "after": "hoaA", "key": "rType", "label": "Rental Type", "type": "pill", "span": 2, "required": true, "options": ["Long-Term Rental", "Short-Term Rental"] },
+        { "after": "rType", "type": "callout", "key": "co_str_no", "calloutType": "restriction", "title": "STR Not Permitted", "body": "This product does not allow short-term rental income.", "when": { "all": [{ "field": "rType", "eq": "Short-Term Rental" }, { "investor": "str", "eq": false }] } },
+        { "after": "co_str_no", "type": "callout", "key": "co_str_req", "calloutType": "warning", "title": "STR Requirements", "items": [
+          { "text": "Min DSCR: {investor.sD}", "when": { "investor": "sD", "truthy": true } },
+          { "text": "Min FICO: {investor.sF}", "when": { "investor": "sF", "truthy": true } },
+          { "text": "Max LTV: {investor.sL}%", "when": { "investor": "sL", "truthy": true } },
+          { "text": "12mo STR experience required", "when": { "investor": "s12", "truthy": true } },
+          { "text": "Property Guard report required", "when": { "investor": "sPG", "truthy": true } }
+        ], "when": { "all": [{ "field": "rType", "eq": "Short-Term Rental" }, { "investor": "str", "truthy": true }] } },
+        { "after": "co_str_req", "key": "strS", "label": "STR Data Source", "type": "text", "required": true, "group": "cc", "showIf": { "all": [{ "field": "rType", "eq": "Short-Term Rental" }, { "investor": "str", "ne": false }] } },
+        { "after": "strS", "key": "strC", "label": "STR Confirmed?", "type": "yn", "required": true, "group": "cc", "showIf": { "all": [{ "field": "rType", "eq": "Short-Term Rental" }, { "investor": "str", "ne": false }] } },
+        { "after": "strC", "key": "r1007", "label": "1007 Rent ($)", "type": "number", "required": true, "group": "cc", "showIf": { "field": "rType", "eq": "Long-Term Rental" } },
+        { "after": "vPlan", "key": "noo", "label": "Non-Owner Occupied?", "type": "yn", "required": true },
+        { "after": "noo", "key": "rur", "label": "Rural?", "type": "yn", "required": true },
+        { "after": "rur", "key": "rAcre", "label": "Acreage", "type": "number", "step": 0.1, "required": true, "group": "cc", "showIf": { "field": "rur", "eq": "Yes" } },
+        { "after": "rAcre", "key": "rComp", "label": "Rural Comps?", "type": "yn", "required": true, "group": "cc", "showIf": { "field": "rur", "eq": "Yes" } }
+      ]
+    },
+    {
+      "id": "dscr_qualification",
+      "order": 40,
+      "title": "DSCR Qualification + Rental Income",
+      "fields": [
+        { "key": "appr", "label": "Appraisal Type", "type": "pill", "span": 2, "required": true, "options": ["Full", "AVM (if allowed)"] },
+        { "type": "callout", "key": "co_avm_no", "calloutType": "restriction", "title": "AVM Not Permitted", "body": "Full appraisal required.", "when": { "all": [{ "field": "appr", "eq": "AVM (if allowed)" }, { "investor": "avm", "eq": false }] } },
+        { "key": "incSrc", "label": "Income Source", "type": "checkgroup", "span": 2, "required": true, "items": [
+          { "key": "i1007", "label": "1007 Market Rent" },
+          { "key": "iSTR", "label": "STR Analysis" },
+          { "key": "iNR", "label": "No-Ratio", "showIf": { "investor": "nr", "truthy": true } }
+        ] },
+        { "key": "rDSCR", "label": "Required DSCR", "type": "number", "step": 0.01, "required": true, "hint": { "fromInvestor": "mD", "template": "Investor min: {value}" } },
+        { "key": "belowReq", "label": "If Below Requirement", "type": "checkgroup", "span": 2, "required": false, "items": [
+          { "key": "dR", "label": "Rate Adjustment" },
+          { "key": "dDP", "label": "Larger Down Payment" },
+          { "key": "dRes", "label": "Additional Reserves" },
+          { "key": "dNR", "label": "No-Ratio", "showIf": { "investor": "nr", "truthy": true } }
+        ] }
+      ]
+    },
+    {
+      "id": "credit",
+      "fields": [
+        { "after": "co_fico_min", "type": "callout", "key": "co_fico_str", "calloutType": "restriction", "title": "FICO Below STR Min", "body": "STR requires min {investor.sF}. Current: {field.fico}.", "when": { "all": [{ "field": "rType", "eq": "Short-Term Rental" }, { "investor": "sF", "truthy": true }, { "field": "fico", "ltInvestor": "sF" }] } }
+      ]
+    }
+  ]
+}

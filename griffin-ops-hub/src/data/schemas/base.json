@@ -1,0 +1,151 @@
+{
+  "form_type": "BASE",
+  "version": 1,
+  "title": "Submission Worksheet",
+  "sections": [
+    {
+      "id": "snapshot",
+      "order": 10,
+      "title": "Loan Snapshot + Investor / Product",
+      "fields": [
+        { "key": "dt", "label": "Date", "type": "date", "required": true },
+        { "key": "cln", "label": "Client Last Name", "type": "text", "required": true },
+        { "key": "ln", "label": "Loan Number", "type": "text", "required": true, "lockedAfterCreate": true },
+        { "key": "pr", "label": "Investor / Product", "type": "investor", "required": true },
+        { "key": "lockDate", "label": "Lock Date", "type": "date", "required": true, "hint": "Drives lock-to-STP reporting." },
+        { "key": "discDate", "label": "Disclosure Sent Date", "type": "date", "required": true, "hint": "Confirm whether the LO or Lock Desk owns this date." },
+        { "key": "liaUsed", "label": "Guided Loan Pricing run in LIA?", "type": "yn", "required": true, "hint": "Attribution flag. Two seconds for the LO." },
+        { "key": "liaLink", "label": "LIA result link", "type": "text", "required": false, "placeholder": "Paste The Match link", "showIf": { "field": "liaUsed", "eq": "Yes" } },
+        { "type": "callout", "key": "co_investor_notes", "calloutType": "info", "titleFromInvestor": "name", "listFromInvestor": "nt", "when": { "investor": "nt", "truthy": true } },
+        { "key": "pur", "label": "Purpose", "type": "pill", "span": 2, "required": true, "options": ["Purchase", "Rate/Term Refi", "Cash-Out Refi"] },
+        { "key": "pp", "label": "Purchase Price ($)", "type": "number", "required": true, "group": "cc", "showIf": { "field": "pur", "eq": "Purchase" } },
+        { "key": "cop", "label": "Cash-Out Proceeds ($)", "type": "number", "required": true, "group": "cc", "showIf": { "field": "pur", "eq": "Cash-Out Refi" } },
+        { "key": "cor", "label": "Cash-Out Reason", "type": "text", "required": true, "group": "cc", "showIf": { "field": "pur", "eq": "Cash-Out Refi" } },
+        { "key": "amort", "label": "Amortization", "type": "pill", "span": 2, "required": true, "options": ["Fixed", "ARM", "I/O ARM"] },
+        { "key": "fip", "label": "Fully Indexed Payment Used?", "type": "yn", "required": true, "group": "cc", "showIf": { "field": "amort", "in": ["ARM", "I/O ARM"] } },
+        { "key": "qfa", "label": "Qualified at Fully Amortized?", "type": "yn", "required": true, "group": "cc", "showIf": { "field": "amort", "eq": "I/O ARM" } },
+        { "key": "la", "label": "Loan Amount ($)", "type": "number", "required": true },
+        { "key": "av", "label": "Appraised Value ($)", "type": "number", "required": true },
+        { "key": "ltv", "label": "LTV (%)", "type": "number", "required": true, "hint": { "fromInvestor": "mL", "template": "Max: {value}%" } },
+        { "key": "cltv", "label": "CLTV (%)", "type": "number", "required": true },
+        { "type": "callout", "key": "co_ltv_max", "calloutType": "restriction", "title": "LTV Exceeds Maximum", "body": "LTV of {field.ltv}% exceeds max of {investor.mL}%.", "when": { "all": [{ "investor": "mL", "truthy": true }, { "field": "ltv", "gtInvestor": "mL" }] } },
+        { "key": "addr", "label": "Subject Property Address", "type": "address", "span": 2, "required": true, "keys": { "street": "st1", "street2": "st2", "city": "city", "state": "state", "zip": "zip" } }
+      ]
+    },
+    {
+      "id": "borrower",
+      "order": 20,
+      "title": "Borrower & Entity Details",
+      "fields": [
+        { "key": "vest", "label": "Vesting", "type": "pill", "span": 2, "required": true, "options": ["Individual", "LLC", "Trust"] },
+        { "key": "llcN", "label": "LLC Name", "type": "text", "required": true, "group": "llc", "groupTitle": "LLC Details", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcS", "label": "State of Formation", "type": "select", "required": true, "group": "llc", "optionsRef": "ST", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcR", "label": "Registered in Property State?", "type": "yn", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcO", "label": "Ownership %", "type": "number", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcA", "label": "Active on SOS?", "type": "yn", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcM", "label": "Other Members?", "type": "yn", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "type": "callout", "key": "co_llc_inactive", "group": "llc", "calloutType": "restriction", "title": "LLC Not Active", "body": "Must show Active on SOS before submission.", "when": { "all": [{ "field": "vest", "eq": "LLC" }, { "field": "llcA", "eq": "No" }] } },
+        { "key": "llcDocs", "label": "Docs Collected", "type": "checkgroup", "span": 2, "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" }, "items": [
+          { "key": "dArt", "label": "Articles" }, { "key": "dOA", "label": "Operating Agreement" }, { "key": "dEIN", "label": "EIN" }
+        ] },
+        { "key": "llcSg", "label": "All Signed?", "type": "yn", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "llcPG", "label": "PG Applicable?", "type": "yn", "required": true, "group": "llc", "showIf": { "field": "vest", "eq": "LLC" } },
+        { "key": "fti", "label": "First-Time Investor?", "type": "yn", "required": true },
+        { "key": "ftb", "label": "First-Time Homebuyer?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_fti_no", "calloutType": "restriction", "title": "First-Time Investors Not Allowed", "body": "This product does not permit first-time investors.", "when": { "all": [{ "field": "fti", "eq": "Yes" }, { "investor": "fti", "eq": false }] } },
+        { "type": "callout", "key": "co_fti_dh", "calloutType": "warning", "title": "Deephaven: First-Time Investor (DH-14.3.10)", "body": "No investment property ownership for 12+ months in most recent 12-month period.", "when": { "all": [{ "field": "fti", "eq": "Yes" }, { "investor": "fti", "eq": true }, { "field": "pr", "eq": "dh-dscr" }] } },
+        { "type": "callout", "key": "co_fti_annaly", "calloutType": "warning", "title": "Annaly: First-Time Investor", "body": "Allowed if DSCR > 1.0, FICO > 700, no exceptions. FTI may NOT be a First-Time Homebuyer.", "when": { "all": [{ "field": "fti", "eq": "Yes" }, { "investor": "fti", "eq": true }, { "field": "pr", "eq": "annaly-dscr" }] } },
+        { "type": "callout", "key": "co_fti_champ", "calloutType": "warning", "title": "Champions: First-Time Investor", "body": "Allowed if DSCR > 1.0, FICO > 700, max 75% LTV.", "when": { "all": [{ "field": "fti", "eq": "Yes" }, { "investor": "fti", "eq": true }, { "field": "pr", "eq": "champ-dscr" }] } },
+        { "type": "callout", "key": "co_ftb_no", "calloutType": "restriction", "title": "First-Time Homebuyers Not Allowed", "body": "This product does not permit FTBs.", "when": { "all": [{ "field": "ftb", "eq": "Yes" }, { "investor": "ftb", "eq": false }] } },
+        { "type": "callout", "key": "co_ftb_dh", "calloutType": "info", "title": "Deephaven: First-Time Homebuyer (Section 4.10)", "body": "No U.S. residential ownership during prior 5 years. Primary/second home only. Min 6 months PITIA reserves.", "when": { "all": [{ "field": "ftb", "eq": "Yes" }, { "investor": "ftb", "eq": true }, { "field": "pr", "eq": "dh-dscr" }] } },
+        { "key": "prv", "label": "Primary Residence Verified?", "type": "yn", "required": true },
+        { "key": "lrf", "label": "Living Rent-Free?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_rentfree", "calloutType": "warning", "title": "Housing History / Rent-Free", "bodyFromInvestor": "hR", "when": { "all": [{ "field": "lrf", "eq": "Yes" }, { "investor": "hR", "truthy": true }] } },
+        { "key": "jobChg", "label": "Plan to retire or change jobs in next 90 days?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_jobchg", "calloutType": "warning", "title": "Employment Change Within 90 Days", "body": "If the borrower plans to retire or change jobs before closing, income documentation may become invalid. Verify with the borrower whether the new employment/retirement income will support qualification. Processor will need updated VOE and possibly re-qualification.", "when": { "field": "jobChg", "eq": "Yes" } },
+        { "key": "cit", "label": "Citizenship", "type": "select", "required": true, "optionsRef": "CZ" },
+        { "key": "cv", "label": "Complete Vesting", "type": "text", "required": true, "placeholder": "Full legal vesting" }
+      ]
+    },
+    {
+      "id": "property",
+      "order": 30,
+      "title": "Subject Property Details",
+      "fields": [
+        { "key": "pt", "label": "Property Type", "type": "select", "required": true, "optionsRef": "PT" },
+        { "key": "hoa", "label": "HOA?", "type": "yn", "required": true },
+        { "key": "hoaA", "label": "HOA Amount ($/mo)", "type": "number", "required": true, "group": "cc", "showIf": { "field": "hoa", "eq": "Yes" } },
+        { "key": "lst6", "label": "Listed in Last 6 Months?", "type": "yn", "required": true },
+        { "key": "vac", "label": "Vacant?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_listed", "calloutType": "warning", "title": "Listed in 6 Months", "bodyFromInvestor": "l6", "when": { "all": [{ "field": "lst6", "eq": "Yes" }, { "investor": "l6", "truthy": true }] } },
+        { "key": "vPlan", "label": "Lease-Up / Marketability Plan", "type": "textarea", "span": 2, "required": true, "group": "cc", "showIf": { "field": "vac", "eq": "Yes" } },
+        { "key": "flood", "label": "Is the property in a flood zone?", "type": "yn", "required": true },
+        { "key": "solar", "label": "Solar panels on property?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_flood", "calloutType": "warning", "title": "Flood Zone", "body": "Flood insurance will be required. Verify flood zone designation (A or V zones have additional requirements). Confirm flood insurance premium is included in PITIA/escrow calculations.", "when": { "field": "flood", "eq": "Yes" } },
+        { "type": "callout", "key": "co_solar", "calloutType": "warning", "title": "Solar Panels", "body": "Determine if solar panels are owned or leased. Leased solar panels create a lien or UCC filing on the property that must be addressed. If leased: obtain solar lease agreement, confirm the lease can be assumed or subordinated, and include the monthly payment in DTI. If owned: no additional action needed.", "when": { "field": "solar", "eq": "Yes" } },
+        { "key": "lava", "label": "Is the property in a lava zone?", "type": "yn", "span": 2, "required": true, "showIf": { "field": "state", "eq": "HI" } },
+        { "type": "callout", "key": "co_lava", "calloutType": "restriction", "title": "Hawaii Lava Zone", "body": "Properties in lava zones 1 or 2 are ineligible for most investors (Champions, MAXEX, NQM explicitly prohibit). Confirm lava zone designation and check investor eligibility before proceeding.", "when": { "all": [{ "field": "state", "eq": "HI" }, { "field": "lava", "eq": "Yes" }] } },
+        { "key": "unpermit", "label": "Any unpermitted additions or alterations?", "type": "yn", "span": 2, "required": true, "showIf": { "field": "state", "in": ["CA", "HI"] } },
+        { "type": "callout", "key": "co_unpermit", "calloutType": "restriction", "title": "Unpermitted Additions", "body": "Unpermitted additions or alterations make the property ineligible for most investors. The appraiser must identify all permitted vs. unpermitted improvements. Unpermitted square footage cannot be included in the appraised value. Resolve permitting issues before submission or confirm investor will accept as-is.", "when": { "all": [{ "field": "state", "in": ["CA", "HI"] }, { "field": "unpermit", "eq": "Yes" }] } },
+        { "key": "addlLiens", "label": "Additional liens on the property?", "type": "yn", "required": true },
+        { "key": "lienDetail", "label": "Lien Details", "type": "textarea", "span": 2, "required": true, "group": "cc", "placeholder": "Describe all additional liens: type, amount, lien position, and whether they will be paid off, subordinated, or remain", "showIf": { "field": "addlLiens", "eq": "Yes" } },
+        { "key": "subLiens", "label": "Plan to subordinate any liens?", "type": "yn", "required": true, "group": "cc", "showIf": { "field": "addlLiens", "eq": "Yes" } },
+        { "type": "callout", "key": "co_subord", "group": "cc", "calloutType": "warning", "title": "Subordination Required", "body": "Subordination adds time and complexity. The existing lienholder must agree to subordinate. Obtain subordination agreement. Some investors do not allow subordinate financing. Verify with selected investor.", "when": { "all": [{ "field": "addlLiens", "eq": "Yes" }, { "field": "subLiens", "eq": "Yes" }] } }
+      ]
+    },
+    {
+      "id": "credit",
+      "order": 50,
+      "title": "Credit & Assets",
+      "fields": [
+        { "key": "fico", "label": "Credit Score", "type": "number", "required": true, "hint": { "fromInvestor": "mF", "template": "Min: {value}" } },
+        { "key": "resM", "label": "Reserves (months)", "type": "number", "required": true, "hint": { "fromInvestor": "res", "template": "{value}" } },
+        { "type": "callout", "key": "co_fico_min", "calloutType": "restriction", "title": "FICO Below Minimum", "body": "Score of {field.fico} below min of {investor.mF}.", "when": { "all": [{ "investor": "mF", "truthy": true }, { "field": "fico", "ltInvestor": "mF" }] } },
+        { "key": "resV", "label": "Reserves Verified?", "type": "yn", "required": true },
+        { "key": "resS", "label": "Source", "type": "text", "required": true, "placeholder": "e.g., bank, retirement" },
+        { "key": "pCr", "label": "Prior Credit Event", "type": "select", "required": true, "optionsRef": "CE" },
+        { "key": "hH", "label": "Housing History", "type": "pill", "required": true, "options": ["Met", "Not Met"] },
+        { "type": "callout", "key": "co_hh", "calloutType": "warning", "title": "Housing History Not Met", "bodyFromInvestor": "hR", "when": { "all": [{ "field": "hH", "eq": "Not Met" }, { "investor": "hR", "truthy": true }] } },
+        { "key": "hm", "label": "Hard Money Payoff?", "type": "yn", "required": true },
+        { "key": "seas", "label": "Seasoning Met?", "type": "yn", "required": true }
+      ]
+    },
+    {
+      "id": "compliance",
+      "order": 60,
+      "title": "Compliance + Investor Notes",
+      "fields": [
+        { "key": "biz", "label": "Business Purpose Attestation", "type": "yn", "required": true },
+        { "key": "ppp", "label": "PPP Applicable?", "type": "yn", "required": true },
+        { "key": "pTerm", "label": "PPP Term", "type": "select", "required": true, "group": "cc", "options": { "fromInvestor": "pp", "default": ["N/A", "1 Yr", "2 Yr", "3 Yr", "5 Yr"] }, "showIf": { "field": "ppp", "eq": "Yes" } },
+        { "key": "pType", "label": "PPP Type", "type": "select", "required": true, "group": "cc", "options": { "fromInvestor": "pt", "default": ["5%", "5% Stepdown"] }, "showIf": { "field": "ppp", "eq": "Yes" } },
+        { "key": "pInf", "label": "Client Informed?", "type": "yn", "required": true, "group": "cc", "showIf": { "field": "ppp", "eq": "Yes" } },
+        { "key": "impound", "label": "Currently impounding taxes and insurance?", "type": "yn", "required": true },
+        { "key": "travel", "label": "Borrower planning travel in next 60 days?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_travel", "calloutType": "warning", "title": "Borrower Travel Planned", "body": "If the borrower will be unavailable for signing within the closing window, coordinate the signing schedule now. Consider POA requirements (most investors restrict or prohibit POA), mobile notary, or remote online notarization (RON) if permitted in the property state.", "when": { "field": "travel", "eq": "Yes" } },
+        { "key": "otherLender", "label": "Working with any other lenders?", "type": "yn", "required": true },
+        { "type": "callout", "key": "co_otherlender", "calloutType": "warning", "title": "Multiple Lender Applications", "body": "Borrower has applications with other lenders. Confirm which loan is primary. Multiple simultaneous credit pulls may affect FICO. If the borrower is rate-shopping, confirm they understand the impact on lock timing and commitment. Document awareness.", "when": { "field": "otherLender", "eq": "Yes" } },
+        { "key": "iNotes", "label": "Investor Notes", "type": "textarea", "span": 2, "required": false, "placeholder": "Conditions or callouts for Processing" }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "order": 70,
+      "title": "Qualification Scorecard + Submission",
+      "ownerNote": "Section 7 is set to MLP ownership pending Lety and Andromeda's field review. Change owner to LO per field if the LO should self-score.",
+      "fields": [
+        { "type": "note", "key": "note_scorecard", "span": 2, "text": "Rate the strength of each qualification bucket. A check means the bucket is strong. No check means weak or borderline. All four buckets strong = clean submission. Fewer than 2 checks = reconsider before submitting." },
+        { "type": "bucket", "key": "bLTV_bucket", "label": "LTV", "owner": "MLP", "required": true, "valueKey": "bLTVval", "valueLabel": "LTV Value (%)", "ynKey": "bLTV", "footnote": "Weak: C/O 75%+, DSCR max 80%, BSL max 90%. Lower LTV = stronger." },
+        { "type": "bucket", "key": "bCRED_bucket", "label": "CREDIT", "owner": "MLP", "required": true, "valueKey": "bCREDval", "valueLabel": "FICO Score", "ynKey": "bCRED", "footnote": "Weak: under 700 FICO. Mortgage lates, collections, maxed revolving debt all weaken this bucket." },
+        { "type": "bucket", "key": "bINC_bucket", "label": "INCOME", "owner": "MLP", "required": true, "valueKey": "bINCval", "valueLabel": "DTI / DSCR", "ynKey": "bINC", "footnote": "Weak: over 43% DTI or DSCR near minimum. Lower DTI / higher DSCR = stronger." },
+        { "type": "bucket", "key": "bAST_bucket", "label": "ASSETS", "owner": "MLP", "required": true, "valueKey": "bASTval", "valueLabel": "Reserves (months)", "ynKey": "bAST", "footnote": "Weak: under 12mo reserves (excl. cash-out). Consider NTB, cash purpose, and debt payoff strategy." },
+        { "type": "scoreSummary", "key": "score_summary", "span": 2, "ynKeys": ["bLTV", "bCRED", "bINC", "bAST"] },
+        { "key": "risks", "label": "Risks / Issues", "type": "textarea", "span": 2, "owner": "MLP", "required": true, "placeholder": "Key risks, concerns, exceptions, compensating factors" },
+        { "key": "planB", "label": "Plan B Investor", "type": "text", "owner": "MLP", "required": true },
+        { "key": "planC", "label": "Plan C Investor", "type": "text", "owner": "MLP", "required": true },
+        { "key": "ready", "label": "Processing Readiness", "type": "pill", "span": 2, "owner": "MLP", "required": true, "options": ["Clean", "Moderate", "High Risk"], "hint": "Workflow flag for Processing. Not an approval or a credit decision." },
+        { "key": "cmts", "label": "Comments (optional)", "type": "textarea", "span": 2, "owner": "MLP", "required": false, "placeholder": "Additional context" }
+      ]
+    }
+  ]
+}

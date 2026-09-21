@@ -1,0 +1,301 @@
+{
+  "version": "1.4.0",
+  "date": "2026-09-20",
+  "environment": "Isolated Chromium session; fictional local samples; Vite development build",
+  "checks": [
+    {
+      "view": "/",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "/workflows",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "/journey?phase=preparation",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "/journey?phase=submission",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "/journey?phase=funded",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Initial CD Checklist",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "What to do at CTC Checklist",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Reviewing Signed Loan Docs",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Loan Doc Checklist",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Post-Funding Loan File Wrap-Up Procedure",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Has Collateral arrived?",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Source request introduction",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Source loan details",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Source requested documents",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Loss Payee:",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Hub coordination \u00b7 not part of the source form",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / review",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source business identity",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source ownership",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source business details",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source bank statement context",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Borrower Certification:",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Hub coordination \u00b7 not part of the source form",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / review",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 1: Request Information",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 2A: Loan Terms",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 2B: Property Details",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 3: Nature of Request",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 4: Compensating Factors",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 5: Relevant Guideline Reference",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 6: Recommended Attachments",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 7: Additional Notes / Supporting Context",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 8: Investor Decision (FOR INVESTOR USE ONLY)",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Hub coordination \u2014 separate from the source form",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / review",
+      "width": 1536,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Initial CD Checklist",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "What to do at CTC Checklist",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Source loan details",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source ownership",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 1: Request Information",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / review",
+      "width": 320,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "Initial CD Checklist",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "What to do at CTC Checklist",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_TITLE_ESCROW_REQUEST / Source loan details",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "PROCESSOR_BUSINESS_NARRATIVE / Source ownership",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / Section 1: Request Information",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    },
+    {
+      "view": "INVESTOR_EXCEPTION_REQUEST / review",
+      "width": 390,
+      "axeViolations": 0,
+      "documentOverflow": false
+    }
+  ],
+  "functionalAssertions": {
+    "sourceIdentityPairsSameRow": true,
+    "sourceOwnershipPairSameRow": true,
+    "exceptionFirstRowPreservesThreeFields": true,
+    "canonicalLoanReadOnly": true,
+    "borrowerCertificationHasNoSourceInputs": true,
+    "investorDecisionHasNoSourceInputs": true,
+    "fieldSearchFocus": true,
+    "keyboardSavePersistedAfterReload": true,
+    "editedAnswerClearedPriorReview": true
+  },
+  "limits": "Automated accessibility and representative interactions are not full WCAG conformance or production certification."
+}

@@ -1,0 +1,351 @@
+{
+  "id": "PROCESSOR_BUSINESS_NARRATIVE",
+  "title": "Self-Employed Business Narrative Form",
+  "shortTitle": "Self-Employed Business Narrative Form",
+  "department": "MLP",
+  "allowedDepartments": [
+    "LO",
+    "MLP",
+    "PROCESSOR"
+  ],
+  "description": "Prepare the supplied source form as a draft, retain its original groups and wording, and record a separate human coordination outcome.",
+  "source": "Supplied processor training · source form",
+  "source_status": "UNVERIFIED_REFERENCE",
+  "source_metadata": {
+    "reference_sources": [
+      {
+        "id": "processor-master-content",
+        "artifact": "Griffin_Processor_Master_Content.md",
+        "sha256": "ce1f7df21f39d3454069420f6e44418cfa4e922690d15c4e039d40777e78bb21",
+        "archiveSha256": "a61b6d95d52c0498f824d264906e2059016d438fe0627001e1aab3bd629f7476",
+        "section": "Module 5 · Self-Employed Business Narrative Form",
+        "lines": [
+          2970,
+          2996
+        ],
+        "archiveArtifact": "Griffin_Processor_Master_Content.zip"
+      }
+    ],
+    "preservation": "Source text, labeled inputs, and list order are preserved except for the explicitly documented exclusions. Markdown source does not provide the original PDF layout or field definitions.",
+    "source_input_requirements": "The source does not specify mandatory inputs, field types, limits, or validation. Source inputs remain optional text; text-area layout and storage length limits are implementation choices.",
+    "scope": "Human preparation and coordination only. No send, order, legal signature, borrower certification, investor rule, calculation, or LOS mutation.",
+    "source_field_order": [
+      "Borrower Name:",
+      "Date:",
+      "Business Name:",
+      "Industry Type:",
+      "Business Address:",
+      "Website:",
+      "Description of Business/Business Profile:",
+      "Percentage Owned:",
+      "If less than 100%, who owns the remaining portion and what percentage?",
+      "Business Location and Associated Rent:",
+      "Is location in a commercial or residential dwelling?",
+      "Number of Employees (E) or Contractors (C):",
+      "Does Business Provide Sales of Goods, Services or Both? If Goods provide estimated cost of goods:",
+      "Is there anything you can tell us about your business that is important for us to know as we review your bank statements, including sources of deposits, wires, and withdrawals?"
+    ],
+    "same_source_row_groups": [
+      [
+        "borrower_name",
+        "date"
+      ],
+      [
+        "business_name",
+        "industry_type"
+      ],
+      [
+        "percentage_owned",
+        "remaining_ownership"
+      ]
+    ],
+    "readonly_source_rows": [
+      {
+        "lines": [
+          2992,
+          2996
+        ],
+        "reason": "Literal certification and borrower signature/printed-name rows retained as read-only source description. No legal-signature or certification input exists."
+      }
+    ],
+    "exclusions": [],
+    "missing_original_content": [
+      "Original PDF layout, interactive field types, field lengths, and requiredness were not supplied.",
+      "The source does not specify a signature date field, tax identifier, qualification result, income formula, or ownership validation; none was invented."
+    ],
+    "routing_basis": [
+      {
+        "lines": [
+          2420,
+          2420
+        ],
+        "note": "Source assigns the LO responsibility to provide the business narrative with bank statements and the income worksheet."
+      },
+      {
+        "lines": [
+          578,
+          586
+        ],
+        "note": "MLP coordinates document collection and processor reviews documents; Hub work records preparation and handoff only."
+      }
+    ],
+    "source_field_count": 14,
+    "hub_field_count": 3,
+    "field_count": 17,
+    "assessment_disposition": "Source-form draft with supplied wording and order preserved, except explicitly documented private-example and stale-address exclusions. Source-only certifications and request lists are not executed assertions. Added Hub coordination fields are separate; no current policy validation or external action."
+  },
+  "version": 1,
+  "sections": [
+    {
+      "id": "source_business_identity",
+      "title": "Source business identity",
+      "fields": [
+        {
+          "key": "borrower_name",
+          "label": "Borrower Name:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2976,
+            2976
+          ],
+          "span": 1
+        },
+        {
+          "key": "date",
+          "label": "Date:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2976,
+            2976
+          ],
+          "span": 1
+        },
+        {
+          "key": "business_name",
+          "label": "Business Name:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2977,
+            2977
+          ],
+          "span": 1
+        },
+        {
+          "key": "industry_type",
+          "label": "Industry Type:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2977,
+            2977
+          ],
+          "span": 1
+        },
+        {
+          "key": "business_address",
+          "label": "Business Address:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2978,
+            2978
+          ],
+          "span": 2
+        },
+        {
+          "key": "website",
+          "label": "Website:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2979,
+            2979
+          ],
+          "span": 2
+        },
+        {
+          "key": "business_profile",
+          "label": "Description of Business/Business Profile:",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "source_lines": [
+            2980,
+            2980
+          ],
+          "span": 2
+        }
+      ],
+      "origin": "source",
+      "description": "Griffin Funding\n\nSELF-EMPLOYED BUSINESS NARRATIVE FORM"
+    },
+    {
+      "id": "source_ownership",
+      "title": "Source ownership",
+      "fields": [
+        {
+          "key": "percentage_owned",
+          "label": "Percentage Owned:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2981,
+            2981
+          ],
+          "span": 1
+        },
+        {
+          "key": "remaining_ownership",
+          "label": "If less than 100%, who owns the remaining portion and what percentage?",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "source_lines": [
+            2981,
+            2981
+          ],
+          "span": 1
+        }
+      ],
+      "origin": "source"
+    },
+    {
+      "id": "source_business_details",
+      "title": "Source business details",
+      "fields": [
+        {
+          "key": "business_location_rent",
+          "label": "Business Location and Associated Rent:",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2985,
+            2985
+          ],
+          "span": 2
+        },
+        {
+          "key": "dwelling_type",
+          "label": "Is location in a commercial or residential dwelling?",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2986,
+            2986
+          ],
+          "span": 2
+        },
+        {
+          "key": "employees_contractors",
+          "label": "Number of Employees (E) or Contractors (C):",
+          "type": "text",
+          "required": false,
+          "maxLength": 1000,
+          "source_lines": [
+            2987,
+            2987
+          ],
+          "span": 2
+        },
+        {
+          "key": "goods_services_cost",
+          "label": "Does Business Provide Sales of Goods, Services or Both? If Goods provide estimated cost of goods:",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "source_lines": [
+            2988,
+            2988
+          ],
+          "span": 2
+        }
+      ],
+      "origin": "source"
+    },
+    {
+      "id": "source_bank_statement_context",
+      "title": "Source bank statement context",
+      "fields": [
+        {
+          "key": "bank_statement_context",
+          "label": "Is there anything you can tell us about your business that is important for us to know as we review your bank statements, including sources of deposits, wires, and withdrawals?",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "source_lines": [
+            2990,
+            2990
+          ],
+          "span": 2
+        }
+      ],
+      "origin": "source"
+    },
+    {
+      "id": "source_borrower_certification",
+      "title": "Borrower Certification:",
+      "fields": [],
+      "origin": "source",
+      "description": "I certify that the statements and information contained in this submittal are true, accurate, and complete.\n\nBorrower 1 Signature: _____ Printed Name: _____\nBorrower 2 Signature: _____ Printed Name: _____"
+    },
+    {
+      "id": "hub_coordination",
+      "title": "Hub coordination · not part of the source form",
+      "origin": "hub",
+      "description": "Added by the Hub for draft review, evidence references, and next action. These entries do not certify the source answers or complete an external action.",
+      "fields": [
+        {
+          "key": "hub_source_reference",
+          "label": "Loan record or prepared document reference",
+          "type": "text",
+          "required": false,
+          "maxLength": 500,
+          "hint": "Use a controlled record ID or document locator. This entry does not verify the source.",
+          "span": 2
+        },
+        {
+          "key": "hub_review_notes",
+          "label": "Draft review notes and missing information",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 4000,
+          "span": 2
+        },
+        {
+          "key": "hub_next_action",
+          "label": "Next action or documented no further action outcome",
+          "type": "textarea",
+          "required": true,
+          "maxLength": 4000,
+          "hint": "Record the responsible person or team and any unresolved information. Completing this work records a coordination episode only.",
+          "span": 2
+        }
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "hub_draft_reviewed",
+      "label": "Hub review: source wording, entered values, omitted details, and known gaps reviewed for the intended draft.",
+      "required": true
+    },
+    {
+      "id": "hub_boundary_reviewed",
+      "label": "Hub review: next action recorded without claiming an external send, order, signature, certification, or loan outcome.",
+      "required": true
+    }
+  ],
+  "boundary": "This preserves the supplied business narrative as a preparation draft. Source certification and signature rows are read-only reference text; entering answers, checking Hub review, or completing this work is not a borrower signature or certification. No business verification, ownership eligibility, expense ratio, qualifying income, investor approval, or credit decision is calculated. Obtain any required borrower execution through the authorized external process. Cadre and the responsible processor retain processing review."
+}
