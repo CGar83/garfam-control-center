@@ -86,13 +86,38 @@ export async function GET(request: Request) {
           fields: "items(id,summary,timeZone,accessRole),nextPageToken",
         });
         if (page) params.set("pageToken", page);
-        const result = await googleRequest(
-          token,
-          `users/me/calendarList?${params}`,
-        );
+        let result;
+        try {
+          result = await googleRequest(
+            token,
+            `users/me/calendarList?${params}`,
+          );
+        } catch (error) {
+          if (error instanceof GoogleError) {
+            const saved = await db
+              .from("google_calendar_links")
+              .update({
+                error_code: error.reason
+                  ? `calendar_list_${error.reason}`
+                  : `calendar_list_${error.status}`,
+                ...(error.status === 401 ? { status: "reconnect" } : {}),
+              })
+              .eq("id", link.id);
+            dbResult(saved.error);
+          }
+          throw error;
+        }
         calendars.push(...(result.items ?? []));
         page = result.nextPageToken;
         if (!page) break;
+      }
+      if (link.error_code?.startsWith("calendar_list_")) {
+        const saved = await db
+          .from("google_calendar_links")
+          .update({ error_code: null })
+          .eq("id", link.id);
+        dbResult(saved.error);
+        link.error_code = null;
       }
     }
     const maps = await db
@@ -206,19 +231,17 @@ export async function POST(request: Request) {
         .from("google_calendar_oauth_states")
         .delete()
         .lt("expires_at", new Date().toISOString());
-      const saved = await db
-        .from("google_calendar_oauth_states")
-        .insert({
-          state_hash: digest(state),
-          cookie_hash: digest(cookie),
-          family_id: body.family_id,
-          user_id: userId,
-          encrypted_verifier: seal(
-            codes.codeVerifier,
-            `oauth:${body.family_id}:${userId}`,
-          ),
-          expires_at: new Date(Date.now() + 600000).toISOString(),
-        });
+      const saved = await db.from("google_calendar_oauth_states").insert({
+        state_hash: digest(state),
+        cookie_hash: digest(cookie),
+        family_id: body.family_id,
+        user_id: userId,
+        encrypted_verifier: seal(
+          codes.codeVerifier,
+          `oauth:${body.family_id}:${userId}`,
+        ),
+        expires_at: new Date(Date.now() + 600000).toISOString(),
+      });
       dbResult(saved.error);
       const url = oauth.generateAuthUrl({
         scope: scopes,

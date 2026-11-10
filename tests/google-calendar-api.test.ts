@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   link: null as Record<string, unknown> | null,
   filters: [] as unknown[],
   sync: vi.fn(),
+  google: vi.fn(),
+  token: vi.fn(),
 }));
 vi.mock("@/lib/finance/server", async (original) => {
   const actual = await original<typeof import("@/lib/finance/server")>();
@@ -18,12 +20,15 @@ vi.mock("@/lib/google-calendar/server", async (original) => {
     ...actual,
     adminClient: mocks.admin,
     configuration: () => mocks.missing,
+    googleRequest: mocks.google,
+    tokenFor: mocks.token,
   };
 });
 vi.mock("@/lib/google-calendar/sync", () => ({
   syncGoogleCalendar: mocks.sync,
 }));
 import { FinanceApiError } from "@/lib/finance/server";
+import { GoogleError } from "@/lib/google-calendar/server";
 import { GET, POST } from "@/app/api/calendar/google/route";
 import { GET as callback } from "@/app/api/calendar/google/callback/route";
 const request = (body: unknown) =>
@@ -40,10 +45,13 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({ userId: "user", memberId: "parent", client: {} });
   mocks.sync.mockReset().mockResolvedValue({ processed: 1, more: false });
+  mocks.google.mockReset().mockResolvedValue({ items: [] });
+  mocks.token.mockReset().mockResolvedValue("private-token");
   mocks.admin.mockReset().mockImplementation(() => ({
     from: (table: string) => {
       const query = {
         select: () => query,
+        update: () => query,
         eq: (key: string, value: unknown) => {
           mocks.filters.push([key, value]);
           return query;
@@ -62,6 +70,30 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 describe("Google Calendar API boundaries", () => {
+  it("reports disabled Google API activation instead of a generic server failure", async () => {
+    mocks.link = { id: "link", user_id: "user", status: "choose_calendar" };
+    mocks.google.mockRejectedValue(new GoogleError(403, "api_disabled"));
+    const response = await GET(
+      new Request(
+        "https://app.test/api/calendar/google?family_id=family&calendars=1",
+      ),
+    );
+    expect(response.status).toBe(403);
+    const body = await response.json();
+    expect(body.error).toContain("Google Calendar API is disabled");
+    expect(JSON.stringify(body)).not.toContain("private-token");
+  });
+  it("returns a genuine empty calendar result separately from failed permission lookup", async () => {
+    mocks.link = { id: "link", user_id: "user", status: "choose_calendar" };
+    const url = new Request(
+      "https://app.test/api/calendar/google?family_id=family&calendars=1",
+    );
+    expect(await (await GET(url)).json()).toMatchObject({ calendars: [] });
+    mocks.google.mockRejectedValue(new GoogleError(403, "permissions"));
+    const response = await GET(url);
+    expect(response.status).toBe(403);
+    expect((await response.json()).error).toContain("grant both requested");
+  });
   it("authorizes before touching private credentials", async () => {
     mocks.authorize.mockRejectedValue(new FinanceApiError("Sign in", 401));
     expect(

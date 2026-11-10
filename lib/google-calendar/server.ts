@@ -110,9 +110,27 @@ export function unseal(value: string, context: string) {
     throw new FinanceApiError("Google Calendar needs to be reconnected.", 503);
   }
 }
-export class GoogleError extends Error {
-  constructor(public status: number) {
-    super(`Google Calendar request failed (${status}).`);
+export class GoogleError extends FinanceApiError {
+  constructor(
+    status: number,
+    public reason: "api_disabled" | "permissions" | "" = "",
+  ) {
+    super(
+      reason === "api_disabled"
+        ? "Google Calendar API is disabled for your OAuth project. In Google Cloud, select the project that owns your client ID, open APIs & Services > Library > Google Calendar API, and click Enable. Then refresh calendar status."
+        : reason === "permissions"
+          ? "Google Calendar permissions are missing. Reconnect Google and grant both requested Calendar permissions."
+          : status === 403
+            ? "Google denied calendar access. Check that Google Calendar API is enabled in your OAuth project and that your Google account permits this app."
+            : status === 401
+              ? "Google access expired or was revoked. Reconnect Google."
+              : status === 429
+                ? "Google is limiting requests. Wait before refreshing calendar status."
+                : status === 504
+                  ? "Google took too long to respond. Try refreshing calendar status again."
+                  : `Google Calendar could not complete the request (HTTP ${status}). Try again or check the selected calendar's access.`,
+      status,
+    );
   }
 }
 export async function tokenFor(link: {
@@ -155,7 +173,35 @@ export async function googleRequest(
   } catch {
     throw new GoogleError(504);
   }
-  if (!response.ok) throw new GoogleError(response.status);
+  if (!response.ok) {
+    let reason: "api_disabled" | "permissions" | "" = "";
+    try {
+      // Only retain known error identifiers, never Google's raw payload or message.
+      const body = await response.json();
+      const reasons = [
+        ...(Array.isArray(body?.error?.errors) ? body.error.errors : []),
+        ...(Array.isArray(body?.error?.details) ? body.error.details : []),
+      ].map((item: { reason?: string }) => item?.reason);
+      if (
+        reasons.some((value) =>
+          ["accessNotConfigured", "SERVICE_DISABLED"].includes(value ?? ""),
+        )
+      )
+        reason = "api_disabled";
+      else if (
+        reasons.some((value) =>
+          [
+            "insufficientPermissions",
+            "ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+          ].includes(value ?? ""),
+        )
+      )
+        reason = "permissions";
+    } catch {
+      /* Some upstream errors have no JSON body. */
+    }
+    throw new GoogleError(response.status, reason);
+  }
   if (response.status === 204) return null;
   const text = await response.text();
   if (text.length > 2_000_000) throw new GoogleError(413);

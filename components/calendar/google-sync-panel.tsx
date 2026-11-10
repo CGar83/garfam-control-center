@@ -40,6 +40,12 @@ type Metadata = {
   more_conflicts?: boolean;
 };
 const messages: Record<string, string> = {
+  calendar_list_api_disabled:
+    "Google Calendar API is disabled in the OAuth project's Google Cloud settings. Turn it on, then refresh status.",
+  calendar_list_permissions:
+    "Reconnect Google and grant both requested Calendar permissions.",
+  calendar_list_403:
+    "Google denied the calendar lookup. Check API activation, permissions and any Workspace account restrictions.",
   conflicts: "Both calendars changed. Review the conflicting changes below.",
   google_401: "Google access expired or was revoked. Reconnect your account.",
   google_403:
@@ -85,6 +91,8 @@ function ConnectedPanel() {
     [calendar, setCalendar] = useState(""),
     [consent, setConsent] = useState(false),
     [existing, setExisting] = useState(false);
+  const [calendarsLoaded, setCalendarsLoaded] = useState(false);
+  const [calendarsFailed, setCalendarsFailed] = useState(false);
   const [disconnect, setDisconnect] = useState(false),
     [resolve, setResolve] = useState<{
       item: Conflict;
@@ -110,8 +118,14 @@ function ConnectedPanel() {
         },
       );
       const body = await response.json();
-      if (!response.ok)
+      if (!response.ok) {
+        if (list) setCalendarsFailed(true);
         throw Error(body.error ?? "Google Calendar request failed.");
+      }
+      if (list) {
+        setCalendarsLoaded(true);
+        setCalendarsFailed(false);
+      }
       return body;
     },
     [familyId, supabase],
@@ -126,6 +140,7 @@ function ConnectedPanel() {
       result = await request(undefined, true);
     setMetadata(result);
     setCalendar((current) => current || result.connection?.calendarId || "");
+    setError("");
   }, [request]);
   useEffect(() => {
     let active = true;
@@ -143,6 +158,7 @@ function ConnectedPanel() {
           setCalendar(
             (current) => current || result.connection?.calendarId || "",
           );
+          setError("");
         }
       } catch (e) {
         if (active)
@@ -320,12 +336,25 @@ function ConnectedPanel() {
                     ))}
                 </select>
               </label>
-              {!metadata?.calendars.length && (
-                <p className="text-sm text-destructive">
-                  No writable calendars found. Check the Google account and
-                  calendar sharing.
+              {!calendarsLoaded && !calendarsFailed && (
+                <p role="status" className="text-sm">
+                  Loading Google calendars...
                 </p>
               )}
+              {calendarsFailed && (
+                <p className="text-sm text-destructive">
+                  Calendar choices could not be loaded. Follow the error above,
+                  then refresh status. Your existing connection is saved.
+                </p>
+              )}
+              {calendarsLoaded &&
+                !calendarsFailed &&
+                !metadata?.calendars.length && (
+                  <p className="text-sm text-destructive">
+                    No writable calendars found. Check the Google account and
+                    calendar sharing.
+                  </p>
+                )}
               {!connection.calendarId && (
                 <label className="flex items-start gap-3 text-sm">
                   <input
@@ -403,7 +432,9 @@ function ConnectedPanel() {
                 </Button>
               )}
             {connection.owner &&
-              ["reconnect", "error"].includes(connection.status) && (
+              ["reconnect", "error", "choose_calendar"].includes(
+                connection.status,
+              ) && (
                 <Button
                   variant="outline"
                   disabled={busy}
@@ -428,8 +459,12 @@ function ConnectedPanel() {
               variant="ghost"
               disabled={busy}
               onClick={() =>
-                void load().catch(() =>
-                  setError("Could not refresh connection."),
+                void load().catch((error) =>
+                  setError(
+                    error instanceof Error
+                      ? error.message
+                      : "Could not refresh connection.",
+                  ),
                 )
               }
             >

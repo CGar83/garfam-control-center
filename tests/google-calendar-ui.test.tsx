@@ -115,3 +115,37 @@ it("does not request private server metadata for local or viewer profiles", () =
   expect(screen.getByText(/Sign in as a parent/)).toBeInTheDocument();
   expect(fetch).not.toHaveBeenCalled();
 });
+it("shows a failed lookup accurately, keeps Google's actionable message on refresh, and recovers", async () => {
+  let failing = true;
+  const message = "Google Calendar API is disabled for your OAuth project.";
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) => {
+      if (url.includes("calendars=1"))
+        return failing
+          ? Response.json({ error: message }, { status: 403 })
+          : Response.json(metadata);
+      return Response.json({ ...metadata, calendars: [] });
+    }),
+  );
+  render(<GoogleSyncPanel />);
+  expect(await screen.findByRole("alert")).toHaveTextContent(message);
+  expect(
+    screen.queryByText(/No writable calendars found/),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(/Calendar choices could not be loaded/),
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Refresh status" }));
+  await waitFor(() =>
+    expect(screen.getByRole("alert")).toHaveTextContent(message),
+  );
+  failing = false;
+  fireEvent.click(screen.getByRole("button", { name: "Refresh status" }));
+  await waitFor(() =>
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument(),
+  );
+  expect(
+    screen.getByRole("option", { name: "Family Calendar" }),
+  ).toBeInTheDocument();
+});
