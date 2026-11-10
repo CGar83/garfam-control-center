@@ -1,4 +1,4 @@
-const CACHE_NAME = "gather-family-hub-v16";
+const CACHE_NAME = "gather-family-hub-v17";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,

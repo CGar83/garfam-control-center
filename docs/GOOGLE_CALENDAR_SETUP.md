@@ -53,6 +53,8 @@ After changing variables, open **Deploys > Trigger deploy > Deploy site**. Exist
 
 Apply `supabase/migrations/20261110143023_google_calendar_two_way_sync.sql` using your normal migration workflow, or paste its contents into the project's Supabase SQL Editor and run once. For this rollout it is applied separately by Codex; do not rerun if it is already in migration history.
 
+Also apply `20261110150000_calendar_events_realtime.sql`. It adds events to the existing Supabase Realtime publication. A family-scoped snapshot refresh also catches deletions, which Realtime cannot filter by family. Recent local edits and incomplete snapshots are not removed by that refresh.
+
 The migration adds private credential, mapping and one-time OAuth state tables. Browser roles cannot read them. Only server code with the service-role key can access them. The server checks the signed-in user's family membership and parent/admin role before managing a connection. Credentials are encrypted at rest in these tables, not end-to-end encrypted against the application server.
 
 ## 5. Connect the calendar

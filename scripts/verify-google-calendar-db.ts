@@ -6,13 +6,27 @@ async function main() {
   const db = new PGlite();
   try {
     await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
-    create schema auth; create table auth.users(id uuid primary key);create table public.families(id text primary key);
+    create schema auth; create table auth.users(id uuid primary key);create table public.families(id text primary key); create table public.events(id text primary key);
     insert into auth.users values ('00000000-0000-4000-8000-000000000001');insert into public.families values ('family-a'),('family-b');`);
     await db.exec(
       await readFile(
         "supabase/migrations/20261110143023_google_calendar_two_way_sync.sql",
         "utf8",
       ),
+    );
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20261110150000_calendar_events_realtime.sql",
+        "utf8",
+      ),
+    );
+    assert.equal(
+      (
+        await db.query<{ relreplident: string }>(
+          "select relreplident from pg_class where relname='events'",
+        )
+      ).rows[0].relreplident,
+      "f",
     );
     const lease = "00000000-0000-4000-8000-000000000011",
       other = "00000000-0000-4000-8000-000000000012";
