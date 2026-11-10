@@ -252,7 +252,7 @@ export default function TodayPage() {
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Button asChild variant="ghost"><Link href="/today?setup=1">Family setup</Link></Button>
+            {currentMember && ["admin", "parent"].includes(currentMember.role) && <Button asChild variant="ghost"><Link href="/today?setup=1">Family setup</Link></Button>}
             <Button variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/80" onClick={() => setQuickOpen(true)}>
               <Plus className="h-4 w-4" />
               Quick add
