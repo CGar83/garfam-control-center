@@ -1145,7 +1145,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     if (supabase && !usingLocalData && checkedIds.length > 0) {
       const { error } = await supabase.from("grocery_items").delete().eq("family_id", familyId).in("id", checkedIds);
       if (error) {
-        setData(current => ({ ...current, grocery_items: [...current.grocery_items, ...removedItems.filter(item => !current.grocery_items.some(row => row.id === item.id))] }));
+        setData(current => current.families[0]?.id !== familyId ? current : ({ ...current, grocery_items: [...current.grocery_items, ...removedItems.filter(item => !current.grocery_items.some(row => row.id === item.id))] }));
         throw error;
       }
     }
