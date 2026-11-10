@@ -1,5 +1,15 @@
 # Gather usability review
 
+## Remaining product improvements
+
+Items 4-7 now have product implementations: Household Review replaces the daily duplicate overview with a forward-looking review; calendar transfer outcomes distinguish snapshots, embeds and setup records; grocery checking offers Undo, Recent opens a picker, and clearing requires confirmation; Family setup uses saved records, can be dismissed and can be reopened from Today.
+
+Calendar transfer history stores only time/count/outcome text on the current device, scoped by family. Downloading an ICS no longer marks a provider active. Imports skip exact title/start/all-day matches in the current family and within a file; this is duplicate avoidance, not provider identity reconciliation. UTC timestamps round-trip correctly, all-day export uses an exclusive end date, and unsupported named-timezone or recurrence rules are rejected with a recovery explanation. Import limits: 2 MB and 500 events per file. A partially saved import reports its completed count and can be retried. Financial and appointment exports require selecting their inclusion; privacy mode omits both and hides embeds.
+
+Local checks used the sample family, including grocery check/undo, recent selection controls, setup reopening, calendar export status and the phone review layout. No production family records or external calendar accounts were modified. Real-provider permission expiry/reconnect and household observations remain pending. Automatic two-way sync and provider subscriptions inside Gather remain unimplemented.
+
+Item 8 is prepared in [Household usability session](HOUSEHOLD_USABILITY_SESSION.md), with tasks, a results worksheet and provider checks. It is not marked complete: a parent and teen have not participated and no completion-rate or satisfaction claims are made.
+
 ## November 10 implementation
 
 The first three priorities below are implemented with the first-pass fixes in this release. Search results include the table and record ID, and a shared details dialog resolves the item within the current family and permitted destination. It supports refresh, unavailable-record messages, privacy masking, parent/admin editing, and returning to the page without losing other URL parameters. Legacy Calendar and Finance Hub links retain their existing behavior.

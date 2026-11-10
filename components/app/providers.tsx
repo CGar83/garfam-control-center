@@ -31,6 +31,7 @@ interface Toast {
   title: string;
   description?: string;
   variant?: "default" | "destructive" | "success";
+  action?: { label: string; onClick: () => void | Promise<void>; familyId?: string; memberId?: string | null };
 }
 
 interface ToastContextValue {
@@ -133,8 +134,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const toast = useCallback(
     (nextToast: Omit<Toast, "id">) => {
       const id = makeId("toast");
-      setToasts((current) => [...current, { ...nextToast, id }]);
-      window.setTimeout(() => dismiss(id), 4200);
+      setToasts((current) => [...current.slice(-2), { ...nextToast, id }]);
+      if (!nextToast.action) window.setTimeout(() => dismiss(id), 4200);
     },
     [dismiss]
   );
@@ -1129,9 +1130,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     if (supabase && !usingLocalData && !queueForLater) assertCanSync(usingLocalData);
 
     const checkedIds = data.grocery_items.filter((item) => item.checked).map((item) => item.id);
+    const removedItems = data.grocery_items.filter(item => checkedIds.includes(item.id));
     setData((current) => ({
       ...current,
-      grocery_items: current.grocery_items.filter((item) => !item.checked)
+      grocery_items: current.grocery_items.filter((item) => !checkedIds.includes(item.id))
     }));
 
     if (queueForLater) {
@@ -1141,7 +1143,11 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (supabase && !usingLocalData && checkedIds.length > 0) {
-      await supabase.from("grocery_items").delete().eq("family_id", familyId).in("id", checkedIds);
+      const { error } = await supabase.from("grocery_items").delete().eq("family_id", familyId).in("id", checkedIds);
+      if (error) {
+        setData(current => ({ ...current, grocery_items: [...current.grocery_items, ...removedItems.filter(item => !current.grocery_items.some(row => row.id === item.id))] }));
+        throw error;
+      }
     }
     if (checkedIds.length > 0) await appendActivity("cleared", "grocery_items", { id: "checked_groceries" });
   }, [appendActivity, data.grocery_items, familyId, queueRemoteMutation, supabase, usingLocalData]);

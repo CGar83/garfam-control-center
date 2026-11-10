@@ -10,14 +10,29 @@ import {
   Printer,
   RotateCcw,
   ShoppingCart,
-  Utensils
+  Utensils,
 } from "lucide-react";
-import { addDays, eachDayOfInterval, format, isSameDay, isSameMonth, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import {
+  addDays,
+  eachDayOfInterval,
+  format,
+  isSameDay,
+  isSameMonth,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateBadge } from "@/components/app/date-badge";
 import { EmptyState } from "@/components/app/empty-state";
@@ -32,23 +47,54 @@ import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 import { useFamilyMembers } from "@/hooks/use-family-members";
 import { useRealtimeTable } from "@/hooks/use-realtime-table";
 import { useToast } from "@/hooks/use-toast";
-import { applyRecordFilters, defaultFilters, getRecordTitle, recordDate, type FilterState } from "@/lib/filtering";
+import { useGroceryCheck } from "@/hooks/use-grocery-check";
+import { ConfirmDialog } from "@/components/app/confirm-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  applyRecordFilters,
+  defaultFilters,
+  getRecordTitle,
+  recordDate,
+  type FilterState,
+} from "@/lib/filtering";
 import type { ModuleConfig } from "@/lib/modules";
-import type { AnyRecord, GroceryItem, MealPlan, TaskRecord, ViewMode } from "@/lib/types";
-import { formatDate, isOverdue, recordMap, safeNumber, titleCase } from "@/lib/utils";
+import type {
+  AnyRecord,
+  GroceryItem,
+  MealPlan,
+  TaskRecord,
+  ViewMode,
+} from "@/lib/types";
+import {
+  formatDate,
+  isOverdue,
+  recordMap,
+  safeNumber,
+  titleCase,
+} from "@/lib/utils";
 
 interface ModulePageProps {
   config: ModuleConfig;
 }
 
-function updateFilter<K extends keyof FilterState>(filters: FilterState, key: K, value: FilterState[K]) {
+function updateFilter<K extends keyof FilterState>(
+  filters: FilterState,
+  key: K,
+  value: FilterState[K],
+) {
   return { ...filters, [key]: value };
 }
 
 function FilterBar({
   config,
   filters,
-  onChange
+  onChange,
 }: {
   config: ModuleConfig;
   filters: FilterState;
@@ -56,7 +102,9 @@ function FilterBar({
 }) {
   const { members } = useFamilyMembers();
   const hasStatus = config.fields.some((field) => field.name === "status");
-  const hasPriority = config.fields.some((field) => field.name === "priority" || field.name === "importance");
+  const hasPriority = config.fields.some(
+    (field) => field.name === "priority" || field.name === "importance",
+  );
   const hasPerson = config.fields.some((field) => field.type === "person");
 
   return (
@@ -64,17 +112,37 @@ function FilterBar({
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <Filter className="h-4 w-4" />
         <span className="flex-1">Filters</span>
-        {Object.keys(defaultFilters).some(key => filters[key as keyof FilterState] !== defaultFilters[key as keyof FilterState]) && <Button variant="ghost" size="sm" onClick={() => onChange({ ...defaultFilters })}><RotateCcw className="h-4 w-4" />Clear filters</Button>}
+        {Object.keys(defaultFilters).some(
+          (key) =>
+            filters[key as keyof FilterState] !==
+            defaultFilters[key as keyof FilterState],
+        ) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onChange({ ...defaultFilters })}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Clear filters
+          </Button>
+        )}
       </div>
       <div className="grid-auto-fit-sm mt-4">
         <Input
           aria-label={`Search ${config.title}`}
           placeholder="Search this page"
           value={filters.query}
-          onChange={(event) => onChange(updateFilter(filters, "query", event.target.value))}
+          onChange={(event) =>
+            onChange(updateFilter(filters, "query", event.target.value))
+          }
         />
         {hasPerson ? (
-          <Select value={filters.person} onValueChange={(value) => onChange(updateFilter(filters, "person", value))}>
+          <Select
+            value={filters.person}
+            onValueChange={(value) =>
+              onChange(updateFilter(filters, "person", value))
+            }
+          >
             <SelectTrigger aria-label="Filter by person">
               <SelectValue placeholder="Person" />
             </SelectTrigger>
@@ -89,24 +157,35 @@ function FilterBar({
           </Select>
         ) : null}
         {hasStatus ? (
-          <Select value={filters.status} onValueChange={(value) => onChange(updateFilter(filters, "status", value))}>
+          <Select
+            value={filters.status}
+            onValueChange={(value) =>
+              onChange(updateFilter(filters, "status", value))
+            }
+          >
             <SelectTrigger aria-label="Filter by status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              {(config.fields.find(field => field.name === "status")?.options ?? []).map(
-                (status) => (
-                  <SelectItem key={status} value={status}>
-                    {titleCase(status)}
-                  </SelectItem>
-                )
-              )}
+              {(
+                config.fields.find((field) => field.name === "status")
+                  ?.options ?? []
+              ).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {titleCase(status)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         ) : null}
         {hasPriority ? (
-          <Select value={filters.priority} onValueChange={(value) => onChange(updateFilter(filters, "priority", value))}>
+          <Select
+            value={filters.priority}
+            onValueChange={(value) =>
+              onChange(updateFilter(filters, "priority", value))
+            }
+          >
             <SelectTrigger aria-label="Filter by priority">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
@@ -121,7 +200,12 @@ function FilterBar({
           </Select>
         ) : null}
         {config.categoryOptions ? (
-          <Select value={filters.category} onValueChange={(value) => onChange(updateFilter(filters, "category", value))}>
+          <Select
+            value={filters.category}
+            onValueChange={(value) =>
+              onChange(updateFilter(filters, "category", value))
+            }
+          >
             <SelectTrigger aria-label="Filter by category">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
@@ -135,7 +219,14 @@ function FilterBar({
             </SelectContent>
           </Select>
         ) : null}
-        <Select value={filters.date} onValueChange={(value) => onChange(updateFilter(filters, "date", value as FilterState["date"]))}>
+        <Select
+          value={filters.date}
+          onValueChange={(value) =>
+            onChange(
+              updateFilter(filters, "date", value as FilterState["date"]),
+            )
+          }
+        >
           <SelectTrigger aria-label="Filter by date">
             <SelectValue placeholder="Date" />
           </SelectTrigger>
@@ -151,51 +242,135 @@ function FilterBar({
   );
 }
 
-function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyRecord[] }) {
+function SummaryStrip({
+  config,
+  records,
+}: {
+  config: ModuleConfig;
+  records: AnyRecord[];
+}) {
   if (config.key === "bills") {
-    const total = records.reduce((sum, record) => sum + safeNumber(recordMap(record).amount), 0);
-    const overdue = records.filter((record) => recordMap(record).status === "overdue" || isOverdue(recordMap(record).due_date as string | undefined)).length;
+    const total = records.reduce(
+      (sum, record) => sum + safeNumber(recordMap(record).amount),
+      0,
+    );
+    const overdue = records.filter(
+      (record) =>
+        recordMap(record).status === "overdue" ||
+        isOverdue(recordMap(record).due_date as string | undefined),
+    ).length;
     return (
       <div className="grid-auto-fit-sm">
-        <StatCard label="Monthly Estimate" value={Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(total)} tone="sage" />
-        <StatCard label="Upcoming Bills" value={records.filter((record) => recordMap(record).status === "upcoming").length} tone="yellow" />
-        <StatCard label="Overdue Bills" value={overdue} tone={overdue > 0 ? "red" : "green"} />
+        <StatCard
+          label="Monthly Estimate"
+          value={Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(total)}
+          tone="sage"
+        />
+        <StatCard
+          label="Upcoming Bills"
+          value={
+            records.filter((record) => recordMap(record).status === "upcoming")
+              .length
+          }
+          tone="yellow"
+        />
+        <StatCard
+          label="Overdue Bills"
+          value={overdue}
+          tone={overdue > 0 ? "red" : "green"}
+        />
       </div>
     );
   }
 
   if (config.key === "finances") {
-    const grouped = ["Cash", "Credit", "Insurance", "Loan", "Subscription", "Investment"].map((type) => ({
+    const grouped = [
+      "Cash",
+      "Credit",
+      "Insurance",
+      "Loan",
+      "Subscription",
+      "Investment",
+    ].map((type) => ({
       type,
-      count: records.filter((record) => recordMap(record).account_type === type).length
+      count: records.filter((record) => recordMap(record).account_type === type)
+        .length,
     }));
     return (
       <div className="grid-auto-fit-sm">
         {grouped.map((item) => (
-          <StatCard key={item.type} label={item.type} value={item.count} tone={item.count > 0 ? "sage" : "default"} />
+          <StatCard
+            key={item.type}
+            label={item.type}
+            value={item.count}
+            tone={item.count > 0 ? "sage" : "default"}
+          />
         ))}
       </div>
     );
   }
 
   if (config.key === "grocery") {
-    const open = records.filter((record) => !(record as GroceryItem).checked).length;
+    const open = records.filter(
+      (record) => !(record as GroceryItem).checked,
+    ).length;
     return (
       <div className="grid-auto-fit-sm">
-        <StatCard label="Open Items" value={open} icon={<ShoppingCart className="h-5 w-5" />} tone={open ? "yellow" : "green"} />
+        <StatCard
+          label="Open Items"
+          value={open}
+          icon={<ShoppingCart className="h-5 w-5" />}
+          tone={open ? "yellow" : "green"}
+        />
         <StatCard label="Checked" value={records.length - open} tone="green" />
-        <StatCard label="Stores" value={new Set(records.map((record) => (record as GroceryItem).store).filter(Boolean)).size} tone="sage" />
+        <StatCard
+          label="Stores"
+          value={
+            new Set(
+              records
+                .map((record) => (record as GroceryItem).store)
+                .filter(Boolean),
+            ).size
+          }
+          tone="sage"
+        />
       </div>
     );
   }
 
   if (config.key === "tasks") {
-    const overdue = records.filter((record) => (record as TaskRecord).status !== "done" && isOverdue((record as TaskRecord).due_at)).length;
+    const overdue = records.filter(
+      (record) =>
+        (record as TaskRecord).status !== "done" &&
+        isOverdue((record as TaskRecord).due_at),
+    ).length;
     return (
       <div className="grid-auto-fit-sm">
-        <StatCard label="Open Tasks" value={records.filter((record) => (record as TaskRecord).status !== "done").length} icon={<ListChecks className="h-5 w-5" />} tone="sage" />
-        <StatCard label="Overdue" value={overdue} tone={overdue ? "red" : "green"} />
-        <StatCard label="Done" value={records.filter((record) => (record as TaskRecord).status === "done").length} tone="green" />
+        <StatCard
+          label="Open Tasks"
+          value={
+            records.filter((record) => (record as TaskRecord).status !== "done")
+              .length
+          }
+          icon={<ListChecks className="h-5 w-5" />}
+          tone="sage"
+        />
+        <StatCard
+          label="Overdue"
+          value={overdue}
+          tone={overdue ? "red" : "green"}
+        />
+        <StatCard
+          label="Done"
+          value={
+            records.filter((record) => (record as TaskRecord).status === "done")
+              .length
+          }
+          tone="green"
+        />
       </div>
     );
   }
@@ -203,7 +378,13 @@ function SummaryStrip({ config, records }: { config: ModuleConfig; records: AnyR
   return null;
 }
 
-function TaskKanban({ config, records }: { config: ModuleConfig; records: AnyRecord[] }) {
+function TaskKanban({
+  config,
+  records,
+}: {
+  config: ModuleConfig;
+  records: AnyRecord[];
+}) {
   const { updateRecord } = useAppData();
   const { toast } = useToast();
   const [editing, setEditing] = useState<AnyRecord | null>(null);
@@ -227,10 +408,15 @@ function TaskKanban({ config, records }: { config: ModuleConfig; records: AnyRec
                     <div key={record.id} className="record-tile">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <button className="text-left text-sm font-semibold hover:underline" onClick={() => setEditing(record)}>
+                          <button
+                            className="text-left text-sm font-semibold hover:underline"
+                            onClick={() => setEditing(record)}
+                          >
                             {task.title}
                           </button>
-                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
+                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                            {task.description}
+                          </p>
                         </div>
                         <PriorityBadge priority={task.priority} />
                       </div>
@@ -244,8 +430,15 @@ function TaskKanban({ config, records }: { config: ModuleConfig; records: AnyRec
                           size="sm"
                           variant="outline"
                           onClick={async () => {
-                            await updateRecord("tasks", task.id, { status: "done", completed_at: new Date().toISOString() });
-                            toast({ title: "Task completed", description: task.title, variant: "success" });
+                            await updateRecord("tasks", task.id, {
+                              status: "done",
+                              completed_at: new Date().toISOString(),
+                            });
+                            toast({
+                              title: "Task completed",
+                              description: task.title,
+                              variant: "success",
+                            });
                           }}
                         >
                           <CheckCircle2 className="h-4 w-4" />
@@ -259,13 +452,18 @@ function TaskKanban({ config, records }: { config: ModuleConfig; records: AnyRec
           </div>
         ))}
       </div>
-      <RecordFormDialog config={config} record={editing} open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)} />
+      <RecordFormDialog
+        config={config}
+        record={editing}
+        open={Boolean(editing)}
+        onOpenChange={(open) => !open && setEditing(null)}
+      />
     </>
   );
 }
 
 function GroceryShopping({ records }: { records: GroceryItem[] }) {
-  const { updateRecord } = useAppData();
+  const checkGrocery = useGroceryCheck();
   const grouped = records.reduce<Record<string, GroceryItem[]>>((acc, item) => {
     const key = item.store || item.category || "Other";
     acc[key] = [...(acc[key] ?? []), item];
@@ -279,7 +477,9 @@ function GroceryShopping({ records }: { records: GroceryItem[] }) {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               {group}
-              <span className="text-sm font-normal text-muted-foreground">{items.filter((item) => !item.checked).length} open</span>
+              <span className="text-sm font-normal text-muted-foreground">
+                {items.filter((item) => !item.checked).length} open
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -288,14 +488,27 @@ function GroceryShopping({ records }: { records: GroceryItem[] }) {
                 key={item.id}
                 className="record-tile flex min-h-14 cursor-pointer items-center gap-3 px-3 py-2 text-base hover:bg-white dark:hover:bg-white/10"
               >
-                <Checkbox checked={item.checked} onCheckedChange={(checked) => updateRecord("grocery_items", item.id, { checked: Boolean(checked) })} />
-                <span className={item.checked ? "min-w-0 flex-1 text-muted-foreground line-through" : "min-w-0 flex-1"}>
+                <Checkbox
+                  checked={item.checked}
+                  onCheckedChange={(checked) =>
+                    void checkGrocery(item, Boolean(checked))
+                  }
+                />
+                <span
+                  className={
+                    item.checked
+                      ? "min-w-0 flex-1 text-muted-foreground line-through"
+                      : "min-w-0 flex-1"
+                  }
+                >
                   {item.name}
                   <span className="ml-2 text-sm text-muted-foreground">
                     {[item.quantity, item.unit].filter(Boolean).join(" ")}
                   </span>
                 </span>
-                <span className="text-xs text-muted-foreground">{item.category}</span>
+                <span className="text-xs text-muted-foreground">
+                  {item.category}
+                </span>
               </label>
             ))}
           </CardContent>
@@ -308,12 +521,17 @@ function GroceryShopping({ records }: { records: GroceryItem[] }) {
 function MealWeekly({ records }: { records: MealPlan[] }) {
   const { addIngredientsToGrocery } = useAppData();
   const { toast } = useToast();
-  const days = eachDayOfInterval({ start: startOfWeek(new Date()), end: addDays(startOfWeek(new Date()), 6) });
+  const days = eachDayOfInterval({
+    start: startOfWeek(new Date()),
+    end: addDays(startOfWeek(new Date()), 6),
+  });
 
   return (
     <div className="grid-auto-fit-xs">
       {days.map((day) => {
-        const meals = records.filter((meal) => isSameDay(parseISO(meal.meal_date), day));
+        const meals = records.filter((meal) =>
+          isSameDay(parseISO(meal.meal_date), day),
+        );
         return (
           <Card key={day.toISOString()}>
             <CardHeader className="p-4">
@@ -323,9 +541,15 @@ function MealWeekly({ records }: { records: MealPlan[] }) {
               {meals.length ? (
                 meals.map((meal) => (
                   <div key={meal.id} className="record-tile">
-                    <p className="text-xs font-medium text-muted-foreground">{meal.meal_type}</p>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {meal.meal_type}
+                    </p>
                     <p className="mt-1 text-sm font-semibold">{meal.title}</p>
-                    {meal.notes ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{meal.notes}</p> : null}
+                    {meal.notes ? (
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                        {meal.notes}
+                      </p>
+                    ) : null}
                     {meal.ingredients ? (
                       <Button
                         className="mt-3 w-full"
@@ -333,7 +557,11 @@ function MealWeekly({ records }: { records: MealPlan[] }) {
                         variant="outline"
                         onClick={async () => {
                           await addIngredientsToGrocery(meal.ingredients ?? "");
-                          toast({ title: "Ingredients added", description: "The grocery list was updated.", variant: "success" });
+                          toast({
+                            title: "Ingredients added",
+                            description: "The grocery list was updated.",
+                            variant: "success",
+                          });
                         }}
                       >
                         <Utensils className="h-4 w-4" />
@@ -353,7 +581,13 @@ function MealWeekly({ records }: { records: MealPlan[] }) {
   );
 }
 
-function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] }) {
+function CalendarMode({
+  mode,
+  records,
+}: {
+  mode: ViewMode;
+  records: AnyRecord[];
+}) {
   if (mode === "month") {
     const start = startOfWeek(startOfMonth(new Date()));
     const days = eachDayOfInterval({ start, end: addDays(start, 41) });
@@ -366,11 +600,25 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
               return date ? isSameDay(date, day) : false;
             });
             return (
-              <div key={day.toISOString()} className="min-h-32 border-b border-r p-3">
-                <div className={isSameMonth(day, new Date()) ? "text-xs font-semibold" : "text-xs text-muted-foreground"}>{format(day, "d")}</div>
+              <div
+                key={day.toISOString()}
+                className="min-h-32 border-b border-r p-3"
+              >
+                <div
+                  className={
+                    isSameMonth(day, new Date())
+                      ? "text-xs font-semibold"
+                      : "text-xs text-muted-foreground"
+                  }
+                >
+                  {format(day, "d")}
+                </div>
                 <div className="mt-2 space-y-1.5">
                   {events.slice(0, 3).map((record) => (
-                    <div key={record.id} className="truncate rounded bg-accent/35 px-2 py-1 text-xs text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground">
+                    <div
+                      key={record.id}
+                      className="truncate rounded bg-accent/35 px-2 py-1 text-xs text-accent-foreground dark:bg-accent/15 dark:text-accent-foreground"
+                    >
                       {getRecordTitle(record)}
                     </div>
                   ))}
@@ -384,7 +632,10 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
   }
 
   if (mode === "week") {
-    const days = eachDayOfInterval({ start: startOfWeek(new Date()), end: addDays(startOfWeek(new Date()), 6) });
+    const days = eachDayOfInterval({
+      start: startOfWeek(new Date()),
+      end: addDays(startOfWeek(new Date()), 6),
+    });
     return (
       <div className="grid-auto-fit-xs">
         {days.map((day) => {
@@ -395,7 +646,9 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
           return (
             <Card key={day.toISOString()}>
               <CardHeader className="p-4">
-                <CardTitle className="text-sm">{format(day, "EEE d")}</CardTitle>
+                <CardTitle className="text-sm">
+                  {format(day, "EEE d")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 p-4 pt-0">
                 {dayRecords.length ? (
@@ -422,9 +675,17 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
           <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold">{getRecordTitle(record)}</p>
-              <p className="text-sm text-muted-foreground">{formatDate(recordDate(record)?.toISOString())}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatDate(recordDate(record)?.toISOString())}
+              </p>
             </div>
-            <StatusBadge status={String(recordMap(record).status ?? recordMap(record).category ?? "scheduled")} />
+            <StatusBadge
+              status={String(
+                recordMap(record).status ??
+                  recordMap(record).category ??
+                  "scheduled",
+              )}
+            />
           </CardContent>
         </Card>
       ))}
@@ -433,13 +694,24 @@ function CalendarMode({ mode, records }: { mode: ViewMode; records: AnyRecord[] 
 }
 
 export function ModulePage({ config }: ModulePageProps) {
-  const records = useRealtimeTable(config.table).filter((record) => "family_id" in record) as AnyRecord[];
+  const records = useRealtimeTable(config.table).filter(
+    (record) => "family_id" in record,
+  ) as AnyRecord[];
   const { createRecord, clearCheckedGroceries } = useAppData();
   const { toast } = useToast();
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [view, setView] = useState<ViewMode>(config.defaultView);
   const [formOpen, setFormOpen] = useState(false);
-  const filteredRecords = useMemo(() => applyRecordFilters(records, filters), [filters, records]);
+  const [recentOpen, setRecentOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
+  const [groceryBusy, setGroceryBusy] = useState(false);
+  const recentItems = (
+    records.filter((record) => (record as GroceryItem).checked) as GroceryItem[]
+  ).sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+  const filteredRecords = useMemo(
+    () => applyRecordFilters(records, filters),
+    [filters, records],
+  );
   const sortedRecords = useMemo(
     () =>
       [...filteredRecords].sort((a, b) => {
@@ -447,33 +719,44 @@ export function ModulePage({ config }: ModulePageProps) {
         const bDate = recordDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
         return aDate - bDate;
       }),
-    [filteredRecords]
+    [filteredRecords],
   );
 
-  async function addRecentGrocery() {
-    const recent = records.find((record) => (record as GroceryItem).checked) as GroceryItem | undefined;
-    if (!recent) {
-      toast({ title: "No recent checked item", description: "Check an item first, then it can be repeated quickly." });
-      return;
+  async function addRecentGrocery(recent: GroceryItem) {
+    setGroceryBusy(true);
+    try {
+      await createRecord("grocery_items", {
+        name: recent.name,
+        category: recent.category,
+        quantity: recent.quantity,
+        unit: recent.unit,
+        store: recent.store,
+        checked: false,
+      });
+      setRecentOpen(false);
+      toast({
+        title: "Item added",
+        description: recent.name,
+        variant: "success",
+      });
+    } catch {
+      toast({ title: "Could not add item", variant: "destructive" });
+    } finally {
+      setGroceryBusy(false);
     }
-
-    await createRecord("grocery_items", { ...recent, id: undefined, checked: false, name: recent.name });
-    toast({ title: "Recent item added", description: recent.name, variant: "success" });
   }
 
   const secondaryAction =
     config.key === "grocery" ? (
       <>
-        <Button variant="outline" onClick={addRecentGrocery}>
+        <Button variant="outline" onClick={() => setRecentOpen(true)}>
           <RotateCcw className="h-4 w-4" />
           Add Recent
         </Button>
         <Button
           variant="outline"
-          onClick={async () => {
-            await clearCheckedGroceries();
-            toast({ title: "Checked items cleared", variant: "success" });
-          }}
+          disabled={!recentItems.length || groceryBusy}
+          onClick={() => setClearOpen(true)}
         >
           Clear Checked
         </Button>
@@ -500,7 +783,8 @@ export function ModulePage({ config }: ModulePageProps) {
       />
       {config.sensitive ? (
         <div className="surface-panel border-primary/20 bg-accent/30 p-4 text-sm text-accent-foreground dark:border-primary/20 dark:bg-accent/15 dark:text-accent-foreground">
-          Privacy mode hides sensitive details on this page. Store only partial identifiers and safe notes.
+          Privacy mode hides sensitive details on this page. Store only partial
+          identifiers and safe notes.
         </div>
       ) : null}
       <SummaryStrip config={config} records={records} />
@@ -517,11 +801,16 @@ export function ModulePage({ config }: ModulePageProps) {
           }
         />
       ) : (
-        <Tabs value={view} onValueChange={(value) => setView(value as ViewMode)}>
+        <Tabs
+          value={view}
+          onValueChange={(value) => setView(value as ViewMode)}
+        >
           <TabsList className="max-w-full">
             {config.viewModes.map((mode) => (
               <TabsTrigger key={mode} value={mode}>
-                {mode === "month" || mode === "week" || mode === "agenda" ? <CalendarDays className="mr-2 h-4 w-4" /> : null}
+                {mode === "month" || mode === "week" || mode === "agenda" ? (
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                ) : null}
                 {titleCase(mode)}
               </TabsTrigger>
             ))}
@@ -529,7 +818,19 @@ export function ModulePage({ config }: ModulePageProps) {
           {config.viewModes.map((mode) => (
             <TabsContent key={mode} value={mode}>
               {sortedRecords.length === 0 ? (
-                <EmptyState title="No matching records" description="Try clearing your filters to see all records." action={<Button variant="outline" onClick={() => setFilters({ ...defaultFilters })}><RotateCcw className="h-4 w-4" />Clear filters</Button>} />
+                <EmptyState
+                  title="No matching records"
+                  description="Try clearing your filters to see all records."
+                  action={
+                    <Button
+                      variant="outline"
+                      onClick={() => setFilters({ ...defaultFilters })}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Clear filters
+                    </Button>
+                  }
+                />
               ) : mode === "kanban" ? (
                 <TaskKanban config={config} records={sortedRecords} />
               ) : mode === "shopping" ? (
@@ -545,7 +846,70 @@ export function ModulePage({ config }: ModulePageProps) {
           ))}
         </Tabs>
       )}
-      <RecordFormDialog config={config} open={formOpen} onOpenChange={setFormOpen} />
+      <RecordFormDialog
+        config={config}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+      />
+      {config.key === "grocery" && (
+        <>
+          <Dialog open={recentOpen} onOpenChange={setRecentOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add a recent item</DialogTitle>
+                <DialogDescription>
+                  Choose a checked item to add to your next shop.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="max-h-80 space-y-2 overflow-auto">
+                {recentItems.length ? (
+                  recentItems.map((item) => (
+                    <Button
+                      key={item.id}
+                      variant="outline"
+                      className="h-auto min-h-11 w-full justify-start whitespace-normal text-left"
+                      disabled={groceryBusy}
+                      onClick={() => void addRecentGrocery(item)}
+                    >
+                      {item.name} ·{" "}
+                      {[item.quantity, item.unit, item.store]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </Button>
+                  ))
+                ) : (
+                  <p>
+                    No checked items yet. Checked items stay available here
+                    until cleared.
+                  </p>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+          <ConfirmDialog
+            open={clearOpen}
+            onOpenChange={setClearOpen}
+            title="Clear checked grocery items?"
+            description={`Remove ${recentItems.length} checked items? They will no longer appear in Recent. Unchecked items stay on the list.`}
+            confirmLabel={groceryBusy ? "Clearing..." : "Clear checked"}
+            onConfirm={async () => {
+              if (groceryBusy) return;
+              setGroceryBusy(true);
+              try {
+                await clearCheckedGroceries();
+                toast({ title: "Checked items cleared", variant: "success" });
+              } catch {
+                toast({
+                  title: "Could not clear items. Please try again.",
+                  variant: "destructive",
+                });
+              } finally {
+                setGroceryBusy(false);
+              }
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

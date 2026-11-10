@@ -222,3 +222,11 @@ Native App Store packaging is intentionally deferred. If you later want store di
 ## Product name
 
 The name is a single constant in `lib/constants.ts` (`APP_NAME`, `APP_TAGLINE`). Change it there and in `app/manifest.ts` if you want something else.
+
+## Usability Workflows
+
+Today remains the daily agenda. **Household Review** at `/dashboard` is the look-ahead review for commitments, priorities, bills, maintenance and goals. **Family setup** on Today opens the saved-data checklist again after dismissal. Setup dismissal and last successful calendar transfer metadata are device-local and scoped by workspace; they do not contain event contents or provider tokens.
+
+Grocery shopping supports check/Undo, a Recent picker and confirmation before clearing. Checked items remain in Recent until cleared. Calendar imports skip exact title/start/all-day matches; changed events are not automatically reconciled. Import accepts up to 500 non-recurring events in files under 2 MB, and rejects named timezone rules rather than changing their meaning. UTC and floating local timestamps are supported. Manual exports default to events and dated tasks; bills and appointments are opt-in and excluded in privacy mode. A transfer result never proves a provider connection.
+
+See [Usability review](docs/USABILITY_REVIEW.md) for implementation status and [Household usability session](docs/HOUSEHOLD_USABILITY_SESSION.md) for the remaining participant and provider checks.

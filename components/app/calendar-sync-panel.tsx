@@ -1,21 +1,43 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { CalendarClock, Download, Eye, HelpCircle, Plus, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  CalendarClock,
+  Download,
+  Eye,
+  HelpCircle,
+  Plus,
+  Upload,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppData } from "@/components/app/providers";
-import { DataTable } from "@/components/pages/data-table";
 import { RecordFormDialog } from "@/components/pages/record-form-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { extractGoogleCalendarEmbedUrl, normalizeCalendarEmbedHeight } from "@/lib/calendar-embed";
-import { familyCalendarItems, generateIcsCalendar, parseIcsEvents } from "@/lib/calendar-sync";
+import {
+  extractGoogleCalendarEmbedUrl,
+  normalizeCalendarEmbedHeight,
+} from "@/lib/calendar-embed";
+import {
+  familyCalendarItems,
+  generateIcsCalendar,
+  parseIcsEvents,
+  uniqueCalendarImports,
+} from "@/lib/calendar-sync";
 import { moduleConfigs } from "@/lib/modules";
-import type { CalendarProvider } from "@/lib/types";
+import type { CalendarConnection, CalendarProvider } from "@/lib/types";
 import { nowIso, titleCase } from "@/lib/utils";
+import { usePrivacyMode } from "@/hooks/use-privacy-mode";
 
 const providerCards: Array<{
   provider: CalendarProvider;
@@ -25,23 +47,26 @@ const providerCards: Array<{
   {
     provider: "google",
     title: "Google Calendar",
-    description: "Embed a shared Google Calendar, download an ICS file, or save a connection record for OAuth/webcal setup."
+    description:
+      "Embed a shared Google Calendar, download an ICS file, or save a connection record for OAuth/webcal setup.",
   },
   {
     provider: "apple",
     title: "Apple Calendar",
-    description: "Use the ICS export for Apple Calendar import, or store a webcal feed when one is hosted."
+    description:
+      "Use the ICS export for Apple Calendar import, or store a webcal feed when one is hosted.",
   },
   {
     provider: "outlook",
     title: "Outlook",
-    description: "Import the family ICS file into Outlook, Microsoft 365, or a shared Outlook calendar."
+    description:
+      "Import the family ICS file into Outlook, Microsoft 365, or a shared Outlook calendar.",
   },
   {
     provider: "ics",
     title: "ICS / WebCal",
-    description: "Provider-neutral export and import for most calendar apps."
-  }
+    description: "Provider-neutral export and import for most calendar apps.",
+  },
 ];
 
 const syncGuides = [
@@ -52,8 +77,8 @@ const syncGuides = [
       "Open Settings, then select the calendar to display.",
       "Choose Integrate calendar and copy the embed code.",
       "Paste the iframe code or its src URL into Embedded Calendar View.",
-      "Confirm the calendar sharing settings allow the intended family members to view it."
-    ]
+      "Confirm the calendar sharing settings allow the intended family members to view it.",
+    ],
   },
   {
     title: "Google Calendar",
@@ -62,8 +87,8 @@ const syncGuides = [
       "Open Google Calendar settings, then Import & export.",
       "Choose the downloaded family-control-center.ics file.",
       "Pick the target Google calendar and import.",
-      "Return here and mark the Google connection Active after confirming the events."
-    ]
+      "Check the imported events in Google. This is a one-time copy; later changes need another transfer.",
+    ],
   },
   {
     title: "Apple Calendar",
@@ -72,8 +97,8 @@ const syncGuides = [
       "Open Apple Calendar on Mac, then choose File > Import.",
       "Select the downloaded ICS file.",
       "Choose the calendar where family events should appear.",
-      "For iPhone-only use, save the ICS to iCloud Drive and open it from the Files app."
-    ]
+      "For iPhone-only use, save the ICS to iCloud Drive and open it from the Files app.",
+    ],
   },
   {
     title: "Outlook",
@@ -82,8 +107,8 @@ const syncGuides = [
       "Open Outlook Calendar and choose Add calendar.",
       "Use Upload from file when available.",
       "Select the ICS file and choose the destination calendar.",
-      "Confirm that bills, appointments, and dated tasks imported as expected."
-    ]
+      "Confirm that bills, appointments, and dated tasks imported as expected.",
+    ],
   },
   {
     title: "WebCal / ICS subscription",
@@ -92,19 +117,18 @@ const syncGuides = [
       "Copy the feed URL from the Calendar Sync record.",
       "In your calendar app, choose Subscribe from URL or Add calendar from web.",
       "Paste the URL, name the calendar, and set refresh preferences.",
-      "Keep account passwords in a password manager, not in this app."
-    ]
+      "Keep account passwords in a password manager, not in this app.",
+    ],
   },
   {
-    title: "OAuth production sync",
+    title: "What updates automatically?",
     steps: [
-      "Create Google OAuth web credentials in Google Cloud Console.",
-      "Use a server callback route such as /api/calendar/google/callback.",
-      "Request the smallest Calendar API scopes needed for the feature.",
-      "Store refresh tokens encrypted in Supabase, scoped to the family and member.",
-      "Run event create/update/delete through server actions or API routes only."
-    ]
-  }
+      "Embedded Google calendars display the source calendar subject to its sharing settings.",
+      "ICS imports and exports are snapshots, not ongoing connections.",
+      "A saved WebCal URL or provider record does not start a subscription or automatic sync inside Gather.",
+      "Automatic two-way provider sync is not connected in this version. Use a manual transfer or embedded view.",
+    ],
+  },
 ];
 
 function downloadFile(filename: string, contents: string) {
@@ -118,17 +142,70 @@ function downloadFile(filename: string, contents: string) {
 }
 
 export function CalendarSyncPanel() {
-  const { data, createRecord, updateRecord, currentMember } = useAppData();
+  const { familyId, currentMember } = useAppData();
+  return <CalendarTransferPanel key={`${familyId}:${currentMember?.id}`} />;
+}
+
+function CalendarTransferPanel() {
+  const { data, createRecord, updateRecord, currentMember, familyId } =
+    useAppData();
+  const { privacyMode } = usePrivacyMode();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
-  const [connectionDefaults, setConnectionDefaults] = useState<Record<string, unknown> | undefined>();
-  const [embedCalendarName, setEmbedCalendarName] = useState("Google Family Calendar");
+  const [connectionDefaults, setConnectionDefaults] = useState<
+    Record<string, unknown> | undefined
+  >();
+  const [embedCalendarName, setEmbedCalendarName] = useState(
+    "Google Family Calendar",
+  );
   const [embedInput, setEmbedInput] = useState("");
   const [embedError, setEmbedError] = useState<string | null>(null);
+  const [editingConnection, setEditingConnection] =
+    useState<CalendarConnection | null>(null);
+  const [busy, setBusy] = useState(false);
+  const lock = useRef(false);
+  const [transfer, setTransfer] = useState<{
+    at: string;
+    summary: string;
+  } | null>(null);
+  const [transferError, setTransferError] = useState("");
+  const [includeBills, setIncludeBills] = useState(false);
+  const [includeAppointments, setIncludeAppointments] = useState(false);
+  const [frameVersion, setFrameVersion] = useState(0);
+  const transferKey = `gather:calendar-transfer:v1:${familyId}`;
+  useEffect(() => {
+    setTransfer(null);
+    setTransferError("");
+    try {
+      const saved = JSON.parse(localStorage.getItem(transferKey) ?? "null");
+      if (
+        saved &&
+        typeof saved.at === "string" &&
+        !Number.isNaN(Date.parse(saved.at)) &&
+        typeof saved.summary === "string"
+      )
+        setTransfer({ at: saved.at, summary: saved.summary.slice(0, 200) });
+    } catch {
+      /* Transfer remains available without browser storage. */
+    }
+  }, [transferKey]);
+  function recordTransfer(summary: string) {
+    const result = { at: nowIso(), summary };
+    setTransfer(result);
+    try {
+      localStorage.setItem(transferKey, JSON.stringify(result));
+    } catch {
+      /* Keep the result for this visit. */
+    }
+  }
   const connectionConfig = moduleConfigs.calendarConnections;
   const connections = data.calendar_connections;
-  const embeddedConnections = connections.filter((connection) => connection.embed_enabled && connection.embed_url);
+  const embeddedConnections = privacyMode
+    ? []
+    : connections.filter(
+        (connection) => connection.embed_enabled && connection.embed_url,
+      );
 
   if (currentMember?.role === "viewer") return null;
 
@@ -136,29 +213,42 @@ export function CalendarSyncPanel() {
     const items = familyCalendarItems({
       events: data.events,
       tasks: data.tasks,
-      bills: data.bills,
-      healthRecords: data.health_records
+      bills: includeBills && !privacyMode ? data.bills : [],
+      healthRecords:
+        includeAppointments && !privacyMode ? data.health_records : [],
     });
 
-    const ics = generateIcsCalendar(data.families[0]?.name ?? "Family Calendar", items);
+    const ics = generateIcsCalendar(
+      data.families[0]?.name ?? "Family Calendar",
+      items,
+    );
     downloadFile("family-control-center.ics", ics);
 
-    await Promise.all(
-      connections
-        .filter((connection) => connection.sync_direction === "export" || connection.sync_direction === "two_way")
-        .map((connection) => updateRecord("calendar_connections", connection.id, { last_synced_at: nowIso(), sync_status: "active" }))
+    recordTransfer(
+      `${items.length} items exported. Confirm the import in your calendar app.`,
     );
 
-    toast({ title: "Calendar exported", description: `${items.length} calendar items were written to the ICS file.`, variant: "success" });
+    toast({
+      title: "Calendar exported",
+      description: `${items.length} calendar items were written to the ICS file.`,
+      variant: "success",
+    });
   }
 
   async function importIcsFile(file: File) {
+    if (file.size > 2_000_000)
+      throw new Error("Choose an ICS file smaller than 2 MB.");
     const text = await file.text();
     const imported = parseIcsEvents(text);
-
-    await Promise.all(
-      imported.map((event) =>
-        createRecord("events", {
+    if (!imported.length)
+      throw new Error("No supported events found. Choose another ICS file.");
+    if (imported.length > 500)
+      throw new Error("Import up to 500 events at a time.");
+    const fresh = uniqueCalendarImports(imported, data.events);
+    let added = 0;
+    try {
+      for (const event of fresh) {
+        await createRecord("events", {
           title: event.title,
           description: event.description,
           category: "Family",
@@ -167,24 +257,39 @@ export function CalendarSyncPanel() {
           end_at: event.end_at,
           all_day: event.all_day,
           recurrence_rule: null,
-          assigned_to: null
-        })
-      )
+          assigned_to: null,
+        });
+        added++;
+      }
+    } catch {
+      throw new Error(
+        `${added} events were saved before the import stopped. Retry the file; exact title/date duplicates are skipped.`,
+      );
+    }
+    recordTransfer(
+      `${added} events imported; ${imported.length - fresh.length} exact duplicates skipped.`,
     );
-
-    toast({ title: "Calendar imported", description: `${imported.length} events were added.`, variant: "success" });
+    toast({
+      title: "Calendar imported",
+      description: `${added} added, ${imported.length - fresh.length} duplicates skipped.`,
+      variant: "success",
+    });
   }
 
   async function saveGoogleEmbed() {
     const embedUrl = extractGoogleCalendarEmbedUrl(embedInput);
     if (!embedUrl) {
-      setEmbedError("Paste the Google Calendar iframe code or a calendar.google.com/calendar/embed URL.");
+      setEmbedError(
+        "Paste the Google Calendar iframe code or a calendar.google.com/calendar/embed URL.",
+      );
       return;
     }
 
     setEmbedError(null);
     const calendarName = embedCalendarName.trim() || "Google Family Calendar";
-    const existingConnection = connections.find((connection) => connection.embed_url === embedUrl);
+    const existingConnection = connections.find(
+      (connection) => connection.embed_url === embedUrl,
+    );
     const payload = {
       provider: "google" as const,
       calendar_name: calendarName,
@@ -200,24 +305,36 @@ export function CalendarSyncPanel() {
       include_bills: false,
       include_appointments: false,
       last_synced_at: null,
-      notes: "Display-only Google Calendar iframe. OAuth is still required for automatic two-way event sync."
+      notes:
+        "Display-only Google Calendar iframe. OAuth is still required for automatic two-way event sync.",
     };
 
     if (existingConnection) {
-      await updateRecord("calendar_connections", existingConnection.id, payload);
+      await updateRecord(
+        "calendar_connections",
+        existingConnection.id,
+        payload,
+      );
     } else {
       await createRecord("calendar_connections", payload);
     }
 
     setEmbedCalendarName("Google Family Calendar");
     setEmbedInput("");
-    toast({ title: "Embedded calendar saved", description: "The Google Calendar view is now available on this page.", variant: "success" });
+    toast({
+      title: "Embedded calendar saved",
+      description: "The Google Calendar view is now available on this page.",
+      variant: "success",
+    });
   }
 
   function openConnection(provider: CalendarProvider) {
     setConnectionDefaults({
       provider,
-      calendar_name: provider === "ics" ? "Family ICS Feed" : `${titleCase(provider)} Family Calendar`,
+      calendar_name:
+        provider === "ics"
+          ? "Family ICS Feed"
+          : `${titleCase(provider)} Family Calendar`,
       sync_direction: provider === "ics" ? "import" : "export",
       sync_status: "setup_required",
       include_events: true,
@@ -226,7 +343,7 @@ export function CalendarSyncPanel() {
       include_appointments: true,
       embed_url: null,
       embed_enabled: false,
-      embed_height: 640
+      embed_height: 640,
     });
     setConnectionOpen(true);
   }
@@ -235,22 +352,79 @@ export function CalendarSyncPanel() {
     <section className="app-section">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-xl font-semibold tracking-normal">Calendar Sync</h2>
+          <h2 className="text-xl font-semibold tracking-normal">
+            Calendar connections and transfers
+          </h2>
           <p className="text-wrap-safe mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Export or import ICS files for Google Calendar, Apple Calendar, Outlook, and other calendar apps. Saved provider records document
+            Export or import ICS files for Google Calendar, Apple Calendar,
+            Outlook, and other calendar apps. Saved provider records document
             webcal/OAuth setup and sync status.
           </p>
         </div>
         <div className="app-toolbar shrink-0 sm:justify-end">
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Upload className="h-4 w-4" />
             Import ICS
           </Button>
-          <Button onClick={exportCalendar}>
+          <Button
+            disabled={busy}
+            onClick={async () => {
+              setTransferError("");
+              try {
+                await exportCalendar();
+              } catch {
+                setTransferError("Export failed. Try Export ICS again.");
+              }
+            }}
+          >
             <Download className="h-4 w-4" />
             Export ICS
           </Button>
         </div>
+      </div>
+      <div className="border-y py-4 text-sm space-y-3">
+        <p>
+          <strong>Manual transfers</strong> copy events once.{" "}
+          <strong>Embedded views</strong> show Google’s calendar. Automatic
+          two-way sync is not connected.
+        </p>
+        <p className="text-muted-foreground">
+          Last successful transfer on this device:{" "}
+          {transfer
+            ? `${new Date(transfer.at).toLocaleString()} · ${transfer.summary}`
+            : "No transfer recorded."}
+        </p>
+        {transferError && (
+          <p role="alert" className="text-destructive">
+            {transferError} Choose Import ICS to retry or use an embedded view.
+          </p>
+        )}
+        {!privacyMode && (
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={includeBills}
+                onChange={(event) => setIncludeBills(event.target.checked)}
+              />
+              Include bills in export
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={includeAppointments}
+                onChange={(event) =>
+                  setIncludeAppointments(event.target.checked)
+                }
+              />
+              Include appointments in export
+            </label>
+          </div>
+        )}
       </div>
 
       <Input
@@ -262,14 +436,27 @@ export function CalendarSyncPanel() {
           const file = event.target.files?.[0];
           event.target.value = "";
           if (!file) return;
+          if (lock.current) return;
+          lock.current = true;
+          setBusy(true);
+          setTransferError("");
           try {
             await importIcsFile(file);
           } catch (error) {
+            setTransferError(
+              error instanceof Error ? error.message : "Import failed.",
+            );
             toast({
               title: "Could not import calendar",
-              description: error instanceof Error ? error.message : "Choose a valid ICS file.",
-              variant: "destructive"
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Choose a valid ICS file.",
+              variant: "destructive",
             });
+          } finally {
+            lock.current = false;
+            setBusy(false);
           }
         }}
       />
@@ -283,16 +470,22 @@ export function CalendarSyncPanel() {
                 Embedded Calendar View
               </CardTitle>
               <CardDescription>
-                Paste Google Calendar iframe code to show a shared calendar inside Family Control Center.
+                Paste Google Calendar iframe code to show a shared calendar
+                inside Family Control Center.
               </CardDescription>
             </div>
-            <Badge className="w-fit bg-accent/40 text-accent-foreground hover:bg-accent/40">Display-only</Badge>
+            <Badge className="w-fit bg-accent/40 text-accent-foreground hover:bg-accent/40">
+              Display-only
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
             <div>
-              <label htmlFor="embed-calendar-name" className="text-sm font-medium">
+              <label
+                htmlFor="embed-calendar-name"
+                className="text-sm font-medium"
+              >
                 Calendar name
               </label>
               <Input
@@ -303,7 +496,10 @@ export function CalendarSyncPanel() {
               />
             </div>
             <div>
-              <label htmlFor="embed-calendar-code" className="text-sm font-medium">
+              <label
+                htmlFor="embed-calendar-code"
+                className="text-sm font-medium"
+              >
                 Google iframe code or embed URL
               </label>
               <Textarea
@@ -311,9 +507,11 @@ export function CalendarSyncPanel() {
                 className="mt-2 min-h-24"
                 value={embedInput}
                 onChange={(event) => setEmbedInput(event.target.value)}
-                placeholder="<iframe src=&quot;https://calendar.google.com/calendar/embed?...&quot;></iframe>"
+                placeholder='<iframe src="https://calendar.google.com/calendar/embed?..."></iframe>'
               />
-              {embedError ? <p className="mt-2 text-sm text-destructive">{embedError}</p> : null}
+              {embedError ? (
+                <p className="mt-2 text-sm text-destructive">{embedError}</p>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -322,26 +520,45 @@ export function CalendarSyncPanel() {
               Save Embedded Calendar
             </Button>
             <p className="text-sm leading-6 text-muted-foreground">
-              Google controls who can see the calendar. Keep private family calendars shared only with the intended accounts.
+              Google controls who can see the calendar. Keep private family
+              calendars shared only with the intended accounts.
             </p>
           </div>
 
           {embeddedConnections.length ? (
             <div className="space-y-4">
               {embeddedConnections.map((connection) => (
-                <div key={connection.id} className="overflow-hidden rounded-md border border-border/90 bg-white dark:bg-card">
+                <div
+                  key={connection.id}
+                  className="overflow-hidden rounded-md border border-border/90 bg-white dark:bg-card"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 px-4 py-3">
                     <div>
-                      <h3 className="font-semibold">{connection.calendar_name}</h3>
-                      <p className="text-sm text-muted-foreground">Google Calendar embedded display</p>
+                      <h3 className="font-semibold">
+                        {connection.calendar_name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Google Calendar embedded display
+                      </p>
                     </div>
-                    <Badge variant={connection.sync_status === "active" ? "success" : "outline"}>{titleCase(connection.sync_status)}</Badge>
+                    <Button
+                      variant="outline"
+                      onClick={() => setFrameVersion((version) => version + 1)}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Reload view
+                    </Button>
                   </div>
                   <iframe
+                    key={`${connection.id}-${frameVersion}`}
                     title={`${connection.calendar_name} calendar`}
                     src={connection.embed_url ?? ""}
                     className="block w-full border-0"
-                    style={{ height: normalizeCalendarEmbedHeight(connection.embed_height) }}
+                    style={{
+                      height: normalizeCalendarEmbedHeight(
+                        connection.embed_height,
+                      ),
+                    }}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     sandbox="allow-forms allow-popups allow-same-origin allow-scripts"
@@ -351,7 +568,8 @@ export function CalendarSyncPanel() {
             </div>
           ) : (
             <div className="record-tile text-sm leading-6 text-muted-foreground">
-              No embedded calendars are active yet. Save a Google iframe code above, then adjust visibility from the connection table if needed.
+              No embedded calendars are active yet. Save a Google iframe code
+              above, then adjust visibility from the connection table if needed.
             </div>
           )}
         </CardContent>
@@ -366,14 +584,26 @@ export function CalendarSyncPanel() {
                   <CalendarClock className="h-4 w-4 text-muted-foreground" />
                   {card.title}
                 </span>
-                <Badge variant="outline">{connections.filter((connection) => connection.provider === card.provider).length}</Badge>
+                <Badge variant="outline">
+                  {
+                    connections.filter(
+                      (connection) => connection.provider === card.provider,
+                    ).length
+                  }
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-6 text-muted-foreground">{card.description}</p>
-              <Button variant="outline" className="w-full" onClick={() => openConnection(card.provider)}>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {card.description}
+              </p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => openConnection(card.provider)}
+              >
                 <Plus className="h-4 w-4" />
-                Add Connection
+                Save setup details
               </Button>
             </CardContent>
           </Card>
@@ -406,7 +636,56 @@ export function CalendarSyncPanel() {
         </CardContent>
       </Card>
 
-      {connections.length ? <DataTable config={connectionConfig} records={connections} /> : null}
+      {connections.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="font-semibold">Saved connection details</h3>
+          <p className="text-sm text-muted-foreground">
+            Saved statuses and timestamps are setup notes, not verified provider
+            connectivity.
+          </p>
+          {connections.map((connection) => (
+            <div
+              key={connection.id}
+              className="flex flex-wrap items-center justify-between gap-3 border-b py-3"
+            >
+              <div className="min-w-0">
+                <p className="break-words font-medium">
+                  {connection.calendar_name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {connection.embed_enabled
+                    ? "Embedded view"
+                    : connection.feed_url
+                      ? "Subscription URL saved; not fetched by Gather"
+                      : "Manual transfer setup"}{" "}
+                  · Saved status: {titleCase(connection.sync_status)}
+                </p>
+                {connection.last_synced_at && (
+                  <p className="text-xs text-muted-foreground">
+                    Reported last sync:{" "}
+                    {new Date(connection.last_synced_at).toLocaleString()} (not
+                    verified)
+                  </p>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setEditingConnection(connection)}
+              >
+                Review setup
+              </Button>
+            </div>
+          ))}
+        </section>
+      )}
+      <RecordFormDialog
+        config={connectionConfig}
+        record={editingConnection}
+        open={Boolean(editingConnection)}
+        onOpenChange={(open) => {
+          if (!open) setEditingConnection(null);
+        }}
+      />
 
       <RecordFormDialog
         config={connectionConfig}

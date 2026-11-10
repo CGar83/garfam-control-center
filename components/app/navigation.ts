@@ -111,7 +111,7 @@ const navigationSectionInputs: NavSectionInput[] = [
       { title: "Emergency", href: "/emergency", icon: AlertTriangle }
     ]
   },
-  { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Household Review", href: "/dashboard", icon: LayoutDashboard },
   { title: "Settings", href: "/settings", icon: Settings, items: [
     { title: "Preferences", href: "/settings", icon: Settings },
     { title: "LLM Log", href: "/llm-log", icon: FileText }

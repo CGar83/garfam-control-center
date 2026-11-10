@@ -277,7 +277,7 @@ export default function SettingsPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Family Members and Access</CardTitle>
+              <CardTitle id="members" className="scroll-mt-24">Family Members and Access</CardTitle>
               <CardDescription>Add adults, children, and teens. Email is optional unless the person needs their own login.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">

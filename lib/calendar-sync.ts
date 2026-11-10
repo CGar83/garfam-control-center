@@ -1,4 +1,4 @@
-import { addHours, format, parse, parseISO } from "date-fns";
+import { addDays, addHours, format, parse, parseISO } from "date-fns";
 import type { Bill, EventRecord, HealthRecord, TaskRecord } from "@/lib/types";
 import { parseMaybeDate } from "@/lib/utils";
 
@@ -31,7 +31,10 @@ function escapeIcsText(value?: string | null) {
 
 function icsDateTime(value: string) {
   const parsed = parseMaybeDate(value) ?? new Date(value);
-  return format(parsed, "yyyyMMdd'T'HHmmss'Z'");
+  return parsed
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
 function icsDate(value: string) {
@@ -59,24 +62,28 @@ export function generateIcsCalendar(name: string, items: CalendarSyncItem[]) {
     "PRODID:-//Gather//Family Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeIcsText(name)}`
+    `X-WR-CALNAME:${escapeIcsText(name)}`,
   ];
 
   for (const item of items) {
     const start = item.start_at;
-    const end = item.end_at || addHours(parseISO(item.start_at), 1).toISOString();
+    const end =
+      item.end_at || addHours(parseISO(item.start_at), 1).toISOString();
     lines.push("BEGIN:VEVENT");
     lines.push(`UID:${escapeIcsText(item.id)}@family-control-center`);
     lines.push(`DTSTAMP:${timestamp}`);
     if (item.all_day) {
       lines.push(`DTSTART;VALUE=DATE:${icsDate(start)}`);
-      lines.push(`DTEND;VALUE=DATE:${icsDate(end)}`);
+      lines.push(
+        `DTEND;VALUE=DATE:${icsDate(end) > icsDate(start) ? icsDate(end) : icsDate(addDays(parseISO(start), 1).toISOString())}`,
+      );
     } else {
       lines.push(`DTSTART:${icsDateTime(start)}`);
       lines.push(`DTEND:${icsDateTime(end)}`);
     }
     lines.push(`SUMMARY:${escapeIcsText(item.title)}`);
-    if (item.description) lines.push(`DESCRIPTION:${escapeIcsText(item.description)}`);
+    if (item.description)
+      lines.push(`DESCRIPTION:${escapeIcsText(item.description)}`);
     if (item.location) lines.push(`LOCATION:${escapeIcsText(item.location)}`);
     lines.push("END:VEVENT");
   }
@@ -89,7 +96,7 @@ export function familyCalendarItems({
   events,
   tasks = [],
   bills = [],
-  healthRecords = []
+  healthRecords = [],
 }: {
   events: EventRecord[];
   tasks?: TaskRecord[];
@@ -103,7 +110,7 @@ export function familyCalendarItems({
     location: event.location,
     start_at: event.start_at,
     end_at: event.end_at,
-    all_day: event.all_day
+    all_day: event.all_day,
   }));
 
   const taskItems: CalendarSyncItem[] = tasks
@@ -113,7 +120,7 @@ export function familyCalendarItems({
       title: `Task: ${task.title}`,
       description: task.description || task.notes,
       start_at: task.due_at as string,
-      end_at: addHours(parseISO(task.due_at as string), 1).toISOString()
+      end_at: addHours(parseISO(task.due_at as string), 1).toISOString(),
     }));
 
   const billItems: CalendarSyncItem[] = bills
@@ -124,7 +131,7 @@ export function familyCalendarItems({
       description: bill.notes,
       start_at: `${bill.due_date}T09:00:00.000Z`,
       end_at: `${bill.due_date}T09:30:00.000Z`,
-      all_day: true
+      all_day: true,
     }));
 
   const appointmentItems: CalendarSyncItem[] = healthRecords
@@ -134,7 +141,10 @@ export function familyCalendarItems({
       title: `Appointment: ${record.provider_name || record.record_type}`,
       description: record.notes,
       start_at: record.appointment_date as string,
-      end_at: addHours(parseISO(record.appointment_date as string), 1).toISOString()
+      end_at: addHours(
+        parseISO(record.appointment_date as string),
+        1,
+      ).toISOString(),
     }));
 
   return [...eventItems, ...taskItems, ...billItems, ...appointmentItems];
@@ -159,6 +169,10 @@ function parseIcsDateValue(value: string) {
     return parse(value, "yyyyMMdd", new Date()).toISOString();
   }
   if (/^\d{8}T\d{6}Z?$/.test(value)) {
+    if (value.endsWith("Z"))
+      return new Date(
+        `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T${value.slice(9, 11)}:${value.slice(11, 13)}:${value.slice(13, 15)}Z`,
+      ).toISOString();
     const normalized = value.endsWith("Z") ? value.slice(0, -1) : value;
     return parse(normalized, "yyyyMMdd'T'HHmmss", new Date()).toISOString();
   }
@@ -166,11 +180,24 @@ function parseIcsDateValue(value: string) {
 }
 
 function unescapeIcsText(value?: string) {
-  return (value ?? "").replace(/\\n/g, "\n").replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\\\/g, "\\");
+  return (value ?? "")
+    .replace(/\\n/g, "\n")
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\\\/g, "\\");
 }
 
 export function parseIcsEvents(ics: string): ImportedCalendarEvent[] {
   const lines = unfoldIcsLines(ics);
+  const unfolded = lines.join("\n");
+  if (/^DT(?:START|END);[^\r\n]*TZID=/im.test(unfolded))
+    throw new Error(
+      "This file uses named time zones. Export single events in UTC or use an embedded calendar view instead.",
+    );
+  if (/^RRULE[:;]/im.test(unfolded))
+    throw new Error(
+      "Recurring event rules are not supported by file import. Export individual occurrences or use an embedded calendar view.",
+    );
   const events: ImportedCalendarEvent[] = [];
   let current: Record<string, string> | null = null;
 
@@ -188,7 +215,7 @@ export function parseIcsEvents(ics: string): ImportedCalendarEvent[] {
           location: unescapeIcsText(current.LOCATION),
           start_at: parseIcsDateValue(current.DTSTART),
           end_at: current.DTEND ? parseIcsDateValue(current.DTEND) : null,
-          all_day: allDay
+          all_day: allDay,
         });
       }
       current = null;
@@ -202,10 +229,38 @@ export function parseIcsEvents(ics: string): ImportedCalendarEvent[] {
     const value = line.slice(separator + 1);
     const [key, ...params] = rawKey.split(";");
     current[key] = value;
-    if (key === "DTSTART" && params.some((param) => param.toUpperCase() === "VALUE=DATE")) {
+    if (
+      key === "DTSTART" &&
+      params.some((param) => param.toUpperCase() === "VALUE=DATE")
+    ) {
       current.DTSTART_TYPE = "DATE";
     }
   }
 
   return events;
+}
+
+export function calendarEventKey(
+  event: Pick<ImportedCalendarEvent, "title" | "start_at" | "all_day">,
+) {
+  return JSON.stringify([
+    event.title.trim().toLowerCase(),
+    event.all_day
+      ? event.start_at.slice(0, 10)
+      : new Date(event.start_at).toISOString(),
+    event.all_day,
+  ]);
+}
+
+export function uniqueCalendarImports(
+  imported: ImportedCalendarEvent[],
+  existing: EventRecord[],
+) {
+  const seen = new Set(existing.map(calendarEventKey));
+  return imported.filter((event) => {
+    const key = calendarEventKey(event);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

@@ -28,6 +28,8 @@ import { AgendaRow } from "@/components/today/agenda-row";
 import { MoodPicker, moodFaces } from "@/components/today/mood-picker";
 import { useFamilyMembers } from "@/hooks/use-family-members";
 import { useToast } from "@/hooks/use-toast";
+import { useGroceryCheck } from "@/hooks/use-grocery-check";
+import { FamilySetupChecklist } from "@/components/app/family-setup-checklist";
 import { memberCanAccessPath } from "@/lib/access-control";
 import { agendaForMember, buildAgenda, buildNudges, greetingFor, type AgendaItem, type Nudge } from "@/lib/daily-brief";
 import { isChildMember } from "@/lib/family-members";
@@ -121,6 +123,7 @@ function MemberDayCard({
 }
 
 export default function TodayPage() {
+  const checkGrocery = useGroceryCheck();
   const now = useMinuteClock();
   const today = useMemo(() => startOfDay(now), [now]);
   const { data, currentMember, currentMemberId, createRecord, updateRecord, deleteRecord } = useAppData();
@@ -249,6 +252,7 @@ export default function TodayPage() {
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
+            <Button asChild variant="ghost"><Link href="/today?setup=1">Family setup</Link></Button>
             <Button variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/80" onClick={() => setQuickOpen(true)}>
               <Plus className="h-4 w-4" />
               Quick add
@@ -263,6 +267,7 @@ export default function TodayPage() {
         </div>
       </section>
 
+      <FamilySetupChecklist />
       <section className="fade-up fade-up-delay-1" aria-label="Family members">
         <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
           <button
@@ -421,7 +426,7 @@ export default function TodayPage() {
                     <li key={item.id}>
                       <button
                         type="button"
-                        onClick={() => updateRecord("grocery_items", item.id, { checked: true })}
+                        onClick={() => void checkGrocery(item, true)}
                         className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition-colors hover:bg-muted focus-ring"
                       >
                         <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-border text-transparent transition-colors hover:border-emerald-400">
