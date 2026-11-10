@@ -74,10 +74,10 @@ OPENROUTER_ALLOWED_FAMILY_IDS=your-family-id
 FINANCE_CREDENTIALS_ENCRYPTION_KEY=64-hex-character-random-secret
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY` is only for server-side scripts such as seeding. Never expose it in client code.
+`SUPABASE_SERVICE_ROLE_KEY` is only for trusted server code, including Google Calendar sync and seeding. Never expose it in client code.
 The finance API uses the signed-in user's token and RLS, not the service-role key. Never prefix an OpenRouter key with `NEXT_PUBLIC_`. `.env.example` lists the variables without credentials.
 
-Future calendar OAuth work should add provider credentials only as server-side environment variables, such as `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `MICROSOFT_CALENDAR_CLIENT_ID`, `MICROSOFT_CALENDAR_CLIENT_SECRET`, and a token encryption key.
+Google Calendar requires server-only `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `GOOGLE_CALENDAR_REDIRECT_URI`, and `GOOGLE_CALENDAR_ENCRYPTION_KEY`. Follow [Google Calendar setup](docs/GOOGLE_CALENDAR_SETUP.md).
 
 ## Supabase setup
 
@@ -149,13 +149,14 @@ See [the acquisition-readiness assessment](docs/ACQUISITION_READINESS.md) for pr
 
 ## Calendar embeds and sync
 
-The Calendar page supports three calendar integration levels:
+The Calendar page supports four calendar integration levels:
 
 - **Embedded view**: paste a Google Calendar iframe snippet or `calendar.google.com/calendar/embed` URL into Embedded Calendar View. Gather stores only the sanitized Google embed URL and displays it inside the app. This is display-only; Google Calendar sharing settings decide who can view it.
 - **ICS import/export**: export Gather events, dated tasks, bills, and appointments into an `.ics` file, or import external `.ics` events into the Family Calendar.
 - **Provider tracking**: save connection records for Google, Apple, Outlook, ICS/WebCal, and other calendar providers so setup status, feed URLs, external IDs, and notes are tracked in one place.
+- **Google two-way sync**: authorize one writable Google calendar per workspace. Server-side reconciliation copies calendar events in both directions, including edits and deletions, with conflict review, encrypted credentials, owner controls and background checks. See [setup and limitations](docs/GOOGLE_CALENDAR_SETUP.md).
 
-Automated two-way sync with Google, Microsoft, or Apple requires production OAuth or CalDAV credentials plus hosted callback/feed endpoints. Do not store calendar account passwords in Gather.
+Google OAuth routes and a Netlify scheduled worker are implemented. Microsoft and Apple still use embeds or manual ICS transfer, not automated two-way sync. Do not store calendar account passwords in Gather.
 
 ## Mobile install
 
@@ -174,16 +175,9 @@ For Android:
 
 After install, open Gather from the Home Screen or app launcher. Use Settings → Mobile App to check install state, device alerts, and queued sync.
 
-## Calendar OAuth setup plan
+## Calendar OAuth setup
 
-1. Create a Google Cloud project, turn on the Google Calendar API, and create OAuth credentials for a Web application.
-2. Add authorized redirect URIs for local and production, for example `http://localhost:3000/api/calendar/google/callback` and `https://your-domain.com/api/calendar/google/callback`.
-3. Store the Google client ID and client secret as server-side environment variables. Do not expose the secret through `NEXT_PUBLIC_` variables.
-4. Add a server route that redirects the user to Google with the smallest required Calendar scopes, such as `calendar.events` for event create/update/delete or `calendar.events.readonly` for read-only sync.
-5. Add a callback route that exchanges the authorization code for access and refresh tokens on the server.
-6. Store refresh tokens encrypted in Supabase, scoped by `family_id`, member ID, provider, and external calendar ID.
-7. Build server actions or API routes for creating, updating, deleting, and importing events. Client components should call your server, not Google directly.
-8. Add token refresh, disconnect, retry/error status, and activity logging before calling it production-ready.
+Follow [the Google Calendar walkthrough](docs/GOOGLE_CALENDAR_SETUP.md). Apply `20261110143023_google_calendar_two_way_sync.sql`, configure the server variables, redeploy, then connect from Calendar. The walkthrough includes Google Cloud settings, exact production callback, verification steps and current limitations.
 
 For Outlook/Microsoft 365, use Microsoft Entra app registration, request Microsoft Graph calendar permissions, and follow the same server-side token storage pattern. For Apple Calendar, start with ICS/WebCal display/import/export unless you choose to build CalDAV support.
 

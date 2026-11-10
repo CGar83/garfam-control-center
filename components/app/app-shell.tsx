@@ -27,6 +27,7 @@ import { titleCase } from "@/lib/utils";
 import { AssistantTrigger, WorkspaceAssistantProvider } from "@/components/assistant/workspace-assistant";
 import { SectionNavigation } from "./section-navigation";
 import { RecordDetails } from "./record-details";
+import { GoogleSyncBridge } from "@/components/calendar/google-sync-bridge";
 
 const bareRoutes = new Set(["/welcome", "/offline"]);
 
@@ -131,7 +132,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               </div>
             </section>
           ) : (
-            <><SectionNavigation />{children}<RecordDetails key={pathname} /></>
+            <><GoogleSyncBridge /><SectionNavigation />{children}<RecordDetails key={pathname} /></>
           )}
         </main>
       </div>

@@ -38,6 +38,7 @@ import { moduleConfigs } from "@/lib/modules";
 import type { CalendarConnection, CalendarProvider } from "@/lib/types";
 import { nowIso, titleCase } from "@/lib/utils";
 import { usePrivacyMode } from "@/hooks/use-privacy-mode";
+import { GoogleSyncPanel } from "@/components/calendar/google-sync-panel";
 
 const providerCards: Array<{
   provider: CalendarProvider;
@@ -126,7 +127,7 @@ const syncGuides = [
       "Embedded Google calendars display the source calendar subject to its sharing settings.",
       "ICS imports and exports are snapshots, not ongoing connections.",
       "A saved WebCal URL or provider record does not start a subscription or automatic sync inside Gather.",
-      "Automatic two-way provider sync is not connected in this version. Use a manual transfer or embedded view.",
+      "Connect Google two-way sync above to share calendar events automatically. File transfers and embeds remain separate.",
     ],
   },
 ];
@@ -350,6 +351,7 @@ function CalendarTransferPanel() {
 
   return (
     <section className="app-section">
+      <GoogleSyncPanel />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-xl font-semibold tracking-normal">
@@ -389,8 +391,8 @@ function CalendarTransferPanel() {
       <div className="border-y py-4 text-sm space-y-3">
         <p>
           <strong>Manual transfers</strong> copy events once.{" "}
-          <strong>Embedded views</strong> show Google’s calendar. Automatic
-          two-way sync is not connected.
+          <strong>Embedded views</strong> show Google’s calendar. Connect Google
+          above for automatic two-way event sync.
         </p>
         <p className="text-muted-foreground">
           Last successful transfer on this device:{" "}

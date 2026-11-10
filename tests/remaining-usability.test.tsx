@@ -33,6 +33,7 @@ vi.mock("@/components/app/providers", () => ({
     currentUser: { id: "test" },
     currentMember: { id: "parent", role: state.role },
     currentMemberId: "parent",
+    usingLocalData: true,
     loading: false,
     createRecord: state.create,
     updateRecord: vi.fn(),
@@ -99,7 +100,7 @@ describe("remaining usability flows", () => {
     await screen.findByText(/0 events imported; 1 exact duplicates skipped/);
     expect(state.create).not.toHaveBeenCalled();
     expect(
-      screen.getByText(/Automatic two-way sync is not connected/, {
+      screen.getByText(/Connect Google above for automatic two-way event sync/, {
         exact: false,
       }),
     ).toBeInTheDocument();

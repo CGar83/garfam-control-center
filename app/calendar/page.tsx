@@ -97,6 +97,11 @@ export default function CalendarPage() {
     window.requestAnimationFrame(() => syncRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("google_connected") || params.has("google_error")) openSync();
+  }, [openSync]);
+
   // Deep links from Today / notifications: /calendar?record=<eventId>
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

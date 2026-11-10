@@ -23,4 +23,5 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run test:finance-db
+      - run: npm run test:google-db
       - run: npm run build
