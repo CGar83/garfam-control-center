@@ -25,6 +25,8 @@ import { blockedSectionForPath, memberCanAccessSection } from "@/lib/access-cont
 import { ONBOARDING_KEY, LOCAL_STORE_KEY } from "@/lib/constants";
 import { titleCase } from "@/lib/utils";
 import { AssistantTrigger, WorkspaceAssistantProvider } from "@/components/assistant/workspace-assistant";
+import { SectionNavigation } from "./section-navigation";
+import { RecordDetails } from "./record-details";
 
 const bareRoutes = new Set(["/welcome", "/offline"]);
 
@@ -58,6 +60,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
   const { currentMember, supabaseConfigured, usingLocalData } = useFamily();
   const pathname = usePathname();
   useOnboardingGate(pathname);
+  const requiresSignIn = supabaseConfigured && usingLocalData;
 
   if (bareRoutes.has(pathname)) {
     return (
@@ -85,10 +88,10 @@ function ShellContent({ children }: { children: React.ReactNode }) {
         <header className="app-header sticky top-0 z-20 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.6)] backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 w-full max-w-[var(--app-page-max)] items-center justify-between gap-3 px-[var(--app-gutter)] py-2.5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <MemberSwitcher />
-              <GlobalSearch />
+              {requiresSignIn ? <Link href="/settings" className="text-base font-semibold">Gather</Link> : <><MemberSwitcher /><GlobalSearch /></>}
             </div>
             <div className="app-toolbar shrink-0 justify-end">
+              {requiresSignIn ? <Button asChild><Link href="/settings">Sign in</Link></Button> : <>
               <AuthStatusBadge className="hidden xl:inline-flex" />
               <SyncStatusPill className="hidden sm:inline-flex" />
               <NotificationCenter />
@@ -102,6 +105,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
                 <span className="sr-only">Toggle theme</span>
               </Button>
               <QuickAddMenu />
+              </>}
             </div>
           </div>
         </header>
@@ -117,9 +121,9 @@ function ShellContent({ children }: { children: React.ReactNode }) {
                 <h1 className="mt-5 text-2xl font-semibold tracking-normal">{accessGateTitle}</h1>
                 <p className="mt-2 text-sm text-muted-foreground">{accessGateDescription}</p>
                 <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
-                  <Button asChild variant="outline">
+                  {!requiresSignIn && <Button asChild variant="outline">
                     <Link href="/today">Back to Today</Link>
-                  </Button>
+                  </Button>}
                   <Button asChild>
                     <Link href="/settings">{profileRestricted ? "Open Settings" : "Sign in"}</Link>
                   </Button>
@@ -127,7 +131,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
               </div>
             </section>
           ) : (
-            children
+            <><SectionNavigation />{children}<RecordDetails key={pathname} /></>
           )}
         </main>
       </div>

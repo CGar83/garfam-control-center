@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parseISO } from "date-fns";
 import { AlertTriangle, ShieldAlert } from "lucide-react";
@@ -37,6 +37,8 @@ interface RecordFormDialogProps {
 }
 
 type FormShape = Record<string, unknown>;
+
+const everydayFields = new Set(["title", "name", "assigned_to", "person_id", "child_id", "member_id", "owner", "owner_name", "category", "status", "priority", "start_at", "end_at", "due_at", "due_date", "quantity", "unit", "store", "meal_date", "meal_type", "amount", "message", "shared_with_partner", "visible_to"]);
 
 function formatInputValue(value: unknown, field: FieldConfig) {
   if (value === null || value === undefined) return field.type === "checkbox" ? false : "";
@@ -107,14 +109,20 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
   const { members } = useFamilyMembers();
   const { toast } = useToast();
   const defaultValues = useMemo(() => buildDefaultValues(config, record, defaultOverrides), [config, defaultOverrides, record]);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const primaryFields = config.fields.filter(field => field.required || everydayFields.has(field.name) || field.type === "checkbox");
+  const optionalFields = config.fields.filter(field => !primaryFields.includes(field));
   const form = useForm<FormShape>({
     resolver: zodResolver(config.schema),
     defaultValues
   });
 
   useEffect(() => {
-    if (open) form.reset(defaultValues);
-  }, [defaultValues, form, open]);
+    if (open) {
+      form.reset(defaultValues);
+      setDetailsOpen(Boolean(record));
+    }
+  }, [defaultValues, form, open, record]);
 
   async function onSubmit(values: FormShape) {
     try {
@@ -354,7 +362,11 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={next => {
+      if (!next && form.formState.isSubmitting) return;
+      if (!next && form.formState.isDirty && !window.confirm("Discard unsaved changes?")) return;
+      onOpenChange(next);
+    }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{record ? `Edit ${config.addLabel.replace("Add ", "")}` : config.addLabel}</DialogTitle>
@@ -366,10 +378,19 @@ export function RecordFormDialog({ config, open, onOpenChange, record, defaultOv
             <p>{config.helpText}</p>
           </div>
         ) : null}
-        <form className="grid-auto-fit-sm" onSubmit={form.handleSubmit(onSubmit)}>
-          {config.fields.map(renderField)}
+        <form className="grid-auto-fit-sm" onSubmit={form.handleSubmit(onSubmit, errors => {
+          setDetailsOpen(true);
+          window.requestAnimationFrame(() => form.setFocus(Object.keys(errors)[0]));
+        })}>
+          {primaryFields.map(renderField)}
+          {optionalFields.length > 0 && <details open={detailsOpen} onToggle={event => setDetailsOpen(event.currentTarget.open)} className="col-span-full border-t pt-3">
+            <summary className="cursor-pointer py-2 text-sm font-medium focus-ring">More details</summary>
+            <div className="grid-auto-fit-sm mt-3">{optionalFields.map(renderField)}</div>
+          </details>}
           <DialogFooter className="col-span-full">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" disabled={form.formState.isSubmitting} onClick={() => {
+              if (!form.formState.isDirty || window.confirm("Discard unsaved changes?")) onOpenChange(false);
+            }}>
               Cancel
             </Button>
             <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Saving..." : record ? "Save Changes" : config.addLabel}</Button>

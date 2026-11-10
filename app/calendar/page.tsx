@@ -100,6 +100,7 @@ export default function CalendarPage() {
   // Deep links from Today / notifications: /calendar?record=<eventId>
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.has("table")) return;
     const id = params.get("record");
     if (!id) return;
     const event = data.events.find((item) => item.id === id);

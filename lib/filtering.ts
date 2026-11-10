@@ -1,4 +1,4 @@
-import { isSameDay, isThisWeek, parseISO } from "date-fns";
+import { isSameDay, isThisWeek, parseISO, startOfDay } from "date-fns";
 import type { AnyRecord, DataStore, TableName } from "@/lib/types";
 import { parseMaybeDate, recordMap } from "@/lib/utils";
 
@@ -93,7 +93,7 @@ export function applyRecordFilters<TRecord extends AnyRecord>(records: TRecord[]
       filters.date === "all" ||
       (filters.date === "today" && date !== null && isSameDay(date, new Date())) ||
       (filters.date === "week" && date !== null && isThisWeek(date, { weekStartsOn: 0 })) ||
-      (filters.date === "overdue" && date !== null && date < new Date());
+      (filters.date === "overdue" && date !== null && date < startOfDay(new Date()) && !["done", "paid", "complete", "completed", "cancelled", "canceled"].includes(String(rec.status ?? "")));
 
     return matchesQuery && matchesPerson && matchesStatus && matchesPriority && matchesCategory && matchesDate;
   });
@@ -169,6 +169,10 @@ const routes: Partial<Record<TableName, string>> = {
   weekly_reviews: "/planning"
 };
 
+export function recordDestination(table: TableName) {
+  return routes[table];
+}
+
 export function getRecordTitle(record: AnyRecord) {
   const rec = recordMap(record);
   return String(
@@ -200,7 +204,7 @@ export function searchData(data: DataStore, query: string): SearchResult[] {
         id: record.id,
         title: getRecordTitle(record),
         subtitle: table.replace(/_/g, " "),
-        route: `${routes[table] ?? "/dashboard"}?record=${record.id}`
+        route: `${routes[table] ?? "/dashboard"}?record=${encodeURIComponent(record.id)}&table=${table}`
       }))
   );
 }

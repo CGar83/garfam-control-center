@@ -1,4 +1,4 @@
-import { addDays } from "date-fns";
+import { addDays, startOfDay } from "date-fns";
 import { describe, expect, it } from "vitest";
 import { applyRecordFilters, defaultFilters, searchData } from "@/lib/filtering";
 import { createSeedData } from "@/lib/seed-data";
@@ -73,6 +73,10 @@ describe("filtering and search", () => {
     const filtered = applyRecordFilters(records, { ...defaultFilters, date: "overdue" });
     expect(filtered).toHaveLength(1);
     expect(filtered[0].id).toBe("task_old");
+    const settled = records.map(record => ({ ...record, status: "done" as const }));
+    expect(applyRecordFilters(settled, { ...defaultFilters, date: "overdue" })).toHaveLength(0);
+    const dueToday = [{ ...records[0], due_at: startOfDay(new Date()).toISOString() }];
+    expect(applyRecordFilters(dueToday, { ...defaultFilters, date: "overdue" })).toHaveLength(0);
   });
 
   it("masks sensitive values", () => {

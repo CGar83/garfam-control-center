@@ -63,7 +63,8 @@ function FilterBar({
     <div className="surface-panel p-4">
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <Filter className="h-4 w-4" />
-        Filters
+        <span className="flex-1">Filters</span>
+        {Object.keys(defaultFilters).some(key => filters[key as keyof FilterState] !== defaultFilters[key as keyof FilterState]) && <Button variant="ghost" size="sm" onClick={() => onChange({ ...defaultFilters })}><RotateCcw className="h-4 w-4" />Clear filters</Button>}
       </div>
       <div className="grid-auto-fit-sm mt-4">
         <Input
@@ -74,7 +75,7 @@ function FilterBar({
         />
         {hasPerson ? (
           <Select value={filters.person} onValueChange={(value) => onChange(updateFilter(filters, "person", value))}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by person">
               <SelectValue placeholder="Person" />
             </SelectTrigger>
             <SelectContent>
@@ -89,12 +90,12 @@ function FilterBar({
         ) : null}
         {hasStatus ? (
           <Select value={filters.status} onValueChange={(value) => onChange(updateFilter(filters, "status", value))}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              {Array.from(new Set(["not_started", "in_progress", "waiting", "done", "upcoming", "paid", "overdue", "complete", "paused"])).map(
+              {(config.fields.find(field => field.name === "status")?.options ?? []).map(
                 (status) => (
                   <SelectItem key={status} value={status}>
                     {titleCase(status)}
@@ -106,7 +107,7 @@ function FilterBar({
         ) : null}
         {hasPriority ? (
           <Select value={filters.priority} onValueChange={(value) => onChange(updateFilter(filters, "priority", value))}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by priority">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +122,7 @@ function FilterBar({
         ) : null}
         {config.categoryOptions ? (
           <Select value={filters.category} onValueChange={(value) => onChange(updateFilter(filters, "category", value))}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by category">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -135,7 +136,7 @@ function FilterBar({
           </Select>
         ) : null}
         <Select value={filters.date} onValueChange={(value) => onChange(updateFilter(filters, "date", value as FilterState["date"]))}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Filter by date">
             <SelectValue placeholder="Date" />
           </SelectTrigger>
           <SelectContent>
@@ -528,7 +529,7 @@ export function ModulePage({ config }: ModulePageProps) {
           {config.viewModes.map((mode) => (
             <TabsContent key={mode} value={mode}>
               {sortedRecords.length === 0 ? (
-                <EmptyState title="No matching records" description="Adjust the filters or add a new record." />
+                <EmptyState title="No matching records" description="Try clearing your filters to see all records." action={<Button variant="outline" onClick={() => setFilters({ ...defaultFilters })}><RotateCcw className="h-4 w-4" />Clear filters</Button>} />
               ) : mode === "kanban" ? (
                 <TaskKanban config={config} records={sortedRecords} />
               ) : mode === "shopping" ? (

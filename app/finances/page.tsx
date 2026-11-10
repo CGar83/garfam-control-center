@@ -242,10 +242,11 @@ function FinanceHub() {
   const [pending, setPending] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const requestedRecord = useSearchParams().get("record") ?? "";
+  const requestedTable = useSearchParams().get("table");
   const handledRecord = useRef("");
   useEffect(() => {
     if (
-      !requestedRecord ||
+      !requestedRecord || requestedTable ||
       privacyMode ||
       handledRecord.current === requestedRecord
     )
@@ -269,7 +270,7 @@ function FinanceHub() {
         setQuery(record.name);
       break;
     }
-  }, [data, familyId, privacyMode, requestedRecord]);
+  }, [data, familyId, privacyMode, requestedRecord, requestedTable]);
   const plan = plans.find((p) => p.id === planId) ?? plans[0];
   const summary = recoverySummary(plan, cards, subscriptions, assets, debts);
   const canEdit =
